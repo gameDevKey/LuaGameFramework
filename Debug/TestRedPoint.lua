@@ -58,10 +58,10 @@ local data = {
 RedPointManager.CreateTree(data)
 
 local Node2_1_1 = RedPointManager.GetNode("Node2_1_1")
-Node2_1_1:SetState(RedPointState.Active)
+Node2_1_1:SetState(ERedPointState.Active)
 
 PrintLog("=======================")
-Node2_1_1:SetState(RedPointState.Inactive)
+Node2_1_1:SetState(ERedPointState.Inactive)
 
 Node2_1_1 = nil
 collectgarbage()

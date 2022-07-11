@@ -1,5 +1,7 @@
-require("Debug.TestClass")
+-- require("Debug.TestClass")
 
-require("Debug.TestTime")
+-- require("Debug.TestTime")
 
-require("Debug.TestRedPoint")
+-- require("Debug.TestRedPoint")
+
+require("Debug.TestFSM")

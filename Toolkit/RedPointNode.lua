@@ -13,7 +13,7 @@ function RedPointNode:Ctor(nodeId)
     self.parent = nil
     self.tbChildren = {}
     self.id = nodeId or ("DEFAULT_"..autoKeyFunc())
-    self.state = RedPointState.Inactive
+    self.state = ERedPointState.Inactive
     self.callback = nil
 end
 
@@ -22,7 +22,7 @@ function RedPointNode:GetId()
 end
 
 ---添加状态变化回调
----@param func function 状态变化回调 function(RedPointState)
+---@param func function 状态变化回调 function(ERedPointState)
 function RedPointNode:AddOnStateChangeListener(func)
     self.callback = func
 end
@@ -41,7 +41,7 @@ function RedPointNode:SetParent(node)
 end
 
 ---设置状态
----@param state RedPointState 状态
+---@param state ERedPointState 状态
 function RedPointNode:SetState(state)
     local lastState = self.state
     self.state = state
@@ -89,12 +89,12 @@ function RedPointNode:CheckChildrenState()
     if self.tbChildren then
         local hasActive = false
         for id, node in pairs(self.tbChildren) do
-            if node.state == RedPointState.Active then
+            if node.state == ERedPointState.Active then
                 hasActive = true
                 break
             end
         end
-        self:SetState(hasActive and RedPointState.Active or RedPointState.Inactive)
+        self:SetState(hasActive and ERedPointState.Active or ERedPointState.Inactive)
     end
 end
 
