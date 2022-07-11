@@ -41,6 +41,21 @@ end
 ---@param data any|nil 任意数据结构体
 ---@return boolean transitionSuccess 是否切换成功
 function FSM:ChangeState(stateId,data)
+    return self:ChangeStateByOrder(ClsFSMOrder.New(stateId),data)
+end
+
+---切换到某个状态
+---@param order FSMOrder 状态切换指令
+---@param data any|nil 任意数据结构体
+---@return boolean transitionSuccess 是否切换成功
+function FSM:ChangeStateByOrder(order,data)
+    if not order then
+        return false
+    end
+
+    local stateId = order:GetStateId()
+    local cbEnter = order:GetEnterCallback()
+
     if not self:ContainState(stateId) then
         PrintWarning("FSM：状态未注册",stateId)
         return false
@@ -57,10 +72,10 @@ function FSM:ChangeState(stateId,data)
         if lastState ~= nil then
             lastState:OnExit()
         end
-        self.curState:OnEnter(data)
+        self.curState:OnEnter(data,cbEnter)
         return true
     else
-        self.curState:OnEnterAgain(data)
+        self.curState:OnEnterAgain(data,cbEnter)
         return false
     end
 end

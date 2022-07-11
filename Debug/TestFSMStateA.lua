@@ -1,11 +1,17 @@
 local TestFSMStateA = Class("TestFSMStateA", ClsFSMState)
 
-function TestFSMStateA:OnEnter(data)
+function TestFSMStateA:OnEnter(data,cbEnter)
     PrintLog("TestFSMStateA OnEnter",data)
+    if cbEnter then
+        cbEnter()
+    end
 end
 
-function TestFSMStateA:OnEnterAgain(data)
+function TestFSMStateA:OnEnterAgain(data,cbEnter)
     PrintLog("TestFSMStateA OnEnterAgain",data)
+    if cbEnter then
+        cbEnter()
+    end
 end
 
 function TestFSMStateA:OnExit(data)

@@ -1,9 +1,9 @@
 --[[
     FSM基类
 ]]--
+
 local FSMState = Class("FSMState")
 
----@param stateId EFSMState 状态ID枚举
 function FSMState:Ctor(stateId)
     self.stateId = stateId
 end
@@ -12,20 +12,30 @@ function FSMState:GetStateID()
     return self.stateId
 end
 
-function FSMState:OnEnter(data)
+---进入回调
+---@param data any
+---@param cbEnter function
+function FSMState:OnEnter(data,cbEnter)
 end
 
-function FSMState:OnEnterAgain(data)
+---再次进入回调
+---@param data any
+---@param cbEnter function
+function FSMState:OnEnterAgain(data,cbEnter)
 end
 
+---退出回调
+---@param data any
 function FSMState:OnExit(data)
 end
 
-function FSMState:OnTick(data)
-end
-
+---能否切换
+---@return boolean
 function FSMState:CanTransition()
     return true
+end
+
+function FSMState:OnTick(data)
 end
 
 return FSMState
