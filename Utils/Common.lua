@@ -99,14 +99,14 @@ local clsKeyGenerator = GetAutoIncreaseFunc()
 ---包含字段：_className:string 类名 | _class:Class 所属类 | _super:Class 父类 | _objectId:integer 实例ID
 ---包含方法：Ctor:function 构造函数
 ---@param className string 类名
----@param superClass table|function|nil Class 父类
+---@param superClass table|nil Class 父类
 ---@param ... Interface 接口类
 ---@return Class cls 类
 function Class(className, superClass, ...)
     local clazz = {}
     clazz._className = className
 
-    if IsFunction(superClass) or IsTable(superClass) then
+    if IsTable(superClass) then
         setmetatable(clazz,{__index = superClass})
         clazz._super = superClass
     else

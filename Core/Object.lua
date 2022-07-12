@@ -12,24 +12,42 @@ function Object:GetObjectId()
 end
 
 function Object:OnInit()
-    self.tbEventId = {}
+    self.tbEventKey = {}
+    self.tbTimerId = {}
 end
 
 function Object:OnDestory()
-    for eventId, _ in pairs(self.tbEventId or {}) do
-        self:RemoveListener(eventId)
-    end
-    self.tbEventId = nil
+    self:RemoveAllListener()
+    self:RemoveAllTimer()
 end
 
 function Object:AddListener(eventId,callback,callonce)
-    self.tbEventId[eventId] = true
-    EventManager.AddListener(eventId,self:GetObjectId(),callback,callonce)
+    local eventKey = EventManager.AddListener(eventId,callback,callonce)
+    self.tbEventKey[eventKey] = eventId
 end
 
-function Object:RemoveListener(eventId)
-    self.tbEventId[eventId] = nil
-    EventManager.RemoveListener(eventId,self:GetObjectId())
+function Object:RemoveAllListener()
+    for eventKey, eventId in pairs(self.tbEventKey or {}) do
+        EventManager.RemoveListener(eventId,eventKey)
+    end
+    self.tbEventKey = {}
+end
+
+function Object:AddTimer(callback,tickTime)
+    local timerId = TimerManager.AddTimer(callback,tickTime)
+    self.tbTimerId[timerId] = true
+end
+
+function Object:RemoveTimer(timerId)
+    TimerManager.RemoveTimer(timerId)
+    self.tbTimerId[timerId] = nil
+end
+
+function Object:RemoveAllTimer()
+    for timerId, _ in pairs(self.tbTimerId or {}) do
+        self:RemoveTimer(timerId)
+    end
+    self.tbTimerId = {}
 end
 
 return Object

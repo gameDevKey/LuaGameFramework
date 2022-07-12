@@ -3,19 +3,14 @@
 ]]--
 local EventObject = Class("EventObject")
 
-function EventObject:Ctor(eventId,listenerId,callback,callOnce)
+function EventObject:Ctor(eventId,callback,callOnce)
     self.eventId = eventId
-    self.listenerId = listenerId
     self:SetCallOnce(callOnce)
     self:SetCallback(callback)
 end
 
 function EventObject:GetEventId()
     return self.eventId
-end
-
-function EventObject:GetListenerId()
-    return self.listenerId
 end
 
 function EventObject:IsCallOnce()

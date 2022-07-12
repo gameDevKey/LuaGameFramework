@@ -3,37 +3,28 @@
 ]]--
 local EventManager = Class("EventManager")
 
-local tbAllEvent = {}
+local tbAllEvent = {}   --map[EventId][EventKey]EventObject
+local eventKeyGenerator = GetAutoIncreaseFunc()
 
 ---添加监听器
 ---@param eventId EEventType 监听类型
----@param listenerId integer 监听者ID
 ---@param callback function 回调 function(...) 接收广播数据
 ---@param callOnce boolean|nil 是否只监听一次
-function EventManager.AddListener(eventId,listenerId,callback,callOnce)
-    local eventObject = tbAllEvent[eventId] and tbAllEvent[eventId][listenerId]
-    if eventObject then
-        eventObject:SetCallback(callback)
-        eventObject:SetCallOnce(callOnce)
-    else
-        eventObject = ClsEventObject.New(eventId,listenerId,callback,callOnce)
-    end
+function EventManager.AddListener(eventId,callback,callOnce)
+    local eventKey = eventKeyGenerator()
+    local eventObj = ClsEventObject.New(eventId,callback,callOnce)
     if not tbAllEvent[eventId] then
         tbAllEvent[eventId] = {}
     end
-    tbAllEvent[eventId][listenerId] = eventObject
+    tbAllEvent[eventId][eventKey] = eventObj
+    return eventKey
 end
 
 ---移除监听器
 ---@param eventId EEventType 监听类型
----@param listenerId int|nil 监听者ID
-function EventManager.RemoveListener(eventId,listenerId)
-    if tbAllEvent[eventId] then
-        if listenerId then
-            tbAllEvent[eventId][listenerId] = nil
-        else
-            tbAllEvent[eventId] = nil
-        end
+function EventManager.RemoveListener(eventId,eventKey)
+    if tbAllEvent[eventId] and tbAllEvent[eventId][eventKey] then
+        tbAllEvent[eventId][eventKey] = nil
     end
 end
 
@@ -46,10 +37,10 @@ end
 ---@param eventId EEventType 监听类型
 ---@param ... any 任意数据
 function EventManager.Broadcast(eventId,...)
-    for listenerId,eventObject in pairs(tbAllEvent[eventId] or {}) do
+    for eventKey,eventObject in pairs(tbAllEvent[eventId] or {}) do
         eventObject:Invoke(...)
         if eventObject:IsCallOnce() then
-            EventManager.RemoveListener(eventId)
+            EventManager.RemoveListener(eventId,eventKey)
         end
     end
 end
