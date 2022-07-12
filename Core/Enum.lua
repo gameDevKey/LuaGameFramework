@@ -9,3 +9,9 @@ EFSMState = {
     StateA = GetAutoIndex(),
     StateB = GetAutoIndex(),
 }
+
+local GetAutoIndex = GetAutoIncreaseFunc()
+EEventType = {
+    EventA = GetAutoIndex(),
+    EventB = GetAutoIndex(),
+}

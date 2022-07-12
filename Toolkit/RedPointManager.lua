@@ -5,8 +5,8 @@ setmetatable(tbAllRedPoint,{__mode = "v"}) --弱引用表，collectgarbage()之�
 
 ---创建节点
 ---@param nodeId string 节点唯一ID，不能重名
----@param parentNode any
----@param callback any
+---@param parentNode RedPointNode 父节点
+---@param callback function 回调
 function RedPointManager.CreateNode(nodeId,parentNode,callback)
     local node = tbAllRedPoint[nodeId] or ClsRedPointNode.New(nodeId)
     node:SetParent(parentNode)
@@ -24,7 +24,7 @@ local function CreateSubTree(treeData, parentNode)
 end
 
 ---根据红点树数据构建红点数
----@param redPointTreeData RedPointTreeData 红点树数据 Id/Callback/Children
+---@param data RedPointTreeData 红点树数据 Id/Callback/Children
 -- RedPointTreeData = {
 --     Id = string,
 --     Callback = function,
@@ -33,10 +33,13 @@ end
 --         {Id = string, Callback = function, Children = {}},
 --     }
 -- }
-function RedPointManager.CreateTree(tree)
-    return CreateSubTree(tree)
+function RedPointManager.CreateTree(data)
+    return CreateSubTree(data)
 end
 
+---获取某个节点
+---@param nodeId string 节点ID
+---@return RedPointNode
 function RedPointManager.GetNode(nodeId)
     return tbAllRedPoint[nodeId]
 end

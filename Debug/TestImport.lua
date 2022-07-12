@@ -4,4 +4,6 @@
 
 -- require("Debug.TestRedPoint")
 
-require("Debug.TestFSM")
+-- require("Debug.TestFSM")
+
+require("Debug.TestEvent")
