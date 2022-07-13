@@ -8,4 +8,6 @@
 
 -- require("Debug.TestEvent")
 
-require("Debug.TestObjectPool")
+-- require("Debug.TestObjectPool")
+
+require("Debug.TestOrderQueue")

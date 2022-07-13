@@ -17,3 +17,5 @@ ClsTimer = require("Toolkit.Timer")
 TimerManager = require("Toolkit.TimerManager")
 
 ClsObjectPool = require("Toolkit.ObjectPool")
+
+ClsOrderQueue = require("Toolkit.OrderQueue")

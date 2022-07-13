@@ -15,3 +15,9 @@ EEventType = {
     EventA = GetAutoIndex(),
     EventB = GetAutoIndex(),
 }
+
+local GetAutoIndex = GetAutoIncreaseFunc()
+EOrderPosType = {
+    Last = GetAutoIndex(),
+    First = GetAutoIndex(),
+}
