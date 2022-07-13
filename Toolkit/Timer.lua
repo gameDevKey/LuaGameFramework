@@ -9,7 +9,7 @@ end
 
 function Timer:Tick(deltaTime)
     if not self.callback then
-        return
+        return true
     end
     self.timeCounter = self.timeCounter + deltaTime
     if self.timeCounter >= self.tickTime then

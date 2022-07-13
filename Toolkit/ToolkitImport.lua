@@ -15,3 +15,5 @@ EventManager = require("Toolkit.EventManager")
 ClsTimer = require("Toolkit.Timer")
 
 TimerManager = require("Toolkit.TimerManager")
+
+ClsObjectPool = require("Toolkit.ObjectPool")

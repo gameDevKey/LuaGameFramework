@@ -6,4 +6,6 @@
 
 -- require("Debug.TestFSM")
 
-require("Debug.TestEvent")
+-- require("Debug.TestEvent")
+
+require("Debug.TestObjectPool")

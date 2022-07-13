@@ -142,3 +142,36 @@ function Class(className, superClass, ...)
 
     return clazz
 end
+
+---同步调用异步函数
+---@param asyncFunc function 异步函数
+---@param callbackPos integer|nil 回调位置，默认在所有参数之后
+---@return function syncFunc 同步函数
+function AsyncToSync(asyncFunc,callbackPos)
+    return function (...)
+        local rets
+        local waiting = false
+        local co = coroutine.running() or error("this function must be run in coroutine")
+
+        local callback = function (...)
+            if waiting then
+                assert(coroutine.resume(co, ...))
+            else
+                rets = {...}
+            end
+        end
+
+        local args = {...}
+        table.insert(args, callbackPos or (#args + 1), callback)
+
+        asyncFunc(table.unpack(args))
+
+        -- rets 为空，代表函数调用没有立即返回结果，此时挂起协程
+        if rets == nil then
+            waiting = true
+            rets = {coroutine.yield()}
+        end
+
+        return table.unpack(rets)
+    end
+end

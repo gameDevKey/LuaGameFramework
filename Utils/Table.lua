@@ -13,3 +13,12 @@ end
 function table.IsValid(tb)
     return table.Count(tb) > 0
 end
+
+function table.Contain(tb,obj)
+    for _, item in pairs(tb or {}) do
+        if item == obj then
+            return true
+        end
+    end
+    return false
+end
