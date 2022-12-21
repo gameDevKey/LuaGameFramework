@@ -25,7 +25,8 @@ function GridLoopScrollView:IsHorizontalDir()
     return self.constraint == ConstraintType.FixedRowCount
 end
 
-function GridLoopScrollView:ScrollToItem(index, duration, ease, cbFinish)
+function GridLoopScrollView:ScrollToItem(index, cbFinish, duration, ease, jumpType)
+    jumpType = jumpType or LoopScrollViewDefine.JumpType.Top
     local pos = {}
     local isHorizontal = self:IsHorizontalDir()
     pos.x = self.content.localPosition.x
@@ -36,15 +37,26 @@ function GridLoopScrollView:ScrollToItem(index, duration, ease, cbFinish)
         x = math.ceil( index / self.curRowCount ) - 1
         x = x > 0 and x or 0
         pos.x = x * self.cellW + self.setting.paddingLeft
+        if jumpType == LoopScrollViewDefine.JumpType.Center then
+            pos.x = pos.x - self.viewport.rect.width / 2 + self.cellW / 2
+        elseif jumpType == LoopScrollViewDefine.JumpType.Bottom then
+            pos.x = pos.x - self.viewport.rect.width + self.cellW
+        end
+        pos.x = -pos.x
     else
         y = math.ceil( index / self.curColCount ) - 1
         y = y > 0 and y or 0
         pos.y = y * self.cellH + self.setting.paddingTop
+        if jumpType == LoopScrollViewDefine.JumpType.Center then
+            pos.y = pos.y - self.viewport.rect.height / 2 + self.cellH / 2
+        elseif jumpType == LoopScrollViewDefine.JumpType.Bottom then
+            pos.y = pos.y - self.viewport.rect.height + self.cellH
+        end
     end
-    self:ScrollToPosition(pos, duration, ease, cbFinish)
+    self:ScrollToPosition(pos, cbFinish, duration, ease)
 end
 
-function GridLoopScrollView:ScrollToPosition(pos, duration, ease, cbFinish)
+function GridLoopScrollView:ScrollToPosition(pos, cbFinish, duration, ease)
     local x = pos.x
     local y = pos.y
     --content横向从右到左移动时，x会逐渐减少
@@ -53,7 +65,7 @@ function GridLoopScrollView:ScrollToPosition(pos, duration, ease, cbFinish)
     --content纵向从下往上移动时，y会逐渐增大
     local maxY = self.content.rect.height - self.viewport.rect.height
     y = MathUtils.Clamp(y,0,maxY)
-    self:MoveTo(Vector3(x,y,0), duration, ease, cbFinish)
+    self:MoveTo(Vector3(x,y,0), cbFinish, duration, ease)
 end
 
 function GridLoopScrollView:GetFlexibleContentSize()
@@ -102,25 +114,36 @@ function GridLoopScrollView:UpdateContentSize()
     self:SetContentSize(contentW,contentH)
 end
 
-function GridLoopScrollView:UpdateList()
-    local contentX = -self.content.localPosition.x
-    local contentY = self.content.localPosition.y
-    if contentX < 0 then contentX = 0 end
-    if contentY < 0 then contentY = 0 end
-
-    --计算处于可视范围内的网格
+--纵向排列方式
+--1 4 7
+--2 5 8
+--3 6 9
+function GridLoopScrollView:GetGridPosByCol(startGridX,startGridY,endGridX,endGridY,dataLen)
     local grids = {}
-    local dataLen = #self.tbItemData
-    local viewW = self.viewport.rect.width
-    local viewH = self.viewport.rect.height
-    local startGridX = math.floor(contentX / self.cellW)
-    local startGridY = math.floor(contentY / self.cellH)
-    local endGridX = math.ceil((contentX + viewW) / self.cellW)
-    local endGridY = math.ceil((contentY + viewH) / self.cellH)
-    startGridX = MathUtils.Clamp(startGridX, 1, self.curColCount)
-    startGridY = MathUtils.Clamp(startGridY, 1, self.curRowCount)
-    endGridX = MathUtils.Clamp(endGridX, 1, self.curColCount)
-    endGridY = MathUtils.Clamp(endGridY, 1, self.curRowCount)
+    for i = startGridY, endGridY do
+        for j = startGridX, endGridX do
+            local gridIndex = (j-1) * self.curRowCount + i
+            if gridIndex >= 1 and gridIndex <= dataLen then
+                table.insert(grids,{
+                    x = j-1,
+                    y = i-1,
+                    index = gridIndex
+                })
+            end
+            if gridIndex > dataLen then
+                break
+            end
+        end
+    end
+    return grids
+end
+
+--横向排列方式
+--1 2 3
+--4 5 6
+--7 8 9
+function GridLoopScrollView:GetGridPosByRow(startGridX,startGridY,endGridX,endGridY,dataLen)
+    local grids = {}
     for i = startGridY, endGridY do
         for j = startGridX, endGridX do
             local gridIndex = (i-1) * self.curColCount + j
@@ -135,6 +158,35 @@ function GridLoopScrollView:UpdateList()
                 break
             end
         end
+    end
+    return grids
+end
+
+function GridLoopScrollView:UpdateList()
+    local contentX = -self.content.localPosition.x - self.setting.overflowUp
+    local contentY = self.content.localPosition.y - self.setting.overflowUp
+    if contentX < 0 then contentX = 0 end
+    if contentY < 0 then contentY = 0 end
+
+    --计算处于可视范围内的网格
+    local dataLen = #self.tbItemData
+    local viewW = self.viewport.rect.width + self.setting.overflowDown
+    local viewH = self.viewport.rect.height + self.setting.overflowDown
+    local startGridX = math.floor(contentX / self.cellW)
+    local startGridY = math.floor(contentY / self.cellH)
+    local endGridX = math.ceil((contentX + viewW) / self.cellW)
+    local endGridY = math.ceil((contentY + viewH) / self.cellH)
+
+    startGridX = MathUtils.Clamp(startGridX, 1, self.curColCount)
+    startGridY = MathUtils.Clamp(startGridY, 1, self.curRowCount)
+    endGridX = MathUtils.Clamp(endGridX, 1, self.curColCount)
+    endGridY = MathUtils.Clamp(endGridY, 1, self.curRowCount)
+
+    local grids
+    if self:IsHorizontalDir() then --横向滚动时用纵向排列，纵向滚动时用横向排列
+        grids = self:GetGridPosByCol(startGridX,startGridY,endGridX,endGridY,dataLen)
+    else
+        grids = self:GetGridPosByRow(startGridX,startGridY,endGridX,endGridY,dataLen)
     end
 
     --先把不显示的回收，再生成
@@ -160,15 +212,5 @@ function GridLoopScrollView:UpdateList()
         self:TryRecycleItem(insData)
     end
 
-    for renderData, data in pairs(tempDatas) do
-        local rect
-        local insData = self.tbShowingItem[renderData]
-        if insData and insData.index == data.index then
-            rect = insData.rectTransform
-        else
-            local item = self:TryRenderItem(data.index, renderData)
-            rect = item.rectTransform
-        end
-        UnityUtils.SetAnchoredPosition(rect, data.pos.x, data.pos.y)
-    end
+    self:FixItemsStyleByShowingData(self.tbShowingItem, tempDatas)
 end

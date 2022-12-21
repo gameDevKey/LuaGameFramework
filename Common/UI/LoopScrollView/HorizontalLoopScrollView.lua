@@ -8,22 +8,30 @@ function HorizontalLoopScrollView:IsHorizontalDir()
     return true
 end
 
-function HorizontalLoopScrollView:ScrollToItem(index, duration, ease, cbFinish)
-    index = MathUtils.Clamp(index, 1, #self.tbItemData)
+function HorizontalLoopScrollView:ScrollToItem(index, cbFinish, duration, ease, jumpType)
+    jumpType = jumpType or LoopScrollViewDefine.JumpType.Top
     index = index - 1
+    index = MathUtils.Clamp(index, 0, #self.tbItemData)
     local x = self.setting.paddingLeft
     for i = 1, index do
         x = x + self.tbItemData[i].size.w + self.setting.gapX
     end
-    self:ScrollToPosition(Vector2(-x,self.content.localPosition.y), duration, ease, cbFinish)
+    if index > 0 then
+        if jumpType == LoopScrollViewDefine.JumpType.Center then
+            x = x - self.viewport.rect.width / 2 + self.tbItemData[index].size.w / 2
+        elseif jumpType == LoopScrollViewDefine.JumpType.Bottom then
+            x = x - self.viewport.rect.width + self.tbItemData[index].size.w + self.setting.gapX
+        end
+    end
+    self:ScrollToPosition(Vector2(-x,self.content.localPosition.y), cbFinish, duration, ease)
 end
 
-function HorizontalLoopScrollView:ScrollToPosition(pos, duration, ease, cbFinish)
+function HorizontalLoopScrollView:ScrollToPosition(pos, cbFinish, duration, ease)
     local x = pos.x
     local y = pos.y
     local maxW = self.viewport.rect.width - self.content.rect.width
     x = MathUtils.Clamp(x, maxW, 0)
-    self:MoveTo(Vector3(x,y,0), duration, ease, cbFinish)
+    self:MoveTo(Vector3(x,y,0), cbFinish, duration, ease)
 end
 
 function HorizontalLoopScrollView:UpdateContentSize()
@@ -43,7 +51,7 @@ end
 function HorizontalLoopScrollView:UpdateList()
     --content左滑x值减少
     --Item越往右x越大
-    local startPos = -self.content.localPosition.x --content的左界
+    local startPos = -self.content.localPosition.x - self.setting.overflowUp--content的左界
 
     if startPos < 0 then startPos = 0 end
 
@@ -62,8 +70,8 @@ function HorizontalLoopScrollView:UpdateList()
     end
 
     local itemX = targetX
-    local itemY = 0 --self.content.localPosition.y
-    local limitWidth = self.viewport.rect.width
+    local itemY = self.setting.paddingTop --self.content.localPosition.y
+    local limitWidth = self.viewport.rect.width + self.setting.overflowDown
 
     --先把不显示的回收，再生成
     local tempShowItems = self.tbShowingItem
@@ -94,15 +102,5 @@ function HorizontalLoopScrollView:UpdateList()
         self:TryRecycleItem(insData)
     end
 
-    for renderData, data in pairs(tempDatas) do
-        local rect
-        local insData = self.tbShowingItem[renderData]
-        if insData and insData.index == data.index then
-            rect = insData.rectTransform
-        else
-            local item = self:TryRenderItem(data.index, renderData)
-            rect = item.rectTransform
-        end
-        UnityUtils.SetAnchoredPosition(rect, data.pos.x, data.pos.y)
-    end
+    self:FixItemsStyleByShowingData(self.tbShowingItem, tempDatas)
 end

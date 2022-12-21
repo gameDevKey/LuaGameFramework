@@ -8,22 +8,37 @@ function VerticalLoopScrollView:IsHorizontalDir()
     return false
 end
 
-function VerticalLoopScrollView:ScrollToItem(index, duration, ease, cbFinish)
-    index = MathUtils.Clamp(index, 1, #self.tbItemData)
+function VerticalLoopScrollView:ScrollToItem(index, cbFinish, duration, ease, jumpType)
+    jumpType = jumpType or LoopScrollViewDefine.JumpType.Top
     index = index - 1
+    index = MathUtils.Clamp(index, 0, #self.tbItemData)
     local y = self.setting.paddingTop
     for i = 1, index do
         y = y + self.tbItemData[i].size.h + self.setting.gapY
     end
-    self:ScrollToPosition(Vector2(self.content.localPosition.x, y), duration, ease, cbFinish)
+    if index > 0 then
+        if jumpType == LoopScrollViewDefine.JumpType.Center then
+            y = y - self.viewport.rect.height / 2 + self.tbItemData[index].size.h / 2
+        elseif jumpType == LoopScrollViewDefine.JumpType.Bottom then
+            y = y - self.viewport.rect.height + self.tbItemData[index].size.h + self.setting.gapY
+        end
+    end
+    self:ScrollToPosition(Vector2(self.content.localPosition.x, y), cbFinish, duration, ease)
 end
 
-function VerticalLoopScrollView:ScrollToPosition(pos, duration, ease, cbFinish)
+function VerticalLoopScrollView:ScrollToPosition(pos, cbFinish, duration, ease)
     local x = pos.x
     local y = pos.y
     local maxH = self.content.rect.height - self.viewport.rect.height
     y = MathUtils.Clamp(y, 0, maxH)
-    self:MoveTo(Vector3(x,y,0), duration, ease, cbFinish)
+    self:MoveTo(Vector3(x,y,0), cbFinish, duration, ease)
+end
+
+function VerticalLoopScrollView:ScrollToPositionY(y, cbFinish, duration, ease)
+    local pos = {}
+    pos.x = self.content.localPosition.x
+    pos.y = y
+    self:ScrollToPosition(pos, cbFinish, duration, ease)
 end
 
 function VerticalLoopScrollView:UpdateContentSize()
@@ -43,7 +58,7 @@ end
 function VerticalLoopScrollView:UpdateList()
     --content上滑y值增大
     --Item越往下y越小
-    local startPos = self.content.localPosition.y --content的上界
+    local startPos = self.content.localPosition.y - self.setting.overflowUp --content的上界
 
     if startPos < 0 then startPos = 0 end
 
@@ -61,9 +76,9 @@ function VerticalLoopScrollView:UpdateList()
         targetY = y + self.setting.gapY
     end
 
-    local itemX = 0 --self.content.localPosition.x
+    local itemX = self.setting.paddingLeft --self.content.localPosition.x
     local itemY = -targetY
-    local limitHeight = self.viewport.rect.height
+    local limitHeight = self.viewport.rect.height + self.setting.overflowDown
 
     --先把不显示的回收，再生成
     local tempShowItems = self.tbShowingItem
@@ -94,15 +109,5 @@ function VerticalLoopScrollView:UpdateList()
         self:TryRecycleItem(insData)
     end
 
-    for renderData, data in pairs(tempDatas) do
-        local rect
-        local insData = self.tbShowingItem[renderData]
-        if insData and insData.index == data.index then
-            rect = insData.rectTransform
-        else
-            local item = self:TryRenderItem(data.index, renderData)
-            rect = item.rectTransform
-        end
-        UnityUtils.SetAnchoredPosition(rect, data.pos.x, data.pos.y)
-    end
+    self:FixItemsStyleByShowingData(self.tbShowingItem, tempDatas)
 end

@@ -9,58 +9,24 @@
 ]]--
 LoopScrollViewBase = BaseClass("LoopScrollViewBase")
 
-local HorizontalAlignConfig = {
-    [LoopScrollViewDefine.AlignType.Top] = {
-        anchors = {minX = 0,minY = 0,maxX = 0,maxY = 1},
-        pivot = {x = 0, y = 1},
-    },
-    [LoopScrollViewDefine.AlignType.Center] = {
-        anchors = {minX = 0,minY = 0,maxX = 0,maxY = 1},
-        pivot = {x = 0, y = 0.5},
-    },
-    [LoopScrollViewDefine.AlignType.Bottom] = {
-        anchors = {minX = 0,minY = 0,maxX = 0,maxY = 1},
-        pivot = {x = 0, y = 0},
-    }
-}
-
-local VerticalAlignConfig = {
-    [LoopScrollViewDefine.AlignType.Top] = {
-        anchors = {minX = 0,minY = 1,maxX = 1,maxY = 1},
-        pivot = {x = 0, y = 1},
-    },
-    [LoopScrollViewDefine.AlignType.Center] = {
-        anchors = {minX = 0,minY = 1,maxX = 1,maxY = 1},
-        pivot = {x = 0.5, y = 1},
-    },
-    [LoopScrollViewDefine.AlignType.Bottom] = {
-        anchors = {minX = 0,minY = 1,maxX = 1,maxY = 1},
-        pivot = {x = 1, y = 1},
-    }
-}
-
 function LoopScrollViewBase:__Init(scrollRect, setting)
     self.tbItemData = {}    --List<{data:any, size:{w,h}}>  存储渲染数据
     self.tbShowingItem = {} --Dict<{data:any, size:{w,h}}, {data,index,obj,width,height}> 映射渲染数据和实体
     self.showingPool = {}   --List<{item:BaseView, holderRect:RectTransform}> BaseView的使用池
     self.recyclePool = {}   --List<{item:BaseView, holderRect:RectTransform}> BaseView的回收池
+    self.moveTween = nil
     self.type = LoopScrollViewDefine.Type.Unknown
     self:Init(scrollRect, setting)
 end
 
 function LoopScrollViewBase:__Delete()
-    for _, data in ipairs(self.showingPool or {}) do
-        data.item:Destroy()
-        local holder = data.holderRect.gameObject
-        if not BaseUtils.IsNull(holder) then
-            GameObject.Destroy(holder)
-        end
-    end
-    for _, data in ipairs(self.recyclePool or {}) do
-        data.item:Destroy()
-        local holder = data.holderRect.gameObject
-        if not BaseUtils.IsNull(holder) then
-            GameObject.Destroy(holder)
+    for _, pool in pairs({self.showingPool,self.recyclePool}) do
+        for _, data in ipairs(pool) do
+            data.item:PushPool()
+            local holder = data.holderRect.gameObject
+            if not BaseUtils.IsNull(holder) then
+                GameObject.Destroy(holder)
+            end
         end
     end
     self.tbItemData = nil
@@ -82,24 +48,33 @@ local function GetSetting(setting)
     setting.itemWidth = setting.itemWidth or 0
     setting.itemHeight = setting.itemHeight or 0
     setting.alignType = setting.alignType or LoopScrollViewDefine.AlignType.Top
+    setting.overflowUp = setting.overflowUp or 0
+    setting.overflowDown = setting.overflowDown or 0
     return setting
 end
 
 ---初始化
 ---Setting:
----     paddingLeft   左边距
----     paddingRight  右边距
----     paddingTop    上边距
----     paddingBottom 下边距
----     gapX          水平间隔
----     gapY          垂直间隔
----     itemWidth     Item的默认宽度
----     itemHeight    Item的默认高度
----     alignType     对齐模式(LoopScrollViewDefine.AlignType)
----     maxColNum     最大列数(GridLoopScrollView中生效)
----     maxRowNum     最大行数(GridLoopScrollView中生效)
----     onCreate      Item的创建回调,Item继承BaseView
----     onRender      Item的业务处理回调
+---     paddingLeft             左边距
+---     paddingRight            右边距
+---     paddingTop              上边距
+---     paddingBottom           下边距
+---     gapX                    水平间隔
+---     gapY                    垂直间隔
+---     itemWidth               Item的默认宽度
+---     itemHeight              Item的默认高度
+---     overflowUp              上界溢出多少(会影响视野范围内首个出现的Item的位置)
+---     overflowDown            下界溢出多少(会影响视野范围内最后出现的Item的位置)
+---     alignType               对齐模式(LoopScrollViewDefine.AlignType)
+---     maxColNum               最大列数(GridLoopScrollView中生效)
+---     maxRowNum               最大行数(GridLoopScrollView中生效)
+---     onCreate                Item的创建回调(Item继承BaseView)
+---     onRender                Item的业务处理回调(Item继承BaseView)
+---     onRecycle               Item的回收回调(Item继承BaseView)
+---     onComplete              渲染完成回调(只有在第一次渲染列表完成时会调用)
+---     onRenderNew             有新的Item被重新渲染时触发
+---     revertSibling           倒序排列在Hierarchy
+---     ignoreOriginChild       是否无视在Content下原有的子物体
 ---@param scrollRect ScrollRect 滚动组件
 ---@param setting table 配置
 function LoopScrollViewBase:Init(scrollRect, setting)
@@ -117,8 +92,20 @@ function LoopScrollViewBase:Init(scrollRect, setting)
     if self.setting.onRender then
         self:AddOnItemRenderCallback(self.setting.onRender)
     end
+    if self.setting.onRecycle then
+        self:AddOnItemRecycleCallback(self.setting.onRecycle)
+    end
+    if self.setting.onComplete then
+        self:AddOnListUpdateFinishCallback(self.setting.onComplete)
+    end
+    if self.setting.onRenderNew then
+        self:AddOnNewItemRender(self.setting.onRenderNew)
+    end
 
     self.lastScrollVec = self.content.localPosition
+    self.originChildCount = self.content.childCount
+    self.enableHorizontal = self.scrollRect.horizontal
+    self.enableVertical = self.scrollRect.vertical
 end
 
 ---启动
@@ -144,6 +131,24 @@ function LoopScrollViewBase:AddOnItemRenderCallback(callback)
     self.cbOnRenderItem = callback
 end
 
+---回收回调
+---@param callback function func(item)
+function LoopScrollViewBase:AddOnItemRecycleCallback(callback)
+    self.cbOnRecycleItem = callback
+end
+
+---数据更新完成回调(只有在第一次渲染列表完成时会调用)
+---@param callback function func()
+function LoopScrollViewBase:AddOnListUpdateFinishCallback(callback)
+    self.cbOnUpdateListFinish = callback
+end
+
+---有新的Item被重新渲染时触发
+---@param callback function func()
+function LoopScrollViewBase:AddOnNewItemRender(callback)
+    self.cbOnNewItemRender = callback
+end
+
 function LoopScrollViewBase:CreateItemRoot()
     local item = GameObject("ItemHolder")
     local rect = item:AddComponent(RectTransform)
@@ -164,10 +169,13 @@ function LoopScrollViewBase:CreateItem(index, data)
     elseif self.cbOnCreateItem then
         holderRect = self:CreateItemRoot()
         item = self.cbOnCreateItem(index, data)
-        local scale = item.gameObject.transform.localScale
-        item.rectTransform:SetParent(holderRect)
-        item.gameObject.transform.localScale = scale
-        UnityUtils.SetAnchoredPosition(item.gameObject.transform,0,0)
+        assert(item ~= nil, "通过回调创建实例失败")
+        local trans = item.gameObject and item.gameObject.transform
+        assert(trans ~= nil, "实例没有Transform属性")
+        local scale = trans.localScale
+        trans:SetParent(holderRect)
+        trans.localScale = scale
+        UnityUtils.SetAnchoredPosition(trans,0,0)
     end
     if not item then
         LogError("获取Item失败! Index:",index,
@@ -188,18 +196,31 @@ function LoopScrollViewBase:OnRenderItem(item, index, data)
     end
 end
 
+function LoopScrollViewBase:OnRecycleItem(item)
+    if self.cbOnRecycleItem then
+        self.cbOnRecycleItem(item)
+    end
+end
+
 function LoopScrollViewBase:OnScroll(vec)
     local cur = self.content.localPosition
     local dis = Vector3.Distance(cur, self.lastScrollVec)
     if dis > 5 then --降低灵敏度
         self.lastScrollVec = cur
-        self:UpdateList()
+        self:__UpdateList()
     end
 end
 
 function LoopScrollViewBase:OnDataChange()
     self:UpdateContentSize()
-    self:UpdateList()
+    self:__UpdateList()
+end
+
+function LoopScrollViewBase:OnUpdateListFinish()
+    if self.cbOnUpdateListFinish then
+        self.cbOnUpdateListFinish()
+        self.cbOnUpdateListFinish = nil -- 只有在第一次渲染列表完成时会调用
+    end
 end
 
 function LoopScrollViewBase:TryRenderItem(index, renderData)
@@ -236,27 +257,33 @@ function LoopScrollViewBase:TryRecycleItem(insData)
     end
     rect.gameObject:SetActive(false)
     table.insert(self.recyclePool, {item = _item, holderRect = rect})
+    self:OnRecycleItem(_item)
     -- print("LoopScrollViewBase 回收对象",index,self,"激活池",#self.showingPool,"回收池",#self.recyclePool)
     return true
 end
 
-function LoopScrollViewBase:ScrollToBottom(cbFinish)
-    local len = #self.tbItemData
-    if len <= 0 then
-        return
+function LoopScrollViewBase:ScrollToBottom(cbFinish, duration, ease, jumpType)
+    local index = 1
+    if self.tbItemData then
+        index = #self.tbItemData
     end
-    self:ScrollToItem(len - 1, cbFinish)
+    self:ScrollToItem(index, cbFinish, duration, ease, jumpType)
 end
 
-function LoopScrollViewBase:MoveTo(vec3, duration, ease, cbFinish)
-    local tween = self.content:DOLocalMove(vec3,duration)
-    if ease then
-        tween = tween:SetEase(ease)
-    end
-    if cbFinish then
-        tween = tween:OnComplete(cbFinish)
-    end
-    return tween
+function LoopScrollViewBase:MoveTo(vec3, cbFinish, duration, ease)
+    self:__OnMoveComplete()
+    duration = duration or 1
+    self.moveTween = self.content:DOLocalMove(vec3,duration)
+    if ease then self.moveTween:SetEase(ease) end
+    local originInertia = self.scrollRect.inertia
+    self.scrollRect.inertia = false
+    self.moveTween:OnComplete(function ()
+        self.scrollRect.inertia = originInertia
+        self:__OnMoveComplete()
+        self:__UpdateList() --防止移动后没有触发OnScroll导致数据没有应用到表现层
+        if cbFinish then cbFinish() end
+    end)
+    return self.moveTween
 end
 
 function LoopScrollViewBase:SetContentSize(w,h)
@@ -265,12 +292,92 @@ function LoopScrollViewBase:SetContentSize(w,h)
 end
 
 function LoopScrollViewBase:AdjuestContentAnchorAndPivot()
-    local config = self:IsHorizontalDir() and HorizontalAlignConfig or VerticalAlignConfig
+    local config = self:IsHorizontalDir() and LoopScrollViewDefine.HorizontalAlignConfig or LoopScrollViewDefine.VerticalAlignConfig
     local detail = config[self.setting.alignType]
     UnityUtils.SetAnchorMinAndMax(self.content,
         detail.anchors.minX,detail.anchors.minY,
         detail.anchors.maxX,detail.anchors.maxY)
     UnityUtils.SetPivot(self.content,detail.pivot.x, detail.pivot.y)
+end
+
+function LoopScrollViewBase:FixItemsStyleByShowingData(currentShowItems, nextShowItems)
+    local items = {}
+    local isRenderNew = false
+    for renderData, data in pairs(nextShowItems) do
+        local rect
+        local obj
+        local insData = currentShowItems[renderData]
+        if insData and insData.index == data.index then
+            rect = insData.rectTransform
+            obj = insData.obj
+        else
+            local item = self:TryRenderItem(data.index, renderData)
+            rect = item.rectTransform
+            obj = item.obj
+            isRenderNew = true
+        end
+        UnityUtils.SetAnchoredPosition(rect, data.pos.x, data.pos.y)
+        rect:SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, renderData.size.w)
+        rect:SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, renderData.size.h)
+        obj.transform:SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, renderData.size.w)
+        obj.transform:SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, renderData.size.h)
+        table.insert(items, {rect=rect,index=data.index})
+    end
+    table.sort(items,function (a,b)
+        if self.setting.revertSibling then
+            return a.index > b.index
+        end
+        return a.index < b.index
+    end)
+    local startIndex = self.setting.ignoreOriginChild and 0 or self.originChildCount
+    for i, item in ipairs(items) do
+        item.rect:SetSiblingIndex(startIndex + i)
+    end
+    if isRenderNew then
+        if self.cbOnNewItemRender then
+            self.cbOnNewItemRender()
+        end
+    end
+end
+
+function LoopScrollViewBase:RangeRenderItem(callback, reverse)
+    local list = {}
+    for renderData, itemData in pairs(self.tbShowingItem or {}) do
+        table.insert(list, itemData)
+    end
+    table.sort(list, function (a, b)
+        if reverse then
+            return a.index > b.index
+        end
+        return a.index < b.index
+    end)
+    for _, data in ipairs(list) do
+        if callback(data) == true then
+            break
+        end
+    end
+end
+
+function LoopScrollViewBase:GetRenderItemByDataIndex(index)
+    for renderData, itemData in pairs(self.tbShowingItem or {}) do
+        if itemData.index == index then
+            return itemData
+        end
+    end
+end
+
+function LoopScrollViewBase:GetShowingItemAmount()
+    return TableUtils.GetTableLength(self.tbShowingItem)
+end
+
+function LoopScrollViewBase:EnableScroll(enable)
+    if enable then
+        self.scrollRect.horizontal = self.enableHorizontal
+        self.scrollRect.vertical = self.enableVertical
+    else
+        self.scrollRect.horizontal = false
+        self.scrollRect.vertical = false
+    end
 end
 
 --#region 数据相关
@@ -336,6 +443,20 @@ function LoopScrollViewBase:RemoveDataAt(index,notifyChange)
     end
 end
 
+---移除数据
+---@param func function func(data,index) 判定函数
+function LoopScrollViewBase:RemoveDataByFunc(func,notifyChange)
+    for i = #self.tbItemData, 1, -1 do
+        local data = self.tbItemData[i]
+        if func(data, i) then
+            table.remove(self.tbItemData, i)
+        end
+    end
+    if notifyChange then
+        self:OnDataChange()
+    end
+end
+
 ---清除所有数据
 function LoopScrollViewBase:ClearAllData(notifyChange)
     self.tbItemData = {}
@@ -344,15 +465,36 @@ function LoopScrollViewBase:ClearAllData(notifyChange)
     end
 end
 
+function LoopScrollViewBase:GetAllData()
+    return self.tbItemData
+end
+
 --#endregion
 
 
 --#region 虚方法
 
-function LoopScrollViewBase:ScrollToItem(index, duration, ease, cbFinish) end
-function LoopScrollViewBase:ScrollToPosition(pos, duration, ease, cbFinish) end
+function LoopScrollViewBase:ScrollToItem(index, cbFinish, duration, ease, jumpType) end
+function LoopScrollViewBase:ScrollToPosition(pos, cbFinish, duration, ease) end
 function LoopScrollViewBase:UpdateContentSize() end
 function LoopScrollViewBase:UpdateList() end
 function LoopScrollViewBase:IsHorizontalDir() return false end
+
+--#endregion
+
+
+--#region 私有方法，不可重载
+
+function LoopScrollViewBase:__UpdateList()
+    self:UpdateList()
+    self:OnUpdateListFinish()
+end
+
+function LoopScrollViewBase:__OnMoveComplete()
+    if self.moveTween then
+        self.moveTween:Kill()
+        self.moveTween = nil
+    end
+end
 
 --#endregion
