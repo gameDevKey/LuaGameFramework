@@ -1,14 +1,14 @@
 local RedPointManager = Class("RedPointManager")
 
 local tbAllRedPoint = {}
-setmetatable(tbAllRedPoint,{__mode = "v"}) --弱引用表，collectgarbage()之后会自动清除无效引用
+setmetatable(tbAllRedPoint, { __mode = "v" }) --弱引用表，collectgarbage()之后会自动清除无效引用
 
 ---创建节点
 ---@param nodeId string 节点唯一ID，不能重名
 ---@param parentNode RedPointNode 父节点
 ---@param callback function 回调
-function RedPointManager.CreateNode(nodeId,parentNode,callback)
-    local node = tbAllRedPoint[nodeId] or ClsRedPointNode.New(nodeId)
+function RedPointManager.CreateNode(nodeId, parentNode, callback)
+    local node = tbAllRedPoint[nodeId] or RedPointNode.New(nodeId)
     node:SetParent(parentNode)
     node:AddOnStateChangeListener(callback)
     tbAllRedPoint[nodeId] = node
@@ -16,7 +16,7 @@ function RedPointManager.CreateNode(nodeId,parentNode,callback)
 end
 
 local function CreateSubTree(treeData, parentNode)
-    local node = RedPointManager.CreateNode(treeData.Id,parentNode,treeData.Callback)
+    local node = RedPointManager.CreateNode(treeData.Id, parentNode, treeData.Callback)
     for _, childData in pairs(treeData.Children or {}) do
         CreateSubTree(childData, node)
     end

@@ -1,6 +1,6 @@
 local Timer = Class("Timer")
 
-function Timer:Ctor(timerId,callback,tickTime)
+function Timer:OnInit(timerId, callback, tickTime)
     self.timerId = timerId
     self.callback = callback
     self.tickTime = tickTime

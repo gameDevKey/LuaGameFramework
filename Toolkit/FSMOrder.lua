@@ -1,9 +1,10 @@
 --[[
     对FSM状态切换指令的封装
-]]--
+]]
+   --
 local FSMOrder = Class("FSMOrder")
 
-function FSMOrder:Ctor(stateId,cbEnter)
+function FSMOrder:OnInit(stateId, cbEnter)
     self.stateId = stateId
     self.cbEnter = cbEnter
 end

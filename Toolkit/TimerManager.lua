@@ -3,9 +3,9 @@ local TimerManager = Class("TimerManager")
 local tbAllTimer = {}
 local timerKeyGenerator = GetAutoIncreaseFunc()
 
-function TimerManager.AddTimer(callback,tickTime)
+function TimerManager.AddTimer(callback, tickTime)
     local timerId = timerKeyGenerator()
-    tbAllTimer[timerId] = ClsTimer.New(timerId,callback,tickTime)
+    tbAllTimer[timerId] = Timer.New(timerId, callback, tickTime)
     return timerId
 end
 

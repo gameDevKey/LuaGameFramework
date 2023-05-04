@@ -4,15 +4,16 @@
         1.SetParent
         2.SetState
         3.AddOnStateChangeListener
-]]--
+]]
+   --
 local RedPointNode = Class("RedPointNode")
 
 local autoKeyFunc = GetAutoIncreaseFunc()
 
-function RedPointNode:Ctor(nodeId)
+function RedPointNode:OnInit(nodeId)
     self.parent = nil
     self.tbChildren = {}
-    self.id = nodeId or ("DEFAULT_"..autoKeyFunc())
+    self.id = nodeId or ("DEFAULT_" .. autoKeyFunc())
     self.state = ERedPointState.Inactive
     self.callback = nil
 end
@@ -57,7 +58,7 @@ function RedPointNode:AddChild(node)
         return
     end
     if self.tbChildren[node:GetId()] then
-        PrintWarning("节点[",self:GetId(),"]已经包含ID为[",node:GetId(),"]的子节点")
+        PrintWarning("节点[", self:GetId(), "]已经包含ID为[", node:GetId(), "]的子节点")
         return
     end
     self.tbChildren[node:GetId()] = node
@@ -77,7 +78,7 @@ end
 ---状态变化，往上通知
 function RedPointNode:OnStateChange()
     if self.callback then
-        self.callback(self:GetId(),self.state)
+        self.callback(self:GetId(), self.state)
     end
     if self.parent then
         self.parent:CheckChildrenState()

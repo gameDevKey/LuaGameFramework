@@ -1,9 +1,10 @@
 --[[
     对事件对象的封装
-]]--
+]]
+   --
 local EventObject = Class("EventObject")
 
-function EventObject:Ctor(eventId,callback,callOnce)
+function EventObject:OnInit(eventId, callback, callOnce)
     self.eventId = eventId
     self:SetCallOnce(callOnce)
     self:SetCallback(callback)

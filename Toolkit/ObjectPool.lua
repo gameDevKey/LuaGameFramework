@@ -1,6 +1,6 @@
 local ObjectPool = Class("ObjectPool")
 
-function ObjectPool:Ctor(cbGet)
+function ObjectPool:OnInit(cbGet)
     self.activePool = {}
     self.recyclePool = {}
     self.cbGet = cbGet
@@ -19,7 +19,7 @@ function ObjectPool:Get(isAsync)
         end
     end
     if obj ~= nil then
-        table.insert(self.activePool,obj)
+        table.insert(self.activePool, obj)
     end
     return obj
 end
@@ -33,13 +33,13 @@ function ObjectPool:AsyncGet()
 end
 
 function ObjectPool:Recycle(obj)
-    if not table.Contain(self.activePool,obj) then
+    if not table.Contain(self.activePool, obj) then
         return false
     end
-    if table.Contain(self.recyclePool,obj) then
+    if table.Contain(self.recyclePool, obj) then
         return false
     end
-    table.insert(self.recyclePool,obj)
+    table.insert(self.recyclePool, obj)
     return true
 end
 

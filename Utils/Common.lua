@@ -19,34 +19,46 @@ function IsFunction(input)
 end
 
 local function GetCurrentTimeString()
-    return os.date("%H:%M:%S",os.time())
+    return os.date("%H:%M:%S", os.time())
+end
+
+function PrintAny(...)
+    if not PRINT_SWITCH then
+        return
+    end
+    local time = nil
+    if PRINT_LOG_WITH_TIME then
+        time = GetCurrentTimeString()
+    end
+    local tb = {}
+    for _, obj in ipairs({ ... }) do
+        if IsTable(obj) then
+            table.insert(tb, table.ToString(obj))
+        else
+            table.insert(tb, tostring(obj))
+        end
+    end
+    local str = table.concat(tb, ' ')
+    if time then
+        print(time, str)
+    else
+        print(str)
+    end
 end
 
 function PrintLog(...)
-    local time = ""
-    if PRINT_LOG_WITH_TIME then
-        time = GetCurrentTimeString()
-    end
-    print("[LOG]",time,...)
+    PrintAny("[LOG]", ...)
 end
 
 function PrintWarning(...)
-    local time = ""
-    if PRINT_LOG_WITH_TIME then
-        time = GetCurrentTimeString()
-    end
-    print("[WARNING]",time,...)
+    PrintAny("[WARNING]", ...)
 end
 
 function PrintError(...)
-    local time = ""
-    if PRINT_LOG_WITH_TIME then
-        time = GetCurrentTimeString()
-    end
-    print("[ERROR]",time,...)
+    PrintAny("[ERROR]", ...)
 end
 
-local function _copy(lookup_table,object,copyMeta)
+local function _copy(lookup_table, object, copyMeta)
     if not IsTable(object) then
         return object
     end
@@ -56,10 +68,10 @@ local function _copy(lookup_table,object,copyMeta)
     local newObject = {}
     lookup_table[object] = newObject
     for k, v in pairs(object) do
-        newObject[_copy(lookup_table,k,copyMeta)] = _copy(lookup_table,v,copyMeta)
+        newObject[_copy(lookup_table, k, copyMeta)] = _copy(lookup_table, v, copyMeta)
     end
     if copyMeta then
-        return setmetatable(newObject,getmetatable(object))
+        return setmetatable(newObject, getmetatable(object))
     end
     return newObject
 end
@@ -68,16 +80,16 @@ end
 ---@param object Object 任意对象
 ---@param copyMeta boolean 是否需要复制metatable
 ---@return Object
-function Copy(object,copyMeta)
+function Copy(object, copyMeta)
     local lookup_table = {}
-    return _copy(lookup_table,object,copyMeta)
+    return _copy(lookup_table, object, copyMeta)
 end
 
 ---返回自增整数的闭包函数
 ---@return function 自增整数的闭包函数
 function GetAutoIncreaseFunc()
     local count = 0
-    return function ()
+    return function()
         count = count + 1
         return count
     end
@@ -97,7 +109,8 @@ local clsKeyGenerator = GetAutoIncreaseFunc()
 
 ---创建类，子类支持重载ToString()，暂不支持多重继承，支持实现多个接口类
 ---包含字段：_className:string 类名 | _class:Class 所属类 | _super:Class 父类 | _objectId:integer 实例ID
----包含方法：Ctor:function 构造函数
+---包含方法：Ctor 构造函数 | Delete 析构函数 | ToFunc 获得函数
+---虚函数：OnInit OnDelete
 ---@param className string 类名
 ---@param superClass table|nil Class 父类
 ---@param ... Interface 接口类
@@ -107,13 +120,11 @@ function Class(className, superClass, ...)
     clazz._className = className
 
     if IsTable(superClass) then
-        setmetatable(clazz,{__index = superClass})
+        setmetatable(clazz, { __index = superClass })
         clazz._super = superClass
-    else
-        clazz.Ctor = function ()  end
     end
 
-    for _, interface in pairs({...}) do
+    for _, interface in pairs({ ... }) do
         for fieldName, field in pairs(interface) do
             if IsFunction(field) then
                 clazz[fieldName] = field
@@ -125,17 +136,57 @@ function Class(className, superClass, ...)
         local instance = {}
         instance._class = clazz
         instance._objectId = clsKeyGenerator()
-        local defaultStr = string.format("Object[ID:%d]",instance._objectId)
+        instance._alive = false
+        instance._funcs = {}
+        local defaultStr = string.format("Object[ID:%d]", instance._objectId)
         setmetatable(instance,
-        {
-            __index = clazz,
-            __tostring = function (this)
-                if this.ToString then
-                    return this:ToString()
+            {
+                __index = clazz, --TODO 禁止私有字段的访问
+                -- __newindex = function(k, v)
+                --     --禁止内置函数同名的函数
+                -- end,
+                __tostring = function(this)
+                    if this.ToString then
+                        return this:ToString()
+                    end
+                    return defaultStr
+                end,
+            })
+
+        function instance:Ctor(...)
+            if not self._alive then
+                self._alive = true
+                if self.OnInit then
+                    self:OnInit(...)
                 end
-                return defaultStr
-            end,
-        })
+            end
+        end
+
+        function instance:Delete(...)
+            if self._alive then
+                self._alive = false
+                if self.OnDelete then
+                    self:OnDelete(...)
+                end
+            end
+        end
+
+        function instance:ToFunc(name)
+            if not self._alive then
+                return nil
+            end
+            local func = self._funcs[name]
+            if not func then
+                func = self[name]
+                if IsFunction(func) then
+                    self._funcs[name] = func
+                else
+                    PrintError("类", instance._className, "未定义函数", name)
+                end
+            end
+            return func
+        end
+
         instance:Ctor(...)
         return instance
     end
@@ -147,21 +198,21 @@ end
 ---@param asyncFunc function 异步函数
 ---@param callbackPos integer|nil 回调位置，默认在所有参数之后
 ---@return function syncFunc 同步函数
-function AsyncToSync(asyncFunc,callbackPos)
-    return function (...)
+function AsyncToSync(asyncFunc, callbackPos)
+    return function(...)
         local rets
         local waiting = false
         local co = coroutine.running() or error("this function must be run in coroutine")
 
-        local callback = function (...)
+        local callback = function(...)
             if waiting then
                 assert(coroutine.resume(co, ...))
             else
-                rets = {...}
+                rets = { ... }
             end
         end
 
-        local args = {...}
+        local args = { ... }
         table.insert(args, callbackPos or (#args + 1), callback)
 
         asyncFunc(table.unpack(args))
@@ -169,7 +220,7 @@ function AsyncToSync(asyncFunc,callbackPos)
         -- rets 为空，代表函数调用没有立即返回结果，此时挂起协程
         if rets == nil then
             waiting = true
-            rets = {coroutine.yield()}
+            rets = { coroutine.yield() }
         end
 
         return table.unpack(rets)
