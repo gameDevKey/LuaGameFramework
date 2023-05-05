@@ -5,7 +5,7 @@
         2.SetState
         3.AddOnStateChangeListener
 ]]
-   --
+--
 local RedPointNode = Class("RedPointNode")
 
 local autoKeyFunc = GetAutoIncreaseFunc()
@@ -14,7 +14,7 @@ function RedPointNode:OnInit(nodeId)
     self.parent = nil
     self.tbChildren = {}
     self.id = nodeId or ("DEFAULT_" .. autoKeyFunc())
-    self.state = ERedPointState.Inactive
+    self.state = ERedPoint.State.Inactive
     self.callback = nil
 end
 
@@ -42,7 +42,7 @@ function RedPointNode:SetParent(node)
 end
 
 ---设置状态
----@param state ERedPointState 状态
+---@param state ERedPoint.State 状态
 function RedPointNode:SetState(state)
     local lastState = self.state
     self.state = state
@@ -90,12 +90,12 @@ function RedPointNode:CheckChildrenState()
     if self.tbChildren then
         local hasActive = false
         for id, node in pairs(self.tbChildren) do
-            if node.state == ERedPointState.Active then
+            if node.state == ERedPoint.State.Active then
                 hasActive = true
                 break
             end
         end
-        self:SetState(hasActive and ERedPointState.Active or ERedPointState.Inactive)
+        self:SetState(hasActive and ERedPoint.State.Active or ERedPoint.State.Inactive)
     end
 end
 

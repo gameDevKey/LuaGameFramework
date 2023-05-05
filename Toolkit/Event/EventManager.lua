@@ -8,7 +8,7 @@ local tbAllEvent = {} --map[EventId][EventKey]EventObject
 local eventKeyGenerator = GetAutoIncreaseFunc()
 
 ---添加监听器
----@param eventId EEventType 监听类型
+---@param eventId EEvent.Type 监听类型
 ---@param callback function 回调 function(...) 接收广播数据
 ---@param callOnce boolean|nil 是否只监听一次
 function EventManager.AddListener(eventId, callback, callOnce)
@@ -22,7 +22,7 @@ function EventManager.AddListener(eventId, callback, callOnce)
 end
 
 ---移除监听器
----@param eventId EEventType 监听类型
+---@param eventId EEvent.Type 监听类型
 function EventManager.RemoveListener(eventId, eventKey)
     if tbAllEvent[eventId] and tbAllEvent[eventId][eventKey] then
         tbAllEvent[eventId][eventKey] = nil
@@ -35,7 +35,7 @@ function EventManager.RemoveAllListener()
 end
 
 ---广播
----@param eventId EEventType 监听类型
+---@param eventId EEvent.Type 监听类型
 ---@param ... any 任意数据
 function EventManager.Broadcast(eventId, ...)
     for eventKey, eventObject in pairs(tbAllEvent[eventId] or {}) do

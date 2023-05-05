@@ -21,6 +21,14 @@ end
 function Object:AddListener(eventId, callback, callonce)
     local eventKey = EventManager.AddListener(eventId, callback, callonce)
     self.tbEventKey[eventKey] = eventId
+    return eventKey
+end
+
+function Object:RemoveListener(eventKey)
+    if self.tbEventKey[eventKey] then
+        EventManager.RemoveListener(self.tbEventKey[eventKey], eventKey)
+        self.tbEventKey[eventKey] = nil
+    end
 end
 
 function Object:RemoveAllListener()

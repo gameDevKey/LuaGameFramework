@@ -25,7 +25,7 @@ function OrderQueue:AddOrder(callback, exeNextWhenFinish, posType, isAsync)
     if not callback then
         return
     end
-    local pos = posType == EOrderPosType.First and 1 or (#self.queue + 1)
+    local pos = posType == EOrderQueue.Type.First and 1 or (#self.queue + 1)
     local cbNext
     if exeNextWhenFinish then
         cbNext = function()

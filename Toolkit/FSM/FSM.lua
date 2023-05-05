@@ -10,14 +10,14 @@ function FSM:OnInit()
 end
 
 ---状态是否注册
----@param stateId EFSMState 状态枚举
+---@param stateId EFSM.State 状态枚举
 ---@return boolean
 function FSM:ContainState(stateId)
     return self.tbState[stateId] ~= nil
 end
 
 ---添加FSM状态
----@param state FSMState 状态
+---@param state EFSM.State 状态
 function FSM:AddState(state)
     local id = state:GetStateID()
     if self:ContainState(id) then
@@ -28,7 +28,7 @@ function FSM:AddState(state)
 end
 
 ---移除FSM状态
----@param state EFSMState 状态枚举
+---@param state EFSM.State 状态枚举
 function FSM:RemoveState(stateId)
     if not self:ContainState(stateId) then
         PrintWarning("FSM：状态未注册", stateId)
@@ -38,7 +38,7 @@ function FSM:RemoveState(stateId)
 end
 
 ---切换到某个状态
----@param stateId EFSMState 状态枚举
+---@param stateId EFSM.State 状态枚举
 ---@param data any|nil 任意数据结构体
 ---@return boolean transitionSuccess 是否切换成功
 function FSM:ChangeState(stateId, data)
