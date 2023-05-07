@@ -40,7 +40,3 @@ parentG.__index = function(tb, key)
     end
 end
 --#endregion
-
-if TEST_ENV then
-    require("Debug.TestMain")
-end

@@ -51,3 +51,31 @@ function table.ToString(val, name, skipnewlines, depth)
 
     return tmp
 end
+
+function table.ReadOnly(tb, name)
+    local proxy = {}
+    local mt = {
+        __index = tb, --允许访问的关键
+        __newindex = function(t, k, v)
+            error(string.format("无法修改或新增%s字段[%s]", name or "Table", k), 2)
+        end
+    }
+    setmetatable(proxy, mt)
+    return proxy
+end
+
+function table.ReadUpdateOnly(tb, name)
+    local proxy = {}
+    local mt = {
+        __index = tb, --允许访问的关键
+        __newindex = function(t, k, v)
+            if not t[k] then
+                error(string.format("无法新增%s字段[%s]", name or "Table", k), 2)
+            else
+                rawset(t, k, v)
+            end
+        end
+    }
+    setmetatable(proxy, mt)
+    return proxy
+end

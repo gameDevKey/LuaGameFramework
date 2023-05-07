@@ -1,3 +1,4 @@
 require("Core.Setup")
-
---test
+if TEST_ENV then
+    require("Debug.TestMain")
+end
