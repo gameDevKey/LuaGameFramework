@@ -141,10 +141,7 @@ function Class(className, superClass, ...)
         local defaultStr = string.format("Object[ID:%d]", instance._objectId)
         setmetatable(instance,
             {
-                __index = clazz, --TODO 禁止私有字段的访问
-                -- __newindex = function(k, v)
-                --     --禁止内置函数同名的函数
-                -- end,
+                __index = clazz,
                 __tostring = function(this)
                     if this.ToString then
                         return this:ToString()
