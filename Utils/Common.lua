@@ -95,39 +95,46 @@ function GetAutoIncreaseFunc()
     end
 end
 
----创建接口，本质是一个空表，仅有一个_interfaceName字段便于调试
+---创建接口，只能包含函数
 ---配合Class()使用时，会把该表的所有函数注册到类中
 ---@param interfaceName string 接口名
 ---@return Interface interface 接口
 function Interface(interfaceName)
     local interface = {}
+    interface._isInterface = true
     interface._interfaceName = interfaceName
     return interface
 end
 
+
 local clsKeyGenerator = GetAutoIncreaseFunc()
 
----创建类，子类支持重载ToString()，暂不支持多重继承，支持实现多个接口类
----包含字段：_className:string 类名 | _class:Class 所属类 | _super:Class 父类 | _objectId:integer 实例ID
----包含方法：Ctor 构造函数 | Delete 析构函数 | ToFunc 获得函数
----虚函数：OnInit OnDelete
+---创建类: 子类支持重载ToString()，暂不支持多重继承，支持实现多个接口类
+---包含字段: _className:string 类名 | _class:Class 所属类 | _super:Class 父类 | _objectId:integer 实例ID
+---包含方法: New 静态实例化函数 | Delete 析构函数 | ToFunc 返回某个函数
+---虚函数: OnInit | OnDelete
 ---@param className string 类名
----@param superClass table|nil Class 父类
----@param ... Interface 接口类
+---@param superClass Class|nil Class 父类
+---@param interfaces List<Interface>|nil 接口类列表，只能包含函数
 ---@return Class cls 类
-function Class(className, superClass, ...)
+function Class(className, superClass, interfaces)
     local clazz = {}
     clazz._className = className
+    clazz._interfaces = interfaces or {}
 
     if IsTable(superClass) then
         setmetatable(clazz, { __index = superClass })
         clazz._super = superClass
     end
 
-    for _, interface in pairs({ ... }) do
-        for fieldName, field in pairs(interface) do
-            if IsFunction(field) then
-                clazz[fieldName] = field
+    for _, interface in ipairs(clazz._interfaces or {}) do
+        if not interface._isInterface then
+            PrintError("类",clazz._className,"无法实现非接口类",interface._className or interface._interfaceName)
+        else
+            for fieldName, field in pairs(interface) do
+                if IsFunction(field) then
+                    clazz[fieldName] = field
+                end
             end
         end
     end
@@ -170,6 +177,7 @@ function Class(className, superClass, ...)
 
         function instance:ToFunc(name)
             if not self._alive then
+                PrintError("类", instance._className, "已被删除，无法获取函数", name)
                 return nil
             end
             local func = self._funcs[name]
