@@ -1,7 +1,7 @@
-VerticalLoopScrollView = BaseClass("VerticalLoopScrollView", LoopScrollViewBase)
+VerticalLoopScrollView = Class("VerticalLoopScrollView", LoopScrollViewBase)
 
-function VerticalLoopScrollView:__Init()
-    self.type = LoopScrollViewDefine.Type.Vertical
+function VerticalLoopScrollView:OnInit()
+    self.type = ELoopScrollView.Type.Vertical
 end
 
 function VerticalLoopScrollView:IsHorizontalDir()
@@ -9,7 +9,7 @@ function VerticalLoopScrollView:IsHorizontalDir()
 end
 
 function VerticalLoopScrollView:ScrollToItem(index, cbFinish, duration, ease, jumpType)
-    jumpType = jumpType or LoopScrollViewDefine.JumpType.Top
+    jumpType = jumpType or ELoopScrollView.JumpType.Top
     index = index - 1
     index = MathUtils.Clamp(index, 0, #self.tbItemData)
     local y = self.setting.paddingTop
@@ -17,9 +17,9 @@ function VerticalLoopScrollView:ScrollToItem(index, cbFinish, duration, ease, ju
         y = y + self.tbItemData[i].size.h + self.setting.gapY
     end
     if index > 0 then
-        if jumpType == LoopScrollViewDefine.JumpType.Center then
+        if jumpType == ELoopScrollView.JumpType.Center then
             y = y - self.viewport.rect.height / 2 + self.tbItemData[index].size.h / 2
-        elseif jumpType == LoopScrollViewDefine.JumpType.Bottom then
+        elseif jumpType == ELoopScrollView.JumpType.Bottom then
             y = y - self.viewport.rect.height + self.tbItemData[index].size.h + self.setting.gapY
         end
     end
@@ -31,7 +31,7 @@ function VerticalLoopScrollView:ScrollToPosition(pos, cbFinish, duration, ease)
     local y = pos.y
     local maxH = self.content.rect.height - self.viewport.rect.height
     y = MathUtils.Clamp(y, 0, maxH)
-    self:MoveTo(Vector3(x,y,0), cbFinish, duration, ease)
+    self:MoveTo(Vector3(x, y, 0), cbFinish, duration, ease)
 end
 
 function VerticalLoopScrollView:ScrollToPositionY(y, cbFinish, duration, ease)
@@ -45,7 +45,7 @@ function VerticalLoopScrollView:UpdateContentSize()
     local h = self.setting.paddingTop
     local maxW = 0
     for i, data in ipairs(self.tbItemData or {}) do
-        h  = h + data.size.h + self.setting.gapY
+        h = h + data.size.h + self.setting.gapY
         if data.size.w > maxW then
             maxW = data.size.w
         end
@@ -100,7 +100,7 @@ function VerticalLoopScrollView:UpdateList()
 
         itemY = itemY - (renderData.size.h + self.setting.gapY)
 
-        if -startPos-itemY >= limitHeight then
+        if -startPos - itemY >= limitHeight then
             break
         end
     end

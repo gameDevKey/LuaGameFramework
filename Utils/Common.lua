@@ -187,6 +187,13 @@ function Class(className, superClass, ...)
             return func
         end
 
+        function instance:SuperFunc(fnName, ...)
+            if clazz._super then
+                local fn = clazz._super[fnName]
+                return fn and fn(instance, ...)
+            end
+        end
+
         instance:Ctor(...)
         return instance
     end

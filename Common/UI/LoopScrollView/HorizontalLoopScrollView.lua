@@ -1,7 +1,7 @@
-HorizontalLoopScrollView = BaseClass("HorizontalLoopScrollView", LoopScrollViewBase)
+HorizontalLoopScrollView = Class("HorizontalLoopScrollView", LoopScrollViewBase)
 
-function HorizontalLoopScrollView:__Init()
-    self.type = LoopScrollViewDefine.Type.Horizontal
+function HorizontalLoopScrollView:OnInit()
+    self.type = ELoopScrollView.Type.Horizontal
 end
 
 function HorizontalLoopScrollView:IsHorizontalDir()
@@ -9,7 +9,7 @@ function HorizontalLoopScrollView:IsHorizontalDir()
 end
 
 function HorizontalLoopScrollView:ScrollToItem(index, cbFinish, duration, ease, jumpType)
-    jumpType = jumpType or LoopScrollViewDefine.JumpType.Top
+    jumpType = jumpType or ELoopScrollView.JumpType.Top
     index = index - 1
     index = MathUtils.Clamp(index, 0, #self.tbItemData)
     local x = self.setting.paddingLeft
@@ -17,13 +17,13 @@ function HorizontalLoopScrollView:ScrollToItem(index, cbFinish, duration, ease, 
         x = x + self.tbItemData[i].size.w + self.setting.gapX
     end
     if index > 0 then
-        if jumpType == LoopScrollViewDefine.JumpType.Center then
+        if jumpType == ELoopScrollView.JumpType.Center then
             x = x - self.viewport.rect.width / 2 + self.tbItemData[index].size.w / 2
-        elseif jumpType == LoopScrollViewDefine.JumpType.Bottom then
+        elseif jumpType == ELoopScrollView.JumpType.Bottom then
             x = x - self.viewport.rect.width + self.tbItemData[index].size.w + self.setting.gapX
         end
     end
-    self:ScrollToPosition(Vector2(-x,self.content.localPosition.y), cbFinish, duration, ease)
+    self:ScrollToPosition(Vector2(-x, self.content.localPosition.y), cbFinish, duration, ease)
 end
 
 function HorizontalLoopScrollView:ScrollToPosition(pos, cbFinish, duration, ease)
@@ -31,14 +31,14 @@ function HorizontalLoopScrollView:ScrollToPosition(pos, cbFinish, duration, ease
     local y = pos.y
     local maxW = self.viewport.rect.width - self.content.rect.width
     x = MathUtils.Clamp(x, maxW, 0)
-    self:MoveTo(Vector3(x,y,0), cbFinish, duration, ease)
+    self:MoveTo(Vector3(x, y, 0), cbFinish, duration, ease)
 end
 
 function HorizontalLoopScrollView:UpdateContentSize()
     local w = self.setting.paddingLeft
     local maxH = 0
     for i, data in ipairs(self.tbItemData or {}) do
-        w  = w + data.size.w + self.setting.gapX
+        w = w + data.size.w + self.setting.gapX
         if data.size.h > maxH then
             maxH = data.size.h
         end
@@ -51,15 +51,15 @@ end
 function HorizontalLoopScrollView:UpdateList()
     --content左滑x值减少
     --Item越往右x越大
-    local startPos = -self.content.localPosition.x - self.setting.overflowUp--content的左界
+    local startPos = -self.content.localPosition.x - self.setting.overflowUp --content的左界
 
     if startPos < 0 then startPos = 0 end
 
     local bottom = self.content.rect.width - self.viewport.rect.width --content的右界
     if startPos > bottom then startPos = bottom end
 
-    local targetIndex = 1                       --起始索引
-    local targetX = self.setting.paddingLeft    --起始坐标
+    local targetIndex = 1                    --起始索引
+    local targetX = self.setting.paddingLeft --起始坐标
     for i, data in ipairs(self.tbItemData or {}) do
         targetIndex = i
         local x = targetX + data.size.w
@@ -93,7 +93,7 @@ function HorizontalLoopScrollView:UpdateList()
 
         itemX = itemX + (renderData.size.w + self.setting.gapX)
 
-        if itemX-startPos >= limitWidth then
+        if itemX - startPos >= limitWidth then
             break
         end
     end
