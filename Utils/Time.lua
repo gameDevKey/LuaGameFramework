@@ -1,4 +1,4 @@
-Time = {}
+local Time = {}
 
 ---根据时间戳计算是星期几
 ---@param timeStamp int|nil 时间戳，默认是当前时间
@@ -15,3 +15,5 @@ function Time.GetTimeDetailInfo(timeStamp)
     timeStamp = timeStamp or os.time()
     return os.date("*t",timeStamp)
 end
+
+return Time
