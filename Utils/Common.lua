@@ -88,9 +88,9 @@ local function _copy(lookup_table, object, copyMeta)
 end
 
 ---深复制
----@param object Object 任意对象
+---@param object ModuleBase 任意对象
 ---@param copyMeta boolean 是否需要复制metatable
----@return Object
+---@return ModuleBase
 function Copy(object, copyMeta)
     local lookup_table = {}
     return _copy(lookup_table, object, copyMeta)

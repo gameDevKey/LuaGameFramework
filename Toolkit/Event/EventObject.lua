@@ -36,7 +36,7 @@ function EventObject:SetCallback(callback)
 end
 
 function EventObject:SetCallOnce(callOnce)
-    self.callOnce = callOnce
+    self.callOnce = callOnce or false
 end
 
 return EventObject

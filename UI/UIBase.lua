@@ -1,4 +1,4 @@
-local UIBase = Class("UIBase", Object)
+local UIBase = Class("UIBase", ModuleBase)
 
 function UIBase:OnInit()
     --id/order/type
@@ -25,21 +25,22 @@ function UIBase:Exit()
     self:OnExit()
 end
 
+--退出界面完成，界面退出可能是一个耗时的操作（受到离场动画的影响）
+function UIBase:ExitComplete()
+    self:OnExitComplete()
+end
+
 ---重复进入界面
 function UIBase:Refresh()
     self:OnRefresh()
 end
 
-function UIBase:OnEnter(data)
-end
-
-function UIBase:OnEnterComplete()
-end
-
-function UIBase:OnExit()
-end
-
-function UIBase:OnRefresh()
-end
+--#region 虚函数
+function UIBase:OnEnter(data)end
+function UIBase:OnEnterComplete()end
+function UIBase:OnExit()end
+function UIBase:OnExitComplete()end
+function UIBase:OnRefresh()end
+--#endregion
 
 return UIBase
