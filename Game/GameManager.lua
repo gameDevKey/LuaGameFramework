@@ -1,7 +1,7 @@
-local GameManager = Class("GameManager")
+local GameManager = SingletonClass("GameManager")
 
-function GameManager.Tick(deltaTime)
-    TimerManager.Tick(deltaTime)
+function GameManager:Tick(deltaTime)
+    TimerManager.Instance():Tick(deltaTime)
 end
 
 return GameManager

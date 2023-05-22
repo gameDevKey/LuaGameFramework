@@ -18,6 +18,14 @@ function IsFunction(input)
     return type(input) == "function"
 end
 
+function IsClass(input)
+    return IsTable(input) and input._isClass == true or false
+end
+
+function IsInterface(input)
+    return IsTable(input) and input._isInterface == true or false
+end
+
 local function GetCurrentTimeString()
     return os.date("%H:%M:%S", os.time())
 end
@@ -32,7 +40,9 @@ function PrintAny(...)
     end
     local tb = {}
     for _, obj in ipairs({ ... }) do
-        if IsTable(obj) then
+        if IsClass(obj) then
+            table.insert(tb, tostring(obj))
+        elseif IsTable(obj) then
             table.insert(tb, table.ToString(obj))
         else
             table.insert(tb, tostring(obj))
@@ -56,6 +66,7 @@ end
 
 function PrintError(...)
     PrintAny("[ERROR]", ...)
+    -- print(debug.traceback())
 end
 
 local function _copy(lookup_table, object, copyMeta)
@@ -93,117 +104,6 @@ function GetAutoIncreaseFunc()
         count = count + 1
         return count
     end
-end
-
----创建接口，只能包含函数
----配合Class()使用时，会把该表的所有函数注册到类中
----@param interfaceName string 接口名
----@return Interface interface 接口
-function Interface(interfaceName)
-    local interface = {}
-    interface._isInterface = true
-    interface._interfaceName = interfaceName
-    return interface
-end
-
-
-local clsKeyGenerator = GetAutoIncreaseFunc()
-
----创建类: 子类支持重载ToString()，暂不支持多重继承，支持实现多个接口类
----包含字段: _className:string 类名 | _class:Class 所属类 | _super:Class 父类 | _objectId:integer 实例ID
----包含方法: New 静态实例化函数 | Delete 析构函数 | ToFunc 返回某个函数
----虚函数: OnInit | OnDelete
----@param className string 类名
----@param superClass Class|nil Class 父类
----@param interfaces List<Interface>|nil 接口类列表，只能包含函数
----@return Class cls 类
-function Class(className, superClass, interfaces)
-    local clazz = {}
-    clazz._className = className
-    clazz._interfaces = interfaces or {}
-
-    if IsTable(superClass) then
-        setmetatable(clazz, { __index = superClass })
-        clazz._super = superClass
-    end
-
-    for _, interface in ipairs(clazz._interfaces or {}) do
-        if not interface._isInterface then
-            PrintError("类",clazz._className,"无法实现非接口类",interface._className or interface._interfaceName)
-        else
-            for fieldName, field in pairs(interface) do
-                if IsFunction(field) then
-                    clazz[fieldName] = field
-                end
-            end
-        end
-    end
-
-    function clazz.New(...)
-        local instance = {}
-        instance._class = clazz
-        instance._objectId = clsKeyGenerator()
-        instance._alive = false
-        instance._funcs = {}
-        local defaultStr = string.format("Object[ID:%d]", instance._objectId)
-        setmetatable(instance,
-            {
-                __index = clazz,
-                __tostring = function(this)
-                    if this.ToString then
-                        return this:ToString()
-                    end
-                    return defaultStr
-                end,
-            })
-
-        function instance:Ctor(...)
-            if not self._alive then
-                self._alive = true
-                if self.OnInit then
-                    self:OnInit(...)
-                end
-            end
-        end
-
-        function instance:Delete(...)
-            if self._alive then
-                self._alive = false
-                if self.OnDelete then
-                    self:OnDelete(...)
-                end
-            end
-        end
-
-        function instance:ToFunc(name)
-            if not self._alive then
-                PrintError("类", instance._className, "已被删除，无法获取函数", name)
-                return nil
-            end
-            local func = self._funcs[name]
-            if not func then
-                func = self[name]
-                if IsFunction(func) then
-                    self._funcs[name] = func
-                else
-                    PrintError("类", instance._className, "未定义函数", name)
-                end
-            end
-            return func
-        end
-
-        function instance:SuperFunc(fnName, ...)
-            if clazz._super then
-                local fn = clazz._super[fnName]
-                return fn and fn(instance, ...)
-            end
-        end
-
-        instance:Ctor(...)
-        return instance
-    end
-
-    return clazz
 end
 
 ---同步调用异步函数

@@ -19,33 +19,33 @@ function Object:OnDestory()
 end
 
 function Object:AddListener(eventId, callback, callonce)
-    local eventKey = EventManager.AddListener(eventId, callback, callonce)
+    local eventKey = EventManager.Instance():AddListener(eventId, callback, callonce)
     self.tbEventKey[eventKey] = eventId
     return eventKey
 end
 
 function Object:RemoveListener(eventKey)
     if self.tbEventKey[eventKey] then
-        EventManager.RemoveListener(self.tbEventKey[eventKey], eventKey)
+        EventManager.Instance():RemoveListener(self.tbEventKey[eventKey], eventKey)
         self.tbEventKey[eventKey] = nil
     end
 end
 
 function Object:RemoveAllListener()
     for eventKey, eventId in pairs(self.tbEventKey or {}) do
-        EventManager.RemoveListener(eventId, eventKey)
+        EventManager.Instance():RemoveListener(eventId, eventKey)
     end
     self.tbEventKey = {}
 end
 
 function Object:AddTimer(callback, tickTime)
-    local timerId = TimerManager.AddTimer(callback, tickTime)
+    local timerId = TimerManager.Instance():AddTimer(callback, tickTime)
     self.tbTimerId[timerId] = true
     return timerId
 end
 
 function Object:RemoveTimer(timerId)
-    TimerManager.RemoveTimer(timerId)
+    TimerManager.Instance():RemoveTimer(timerId)
     self.tbTimerId[timerId] = nil
 end
 

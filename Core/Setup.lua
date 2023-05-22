@@ -1,11 +1,12 @@
 --#region 必要文件提前加载
 LFS = require("lfs")
+require("Core.Config")
+require("Utils.Class")
 require("Utils.FileUtil")
 require("Utils.String")
 require("Utils.Common")
 require("Utils.Table")
 require("Utils.Time")
-require("Core.Config")
 --#endregion
 
 

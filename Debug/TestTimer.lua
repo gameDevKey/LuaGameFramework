@@ -8,6 +8,6 @@ object2:AddTimer(function()
     print('object2 tick')
 end, 1)
 
-GameManager.Tick(1)
+GameManager.Instance():Tick(1)
 
-GameManager.Tick(1)
+GameManager.Instance():Tick(1)
