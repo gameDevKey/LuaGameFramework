@@ -149,12 +149,13 @@ function SingletonClass(className, superClass, interfaces)
     local nameStr = string.format("单例类[%s-%s]", className, tostring(clazz))
     setmetatable(clazz, {
         __index = function (tb, key)
-            if key == "Instance" then
+            if key == "Instance" then --动态注入字段
                 if not singletonClasses[clazz._className] then
                     local ins = clazz.New()
                     ins:Ctor()
                 end
-                return singletonClasses[clazz._className]
+                rawset(tb, key, singletonClasses[clazz._className])
+                return rawget(tb, key)
             end
             return superClass and superClass[key]
         end,
@@ -169,7 +170,6 @@ function SingletonClass(className, superClass, interfaces)
 
     InjectInterfaces(clazz,clazz._interfaces)
 
-    ---单例类不应该直接用New()创建实例， 请改用Instance()
     function clazz.New()
         if singletonClasses[clazz._className] then
             PrintError(clazz,"不可重复实例化, 访问请用Instance()")

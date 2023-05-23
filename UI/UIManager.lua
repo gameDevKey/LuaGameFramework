@@ -13,6 +13,12 @@ function UIManager:OnInit()
     self.uiStack = {}
 end
 
+function UIManager:OnDelete()
+    for _, view in ipairs(self.uiStack) do
+        view:Delete()
+    end
+end
+
 function UIManager:Enter(uiType, data)
     local config = UIDefine.Config[uiType]
     if not config.IsMulti and self:Exist(uiType) then

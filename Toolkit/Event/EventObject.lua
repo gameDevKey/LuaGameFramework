@@ -10,6 +10,9 @@ function EventObject:OnInit(eventId, callback, callOnce)
     self:SetCallback(callback)
 end
 
+function EventObject:OnDelete()
+end
+
 function EventObject:GetEventId()
     return self.eventId
 end

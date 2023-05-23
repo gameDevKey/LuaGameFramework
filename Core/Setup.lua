@@ -19,11 +19,16 @@ for _, path in ipairs(luaFiles) do
     local realPath = string.gsub(path, currentDir, "")
     realPath = string.gsub(realPath, ".lua", "")
     local paths = string.split(realPath, '\\')
-    local key = paths[#paths]
+    local len = #paths
+    local key = paths[len]
+    local dir = paths[len-1]
     if LuaFiles[key] then
         PrintError("Lua文件重名", path)
+    else
+        if dir ~= "Debug" or TEST_ENV then
+            LuaFiles[key] = table.concat(paths, ".")
+        end
     end
-    LuaFiles[key] = table.concat(paths, ".")
 end
 --#endregion
 

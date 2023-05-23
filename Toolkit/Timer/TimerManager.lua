@@ -5,6 +5,12 @@ function TimerManager:OnInit()
     self.timerKeyGenerator = GetAutoIncreaseFunc()
 end
 
+function TimerManager:OnDelete()
+    for timerId, timer in pairs(self.tbAllTimer) do
+        timer:Delete()
+    end
+end
+
 function TimerManager:AddTimer(callback, tickTime)
     local timerId = self.timerKeyGenerator()
     self.tbAllTimer[timerId] = Timer.New(timerId, callback, tickTime)

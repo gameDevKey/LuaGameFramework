@@ -2,7 +2,13 @@ local RedPointManager = SingletonClass("RedPointManager")
 
 function RedPointManager:OnInit()
     self.tbAllRedPoint = {}
-    setmetatable(self.self.tbAllRedPoint, { __mode = "v" }) --弱引用表，collectgarbage()之后会自动清除无效引用
+    setmetatable(self.tbAllRedPoint, { __mode = "kv" }) --弱引用表，collectgarbage()之后会自动清除无效引用
+end
+
+function RedPointManager:OnDelete()
+    for nodeId, node in pairs(self.tbAllRedPoint) do
+        node:Delete()
+    end
 end
 
 ---创建节点

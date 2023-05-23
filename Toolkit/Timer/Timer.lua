@@ -7,6 +7,9 @@ function Timer:OnInit(timerId, callback, tickTime)
     self.timeCounter = 0
 end
 
+function Timer:OnDelete()
+end
+
 function Timer:Tick(deltaTime)
     if not self.callback then
         return true

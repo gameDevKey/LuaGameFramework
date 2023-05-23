@@ -9,6 +9,10 @@ function EventDispatcher:OnInit()
     self.eventKeyGenerator = GetAutoIncreaseFunc()
 end
 
+function EventDispatcher:OnDelete()
+    self:RemoveAllListener()
+end
+
 ---添加监听器
 ---@param eventId any 监听类型
 ---@param callback function 回调 function(...) 接收广播数据
@@ -27,12 +31,18 @@ end
 ---@param eventId any 监听类型
 function EventDispatcher:RemoveListener(eventId, eventKey)
     if self.tbAllEvent[eventId] and self.tbAllEvent[eventId][eventKey] then
+        self.tbAllEvent[eventId][eventKey]:Delete()
         self.tbAllEvent[eventId][eventKey] = nil
     end
 end
 
 ---移除所有监听器
 function EventDispatcher:RemoveAllListener()
+    for eventId, dict in pairs(self.tbAllEvent) do
+        for eventKey, eventObject in pairs(dict) do
+            eventObject:Delete()
+        end
+    end
     self.tbAllEvent = {}
 end
 
