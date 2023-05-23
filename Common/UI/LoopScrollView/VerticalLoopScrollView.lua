@@ -1,4 +1,4 @@
-VerticalLoopScrollView = Class("VerticalLoopScrollView", LoopScrollViewBase)
+local VerticalLoopScrollView = Class("VerticalLoopScrollView", LoopScrollViewBase)
 
 function VerticalLoopScrollView:OnInit()
     self.type = ELoopScrollView.Type.Vertical
@@ -11,7 +11,7 @@ end
 function VerticalLoopScrollView:ScrollToItem(index, cbFinish, duration, ease, jumpType)
     jumpType = jumpType or ELoopScrollView.JumpType.Top
     index = index - 1
-    index = MathUtils.Clamp(index, 0, #self.tbItemData)
+    index = MathUtil.Clamp(index, 0, #self.tbItemData)
     local y = self.setting.paddingTop
     for i = 1, index do
         y = y + self.tbItemData[i].size.h + self.setting.gapY
@@ -30,7 +30,7 @@ function VerticalLoopScrollView:ScrollToPosition(pos, cbFinish, duration, ease)
     local x = pos.x
     local y = pos.y
     local maxH = self.content.rect.height - self.viewport.rect.height
-    y = MathUtils.Clamp(y, 0, maxH)
+    y = MathUtil.Clamp(y, 0, maxH)
     self:MoveTo(Vector3(x, y, 0), cbFinish, duration, ease)
 end
 
@@ -111,3 +111,6 @@ function VerticalLoopScrollView:UpdateList()
 
     self:FixItemsStyleByShowingData(self.tbShowingItem, tempDatas)
 end
+
+
+return VerticalLoopScrollView

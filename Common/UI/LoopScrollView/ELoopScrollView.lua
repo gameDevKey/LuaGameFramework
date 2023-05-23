@@ -1,4 +1,4 @@
-ELoopScrollView = {}
+local ELoopScrollView = {}
 
 ---类型
 ELoopScrollView.Type = {
@@ -53,3 +53,5 @@ ELoopScrollView.VerticalAlignConfig = {
         pivot = { x = 1, y = 1 },
     }
 }
+
+return ELoopScrollView

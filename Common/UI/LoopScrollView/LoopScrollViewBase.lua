@@ -8,7 +8,7 @@
     4.使用Destroy接口释放
 ]]
 --
-LoopScrollViewBase = Class("LoopScrollViewBase")
+local LoopScrollViewBase = Class("LoopScrollViewBase")
 
 function LoopScrollViewBase:OnInit(scrollRect, setting)
     self.tbItemData = {}    --List<{data:any, size:{w,h}}>  存储渲染数据
@@ -508,3 +508,5 @@ function LoopScrollViewBase:__OnMoveComplete()
 end
 
 --#endregion
+
+return LoopScrollViewBase

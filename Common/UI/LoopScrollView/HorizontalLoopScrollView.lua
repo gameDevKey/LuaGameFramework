@@ -1,4 +1,4 @@
-HorizontalLoopScrollView = Class("HorizontalLoopScrollView", LoopScrollViewBase)
+local HorizontalLoopScrollView = Class("HorizontalLoopScrollView", LoopScrollViewBase)
 
 function HorizontalLoopScrollView:OnInit()
     self.type = ELoopScrollView.Type.Horizontal
@@ -11,7 +11,7 @@ end
 function HorizontalLoopScrollView:ScrollToItem(index, cbFinish, duration, ease, jumpType)
     jumpType = jumpType or ELoopScrollView.JumpType.Top
     index = index - 1
-    index = MathUtils.Clamp(index, 0, #self.tbItemData)
+    index = MathUtil.Clamp(index, 0, #self.tbItemData)
     local x = self.setting.paddingLeft
     for i = 1, index do
         x = x + self.tbItemData[i].size.w + self.setting.gapX
@@ -30,7 +30,7 @@ function HorizontalLoopScrollView:ScrollToPosition(pos, cbFinish, duration, ease
     local x = pos.x
     local y = pos.y
     local maxW = self.viewport.rect.width - self.content.rect.width
-    x = MathUtils.Clamp(x, maxW, 0)
+    x = MathUtil.Clamp(x, maxW, 0)
     self:MoveTo(Vector3(x, y, 0), cbFinish, duration, ease)
 end
 
@@ -104,3 +104,5 @@ function HorizontalLoopScrollView:UpdateList()
 
     self:FixItemsStyleByShowingData(self.tbShowingItem, tempDatas)
 end
+
+return ELoopScrollView

@@ -1,4 +1,4 @@
-GridLoopScrollView = Class("GridLoopScrollView", LoopScrollViewBase)
+local GridLoopScrollView = Class("GridLoopScrollView", LoopScrollViewBase)
 
 local ConstraintType = {
     Flexible = 1,
@@ -61,10 +61,10 @@ function GridLoopScrollView:ScrollToPosition(pos, cbFinish, duration, ease)
     local y = pos.y
     --content横向从右到左移动时，x会逐渐减少
     local minX = self.viewport.rect.width - self.content.rect.width
-    x = MathUtils.Clamp(x, minX, 0)
+    x = MathUtil.Clamp(x, minX, 0)
     --content纵向从下往上移动时，y会逐渐增大
     local maxY = self.content.rect.height - self.viewport.rect.height
-    y = MathUtils.Clamp(y, 0, maxY)
+    y = MathUtil.Clamp(y, 0, maxY)
     self:MoveTo(Vector3(x, y, 0), cbFinish, duration, ease)
 end
 
@@ -177,10 +177,10 @@ function GridLoopScrollView:UpdateList()
     local endGridX = math.ceil((contentX + viewW) / self.cellW)
     local endGridY = math.ceil((contentY + viewH) / self.cellH)
 
-    startGridX = MathUtils.Clamp(startGridX, 1, self.curColCount)
-    startGridY = MathUtils.Clamp(startGridY, 1, self.curRowCount)
-    endGridX = MathUtils.Clamp(endGridX, 1, self.curColCount)
-    endGridY = MathUtils.Clamp(endGridY, 1, self.curRowCount)
+    startGridX = MathUtil.Clamp(startGridX, 1, self.curColCount)
+    startGridY = MathUtil.Clamp(startGridY, 1, self.curRowCount)
+    endGridX = MathUtil.Clamp(endGridX, 1, self.curColCount)
+    endGridY = MathUtil.Clamp(endGridY, 1, self.curRowCount)
 
     local grids
     if self:IsHorizontalDir() then --横向滚动时用纵向排列，纵向滚动时用横向排列
@@ -214,3 +214,5 @@ function GridLoopScrollView:UpdateList()
 
     self:FixItemsStyleByShowingData(self.tbShowingItem, tempDatas)
 end
+
+return GridLoopScrollView
