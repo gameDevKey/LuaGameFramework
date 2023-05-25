@@ -1,4 +1,4 @@
-local EFSM = {}
+EFSM = {}
 
 EFSM.State = {
     StateA = Enum.Index,

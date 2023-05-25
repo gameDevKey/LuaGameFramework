@@ -1,4 +1,4 @@
-local MathUtil = StaticClass("MathUtil")
+MathUtil = StaticClass("MathUtil")
 
 local randomseed = math.randomseed
 local sqrt = math.sqrt

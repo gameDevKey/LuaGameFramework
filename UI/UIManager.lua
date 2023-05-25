@@ -1,4 +1,4 @@
-local UIManager = SingletonClass("UIManager")
+UIManager = SingletonClass("UIManager")
 
 --需要解决几个问题
 --每个界面显示N个模型，进入退出界面的模型管理

@@ -1,4 +1,4 @@
-local CommandBase = Class("CommandBase")
+CommandBase = Class("CommandBase")
 
 function CommandBase:Execute(args)
 end

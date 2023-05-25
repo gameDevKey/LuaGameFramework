@@ -1,4 +1,4 @@
-local RedPointManager = SingletonClass("RedPointManager")
+RedPointManager = SingletonClass("RedPointManager")
 
 function RedPointManager:OnInit()
     self.tbAllRedPoint = {}

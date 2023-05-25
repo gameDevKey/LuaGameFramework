@@ -1,8 +1,4 @@
---[[
-    一个简单的有限状态机
-]]
---
-local FSM = Class("FSM")
+FSM = Class("FSM")
 
 function FSM:OnInit()
     self.tbState = {}

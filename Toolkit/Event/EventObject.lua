@@ -1,13 +1,9 @@
---[[
-    对事件对象的封装
-]]
-   --
-local EventObject = Class("EventObject")
+EventObject = Class("EventObject")
 
-function EventObject:OnInit(eventId, callback, callOnce)
+function EventObject:OnInit(eventId, callback, caller, callOnce)
     self.eventId = eventId
     self:SetCallOnce(callOnce)
-    self:SetCallback(callback)
+    self:SetCallback(callback, caller)
 end
 
 function EventObject:OnDelete()
@@ -26,15 +22,20 @@ function EventObject:Invoke(...)
         return
     end
     if self.callback then
-        self.callback(...)
+        if self.caller then
+            self.callback(self.caller,...)
+        else
+            self.callback(...)
+        end
     end
     if self.callOnce then
         self.allowInvoke = false
     end
 end
 
-function EventObject:SetCallback(callback)
+function EventObject:SetCallback(callback,caller)
     self.callback = callback
+    self.caller = caller
     self.allowInvoke = true
 end
 

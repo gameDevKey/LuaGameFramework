@@ -1,4 +1,4 @@
-local OrderQueue = Class("OrderQueue")
+OrderQueue = Class("OrderQueue")
 
 function OrderQueue:OnInit()
     self.queue = {}

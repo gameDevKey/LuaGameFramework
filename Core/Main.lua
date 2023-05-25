@@ -8,7 +8,16 @@ end
 
 --初始化中
 local function init()
-
+    --模块安装
+    local facades = {}
+    for key, luaPath in pairs(FacadeFiles) do
+        local cls = require(luaPath)
+        local ins = cls.Instance
+        facades[ins] = true
+    end
+    for facade, _ in pairs(facades) do
+        facade:InitComplete()
+    end
 end
 
 --初始化后

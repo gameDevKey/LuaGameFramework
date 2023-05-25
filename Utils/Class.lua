@@ -10,6 +10,41 @@ local function InjectInterfaces(obj,interfaces)
     end
 end
 
+---递归调用函数
+---@param fnName string 函数名
+---@param topDir boolean 调用方向, true表示从上往下调用, 反之从下往上调用
+local function CallFuncDeeply(cls, caller, fnName, depth, maxDepth, topDir, ...)
+    if not cls or maxDepth and depth >= maxDepth then return end
+    local fn = rawget(cls, fnName)
+    if topDir then
+        CallFuncDeeply(cls._super, caller, fnName, depth+1, maxDepth, topDir, ...)
+        local _ = fn and fn(caller,...)
+    else
+        local _ = fn and fn(caller,...)
+        CallFuncDeeply(cls._super, caller, fnName, depth+1, maxDepth, topDir, ...)
+    end
+end
+
+local function AssertClass(cls, super)
+    if IsUserdata(cls) then
+        PrintError("当前类类型异常!",cls)
+        return false
+    end
+    if IsUserdata(super) then
+        PrintError("父类类型异常!",super)
+        return false
+    end
+    if super and cls._className == super._className then
+        PrintError("不可以自己继承自己!")
+        return false
+    end
+    return true
+end
+
+if MEM_CHECK then
+    ALL_CLASS = {}
+    setmetatable(ALL_CLASS,{__mode = "kv"})
+end
 
 ---创建接口，只能包含函数
 ---配合Class()使用时，会把该表的所有函数注册到类中
@@ -25,7 +60,7 @@ function Interface(interfaceName,interfaces)
     local nameStr = string.format("接口[%s-%s]", interfaceName, tostring(interface))
     setmetatable(interface, {
         __tostring = function(this)
-            if this.ToString then
+            if rawget(this, "ToString") then
                 return this:ToString()
             end
             return nameStr
@@ -37,7 +72,7 @@ end
 
 ---创建类: 子类支持重载ToString()，暂不支持多重继承，支持实现多个接口类
 ---包含字段: _className:string 类名 | _class:Class 所属类 | _super:Class 父类 | _objectId:integer 实例ID
----包含方法: New 静态实例化函数 | Delete 析构函数 | ToFunc 返回某个函数 | SuperFunc 调用父类函数
+---包含方法: New 静态实例化函数 | Delete 析构函数 | ToFunc 返回某个函数 | CallSuperFunc/DeepCallSuperFunc 调用父类函数
 ---虚函数: OnInit | OnDelete | ToString
 ---@param className string 类名
 ---@param superClass Class|nil Class 父类
@@ -53,7 +88,7 @@ function Class(className, superClass, interfaces)
     setmetatable(clazz, {
         __index = superClass,
         __tostring = function(this)
-            if this.ToString then
+            if rawget(this, "ToString") then
                 return this:ToString()
             end
             return nameStr
@@ -70,11 +105,14 @@ function Class(className, superClass, interfaces)
         instance._alive = false
         instance._funcs = {}
         local defaultStr = string.format("%s实例[%s]", tostring(clazz), instance._objectId)
+        if MEM_CHECK then
+            ALL_CLASS[instance] = debug.traceback()
+        end
         setmetatable(instance,
             {
                 __index = clazz,
                 __tostring = function(this)
-                    if this.ToString then
+                    if rawget(this, "ToString") then
                         return this:ToString()
                     end
                     return defaultStr
@@ -84,18 +122,17 @@ function Class(className, superClass, interfaces)
         function instance:Ctor(...)
             if not self._alive then
                 self._alive = true
-                if self.OnInit then
-                    self:OnInit(...)
-                end
+                CallFuncDeeply(clazz, instance, "OnInit", 0, nil, true, ...)
             end
         end
 
         function instance:Delete(...)
             if self._alive then
                 self._alive = false
-                if self.OnDelete then
-                    self:OnDelete(...)
+                if MEM_CHECK then
+                    ALL_CLASS[instance] = nil
                 end
+                CallFuncDeeply(clazz, instance, "OnDelete", 0, nil, false, ...)
             end
         end
 
@@ -116,17 +153,19 @@ function Class(className, superClass, interfaces)
             return func
         end
 
-        function instance:SuperFunc(fnName, ...)
-            if clazz._super then
-                local fn = clazz._super[fnName]
-                return fn and fn(instance, ...)
-            end
+        function instance:CallSuperFunc(fnName, ...)
+            CallFuncDeeply(clazz._super, instance, fnName, 0, 1, false, ...)
+        end
+
+        function instance:DeepCallSuperFunc(fnName, topDir, ...)
+            CallFuncDeeply(clazz._super, instance, fnName, 0, nil, topDir, ...)
         end
 
         instance:Ctor(...)
         return instance
     end
 
+    AssertClass(clazz, superClass)
     return clazz
 end
 
@@ -134,13 +173,17 @@ local singletonClasses = {}
 
 ---创建单例类: 每个单例类的实例全局唯一, 子类支持重载ToString()，暂不支持多重继承，支持实现多个接口类
 ---包含字段: Instance 单例Getter | _className:string 类名 | _class:Class 所属类 | _super:Class 父类 | _objectId:integer 实例ID
----包含方法: Instance 单例获取函数 | Delete 析构函数 | ToFunc 返回某个函数 | SuperFunc 调用父类函数
+---包含方法: Instance 单例获取函数 | Delete 析构函数 | ToFunc 返回某个函数 | CallSuperFunc/DeepCallSuperFunc 调用父类函数
 ---虚函数: OnInit | OnDelete | ToString
 ---@param className string 类名
 ---@param superClass Class|nil Class 父类
 ---@param interfaces List<Interface>|table|nil 接口类列表，只能包含函数
 ---@return Class cls 单例类
 function SingletonClass(className, superClass, interfaces)
+    if singletonClasses[className] then
+        return singletonClasses[className]._class
+    end
+
     local clazz = {}
     clazz._isClass = true
     clazz._className = className
@@ -148,19 +191,15 @@ function SingletonClass(className, superClass, interfaces)
 
     local nameStr = string.format("单例类[%s-%s]", className, tostring(clazz))
     setmetatable(clazz, {
-        __index = function (tb, key)
-            if key == "Instance" then --动态注入字段
-                if not singletonClasses[clazz._className] then
-                    local ins = clazz.New()
-                    ins:Ctor()
-                end
-                rawset(tb, key, singletonClasses[clazz._className])
+        __index = function (tb,key)
+            if key == "Instance" then --访问时动态注入字段
+                rawset(tb, key, clazz.New())
                 return rawget(tb, key)
             end
             return superClass and superClass[key]
         end,
         __tostring = function(this)
-            if this.ToString then
+            if rawget(this, "ToString") then
                 return this:ToString()
             end
             return nameStr
@@ -170,9 +209,9 @@ function SingletonClass(className, superClass, interfaces)
 
     InjectInterfaces(clazz,clazz._interfaces)
 
-    function clazz.New()
+    function clazz.New(...)
         if singletonClasses[clazz._className] then
-            PrintError(clazz,"不可重复实例化, 访问请用Instance()")
+            PrintError(clazz,"不可重复实例化, 访问请用Instance字段")
             return singletonClasses[clazz._className]
         end
         local instance = {}
@@ -180,12 +219,15 @@ function SingletonClass(className, superClass, interfaces)
         instance._objectId = tostring(instance)
         instance._alive = false
         instance._funcs = {}
+        if MEM_CHECK then
+            ALL_CLASS[instance] = debug.traceback()
+        end
         local defaultStr = string.format("%s实例[%s]", tostring(clazz), instance._objectId)
         setmetatable(instance,
             {
                 __index = clazz,
                 __tostring = function(this)
-                    if this.ToString then
+                    if rawget(this, "ToString") then
                         return this:ToString()
                     end
                     return defaultStr
@@ -196,9 +238,7 @@ function SingletonClass(className, superClass, interfaces)
             if not self._alive then
                 self._alive = true
                 singletonClasses[clazz._className] = self
-                if self.OnInit then
-                    self:OnInit(...)
-                end
+                CallFuncDeeply(clazz, instance, "OnInit", 0, nil, true, ...)
             end
         end
 
@@ -206,9 +246,10 @@ function SingletonClass(className, superClass, interfaces)
             if self._alive then
                 self._alive = false
                 singletonClasses[clazz._className] = nil
-                if self.OnDelete then
-                    self:OnDelete(...)
+                if MEM_CHECK then
+                    ALL_CLASS[instance] = nil
                 end
+                CallFuncDeeply(clazz, instance, "OnDelete", 0, nil, false, ...)
             end
         end
 
@@ -229,16 +270,23 @@ function SingletonClass(className, superClass, interfaces)
             return func
         end
 
-        function instance:SuperFunc(fnName, ...)
-            if clazz._super then
-                local fn = clazz._super[fnName]
-                return fn and fn(instance, ...)
-            end
+        function instance:CallSuperFunc(fnName, ...)
+            CallFuncDeeply(clazz._super, instance, fnName, 0, 1, false, ...)
         end
 
+        ---递归调用父类函数
+        ---@param fnName string 函数名
+        ---@param topDir boolean 调用方向, true表示从上往下调用, 反之从下往上调用
+        ---@param ... unknown
+        function instance:DeepCallSuperFunc(fnName, topDir, ...)
+            CallFuncDeeply(clazz._super, instance, fnName, 0, nil, topDir, ...)
+        end
+
+        instance:Ctor(...)
         return instance
     end
 
+    AssertClass(clazz, superClass)
     return clazz
 end
 
@@ -263,12 +311,27 @@ function StaticClass(className)
 
     setmetatable(clazz, {
         __tostring = function(this)
-            if this.ToString then
+            if rawget(this, "ToString") then
                 return this:ToString()
             end
             return defaultStr
         end,
     })
 
+    AssertClass(clazz)
     return clazz
+end
+
+if MEM_CHECK then
+    function CheckClsInstanceInMemery(showTraceback)
+        collectgarbage("collect")
+        print("当前内存",collectgarbage("count"))
+        for instance, traceback in pairs(ALL_CLASS) do
+            if showTraceback then
+                PrintLog("内存中存在",instance,'\n',traceback)
+            else
+                PrintLog("内存中存在",instance)
+            end
+        end
+    end
 end

@@ -1,4 +1,4 @@
-local ComUI = Class("ComUI", UIBase)
+ComUI = Class("ComUI", UIBase)
 
 --解决几个问题
 --组件复用问题

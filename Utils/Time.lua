@@ -1,4 +1,4 @@
-local Time = StaticClass("Time")
+Time = StaticClass("Time")
 
 ---根据时间戳计算是星期几
 ---@param timeStamp int|nil 时间戳，默认是当前时间

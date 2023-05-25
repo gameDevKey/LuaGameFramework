@@ -1,4 +1,4 @@
-local HorizontalLoopScrollView = Class("HorizontalLoopScrollView", LoopScrollViewBase)
+HorizontalLoopScrollView = Class("HorizontalLoopScrollView", LoopScrollViewBase)
 
 function HorizontalLoopScrollView:OnInit()
     self.type = ELoopScrollView.Type.Horizontal

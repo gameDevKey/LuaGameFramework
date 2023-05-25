@@ -1,8 +1,4 @@
---[[
-    事件监听器
-]]
---
-local EventDispatcher = Class("EventDispatcher")
+EventDispatcher = Class("EventDispatcher")
 
 function EventDispatcher:OnInit()
     self.tbAllEvent = {} --map[EventId][EventKey]EventObject
@@ -17,9 +13,9 @@ end
 ---@param eventId any 监听类型
 ---@param callback function 回调 function(...) 接收广播数据
 ---@param callOnce boolean|nil 是否只监听一次
-function EventDispatcher:AddListener(eventId, callback, callOnce)
+function EventDispatcher:AddListener(eventId, callback, caller, callOnce)
     local eventKey = self.eventKeyGenerator()
-    local eventObj = EventObject.New(eventId, callback, callOnce)
+    local eventObj = EventObject.New(eventId, callback, caller, callOnce)
     if not self.tbAllEvent[eventId] then
         self.tbAllEvent[eventId] = {}
     end

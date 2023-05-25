@@ -1,4 +1,4 @@
-local GridLoopScrollView = Class("GridLoopScrollView", LoopScrollViewBase)
+GridLoopScrollView = Class("GridLoopScrollView", LoopScrollViewBase)
 
 local ConstraintType = {
     Flexible = 1,

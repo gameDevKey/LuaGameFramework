@@ -1,4 +1,4 @@
-local EOrderQueue = {}
+EOrderQueue = {}
 
 EOrderQueue.Type = {
     Last = Enum.Index,

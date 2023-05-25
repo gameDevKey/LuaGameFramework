@@ -1,4 +1,4 @@
-local Calculator = Class("Calculator")
+Calculator = Class("Calculator")
 
 Calculator.SignType = {
     Plus = "+",

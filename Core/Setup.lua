@@ -12,6 +12,7 @@ require("Utils.Time")
 
 --#region 获得所有Lua文件路径
 LuaFiles = {}
+FacadeFiles = {}
 local currentDir = LFS.currentdir()
 local luaFiles = {}
 FindAllFile(currentDir, ".lua", luaFiles)
@@ -27,6 +28,9 @@ for _, path in ipairs(luaFiles) do
     else
         if dir ~= "Debug" or TEST_ENV then
             LuaFiles[key] = table.concat(paths, ".")
+            if string.endswith(key, "Facade") then
+                FacadeFiles[key] = LuaFiles[key]
+            end
         end
     end
 end

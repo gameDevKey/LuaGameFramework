@@ -1,4 +1,4 @@
-local ERedPoint = Class("ERedPoint")
+ERedPoint = Class("ERedPoint")
 
 ERedPoint.State = {
     Inactive = Enum.Index,

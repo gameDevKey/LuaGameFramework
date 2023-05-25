@@ -1,9 +1,4 @@
---[[
-    FSM基类
-]]
-   --
-
-local FSMState = Class("FSMState")
+FSMState = Class("FSMState")
 
 function FSMState:OnInit(stateId)
     self.stateId = stateId

@@ -1,25 +1,54 @@
---外部只分发一个通知ID，Facade去通知Ctrl、Proxy，具体是干啥由他们自己决定
---Ctrl可以控制View，Proxy不可以
---View层不应该直接监听外界事件，全部统一通过Facade-->Ctrl-->View的方式
---Proxy只监听和处理协议数据，然后对Facade或者全局进行通知
-
-local FacadeBase = Class("FacadeBase")
+FacadeBase = Class("FacadeBase", ModuleBase)
 
 function FacadeBase:OnInit()
     self.proxys = {}
     self.ctrls = {}
+    self.eventDispatcher = EventDispatcher.New()
 end
 
 function FacadeBase:OnDelete()
+    for _, list in ipairs({self.ctrls,self.proxys}) do
+        for _, cls in pairs(list) do
+            cls:SetFacade(nil)
+            cls:Delete()
+        end
+    end
+    self.eventDispatcher:Delete()
+    self.proxys = nil
+    self.ctrls = nil
+    self.eventDispatcher = nil
+end
 
+function FacadeBase:InitComplete()
+    for _, list in ipairs({self.ctrls,self.proxys}) do
+        for _, cls in pairs(list) do
+            cls:InitComplete()
+        end
+    end
+    self:OnInitComplete()
 end
 
 function FacadeBase:BindCtrl(ctrl)
-
+    if self.ctrls[ctrl._className] then
+        PrintError("Ctrl重复绑定",ctrl)
+        return
+    end
+    ctrl:SetFacade(self)
+    self.ctrls[ctrl._className] = ctrl
 end
 
 function FacadeBase:BindProxy(proxy)
+    if self.proxys[proxy._className] then
+        PrintError("Proxy重复绑定",proxy)
+        return
+    end
+    proxy:SetFacade(self)
+    self.proxys[proxy._className] = proxy
+end
 
+--模块内部广播
+function FacadeBase:Broadcast(id,...)
+    self.eventDispatcher:Broadcast(id,...)
 end
 
 return FacadeBase

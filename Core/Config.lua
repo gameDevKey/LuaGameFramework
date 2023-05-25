@@ -6,3 +6,6 @@ PRINT_SWITCH = true
 
 --测试环境
 TEST_ENV = true
+
+--检查泄露
+MEM_CHECK = true

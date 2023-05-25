@@ -1,4 +1,4 @@
-local GameManager = SingletonClass("GameManager")
+GameManager = SingletonClass("GameManager")
 
 function GameManager:OnInit()
 end

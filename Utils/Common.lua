@@ -18,6 +18,10 @@ function IsFunction(input)
     return type(input) == "function"
 end
 
+function IsUserdata(input)
+    return type(input) == "userdata"
+end
+
 function IsClass(input)
     return IsTable(input) and input._isClass == true or false
 end
@@ -66,7 +70,7 @@ end
 
 function PrintError(...)
     PrintAny("[ERROR]", ...)
-    -- print(debug.traceback())
+    print(debug.traceback())
 end
 
 local function _copy(lookup_table, object, copyMeta)

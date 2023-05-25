@@ -1,4 +1,4 @@
-local Algorithm = StaticClass("Algorithm")
+Algorithm = StaticClass("Algorithm")
 local random = math.random
 
 ---权重随机

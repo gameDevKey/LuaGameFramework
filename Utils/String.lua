@@ -8,3 +8,15 @@ function string.split(inputstr, sep)
     end
     return t
 end
+
+function string.contains(str, sub)
+    return str:find(sub, 1, true) ~= nil
+end
+
+function string.startswith(str, start)
+    return str:sub(1, #start) == start
+end
+
+function string.endswith(str, ending)
+    return ending == "" or str:sub(-#ending) == ending
+end

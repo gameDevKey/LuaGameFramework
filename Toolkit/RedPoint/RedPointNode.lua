@@ -6,7 +6,7 @@
         3.AddOnStateChangeListener
 ]]
 --
-local RedPointNode = Class("RedPointNode")
+RedPointNode = Class("RedPointNode")
 
 local autoKeyFunc = GetAutoIncreaseFunc()
 

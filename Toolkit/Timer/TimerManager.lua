@@ -1,4 +1,4 @@
-local TimerManager = SingletonClass("TimerManager")
+TimerManager = SingletonClass("TimerManager")
 
 function TimerManager:OnInit()
     self.tbAllTimer = {}

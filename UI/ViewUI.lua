@@ -1,4 +1,4 @@
-local ViewUI = Class("ViewUI", UIBase)
+ViewUI = Class("ViewUI", UIBase)
 
 --解决几个问题
 --触发入场动画、音效等等

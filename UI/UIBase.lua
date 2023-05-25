@@ -1,4 +1,4 @@
-local UIBase = Class("UIBase", ModuleBase)
+UIBase = Class("UIBase", ModuleBase)
 
 function UIBase:OnInit()
     --id/order/type

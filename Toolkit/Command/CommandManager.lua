@@ -1,4 +1,4 @@
-local CommandManager = Class("CommandManager")
+CommandManager = Class("CommandManager")
 
 function CommandManager:OnInit()
     self.doCmds = {}

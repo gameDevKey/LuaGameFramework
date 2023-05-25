@@ -1,9 +1,7 @@
-local Cache = Class("Cache")
+local ICache = Interface("ICache")
 
-function Cache:Get()
-end
+function ICache:Get() end
 
-function Cache:Cache()
-end
+function ICache:Cache() end
 
-return Cache
+return ICache

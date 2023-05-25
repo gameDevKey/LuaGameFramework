@@ -1,4 +1,4 @@
-local Timer = Class("Timer")
+Timer = Class("Timer")
 
 function Timer:OnInit(timerId, callback, tickTime)
     self.timerId = timerId

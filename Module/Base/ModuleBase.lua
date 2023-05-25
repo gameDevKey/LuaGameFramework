@@ -1,42 +1,77 @@
---[[
-    业务类的基类
-]]
---
-local ModuleBase = Class("ModuleBase")
+--MVC基类，只提供最通用的函数
+ModuleBase = Class("ModuleBase")
 
 function ModuleBase:OnInit()
+    self.facade = nil
     self.tbEventKey = {}
+    self.tbEventGlobalKey = {}
     self.tbTimerId = {}
-    self.eventDispatcher = EventDispatcher.Global
 end
 
 function ModuleBase:OnDestory()
     self:RemoveAllListener()
+    self:RemoveAllGolbalListener()
     self:RemoveAllTimer()
 end
 
-function ModuleBase:SetEventDispatcher(eventDispatcher)
-    self.eventDispatcher = eventDispatcher
+function ModuleBase:SetFacade(facade)
+    self.facade = facade
 end
 
-function ModuleBase:AddListener(eventId, callback, callonce)
-    local eventKey = self.eventDispatcher:AddListener(eventId, callback, callonce)
-    self.tbEventKey[eventKey] = eventId
+function ModuleBase:InitComplete()
+    self:OnInitComplete()
+end
+
+local function addListener(tbEventKey, eventDispatcher, eventId, callback, caller, callonce)
+    local eventKey = eventDispatcher:AddListener(eventId, callback, caller, callonce)
+    tbEventKey[eventKey] = eventId
     return eventKey
 end
 
-function ModuleBase:RemoveListener(eventKey)
-    if self.tbEventKey[eventKey] then
-        self.eventDispatcher:RemoveListener(self.tbEventKey[eventKey], eventKey)
-        self.tbEventKey[eventKey] = nil
+local function removeListener(tbEventKey, eventDispatcher, eventKey)
+    if tbEventKey[eventKey] then
+        eventDispatcher:RemoveListener(tbEventKey[eventKey], eventKey)
+        tbEventKey[eventKey] = nil
     end
 end
 
-function ModuleBase:RemoveAllListener()
-    for eventKey, eventId in pairs(self.tbEventKey or {}) do
-        self.eventDispatcher:RemoveListener(eventId, eventKey)
+local function removeAllListener(tbEventKey, eventDispatcher)
+    for eventKey, eventId in pairs(tbEventKey or {}) do
+        eventDispatcher:RemoveListener(eventId, eventKey)
     end
-    self.tbEventKey = {}
+    tbEventKey = {}
+end
+
+function ModuleBase:AddListener(eventId, callback, caller, callonce)
+    return addListener(self.tbEventKey, self.facade.eventDispatcher, eventId, callback, caller, callonce)
+end
+
+function ModuleBase:AddListenerWithSelfFunc(eventId, fnName, callonce)
+    return self:AddListener(eventId, self:ToFunc(fnName), self, callonce)
+end
+
+function ModuleBase:RemoveListener(eventKey)
+    removeListener(self.tbEventKey, self.facade.eventDispatcher, eventKey)
+end
+
+function ModuleBase:RemoveAllListener()
+    removeAllListener(self.tbEventKey, self.facade.eventDispatcher)
+end
+
+function ModuleBase:AddGolbalListener(eventId, callback, caller, callonce)
+    return addListener(self.tbEventGlobalKey, EventDispatcher.Global, eventId, callback, caller, callonce)
+end
+
+function ModuleBase:AddGolbalListenerWithSelfFunc(eventId, fnName, callonce)
+    return self:AddGolbalListener(eventId, self:ToFunc(fnName), self, callonce)
+end
+
+function ModuleBase:RemoveGolbalListener(eventKey)
+    removeListener(self.tbEventGlobalKey, EventDispatcher.Global, eventKey)
+end
+
+function ModuleBase:RemoveAllGolbalListener()
+    removeAllListener(self.tbEventGlobalKey, EventDispatcher.Global)
 end
 
 function ModuleBase:AddTimer(callback, tickTime)
@@ -55,6 +90,9 @@ function ModuleBase:RemoveAllTimer()
         self:RemoveTimer(timerId)
     end
     self.tbTimerId = {}
+end
+
+function ModuleBase:OnInitComplete()
 end
 
 return ModuleBase

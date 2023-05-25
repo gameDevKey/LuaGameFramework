@@ -1,4 +1,4 @@
-local ObjectPool = Class("ObjectPool")
+ObjectPool = Class("ObjectPool")
 
 function ObjectPool:OnInit(cbGet)
     self.activePool = {}

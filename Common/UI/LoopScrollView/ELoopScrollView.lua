@@ -1,4 +1,4 @@
-local ELoopScrollView = {}
+ELoopScrollView = {}
 
 ---类型
 ELoopScrollView.Type = {
