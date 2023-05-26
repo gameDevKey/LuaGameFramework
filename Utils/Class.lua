@@ -18,9 +18,11 @@ local function CallFuncDeeply(cls, caller, fnName, depth, maxDepth, topDir, ...)
     local fn = rawget(cls, fnName)
     if topDir then
         CallFuncDeeply(cls._super, caller, fnName, depth+1, maxDepth, topDir, ...)
-        local _ = fn and fn(caller,...)
+        if caller then local _ = fn and fn(caller,...)
+        else local _ = fn and fn(...) end
     else
-        local _ = fn and fn(caller,...)
+        if caller then local _ = fn and fn(caller,...)
+        else local _ = fn and fn(...) end
         CallFuncDeeply(cls._super, caller, fnName, depth+1, maxDepth, topDir, ...)
     end
 end

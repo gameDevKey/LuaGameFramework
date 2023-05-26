@@ -8,23 +8,24 @@ function ProxyBase:OnInit()
     self.protoCallback = {}
 end
 
+function ProxyBase:OnDelete()
+    for proto, callObject in pairs(self.protoCallback) do
+        callObject:Delete()
+    end
+end
+
 function ProxyBase:InitComplete()
     self:AddGolbalListenerWithSelfFunc(EGlobalEvent.Proto,"HandleProto", false)
 end
 
 function ProxyBase:ListenProto(proto, callback, caller)
-    self.protoCallback[proto] = {
-        callback = callback,
-        caller = caller,
-    }
+    self.protoCallback[proto] = CallObject.New(callback,caller)
 end
 
 function ProxyBase:HandleProto(proto,args)
     local handler = self.protoCallback[proto]
     if handler then
-        local fn = handler.callback
-        local caller = handler.caller
-        local _ = fn and fn(caller,args)
+        handler:Invoke(args)
     end
 end
 

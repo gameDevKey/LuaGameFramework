@@ -7,6 +7,9 @@ function EventObject:OnInit(eventId, callback, caller, callOnce)
 end
 
 function EventObject:OnDelete()
+    if self.callback then
+        self.callback:Delete()
+    end
 end
 
 function EventObject:GetEventId()
@@ -22,11 +25,7 @@ function EventObject:Invoke(...)
         return
     end
     if self.callback then
-        if self.caller then
-            self.callback(self.caller,...)
-        else
-            self.callback(...)
-        end
+        self.callback:Invoke(...)
     end
     if self.callOnce then
         self.allowInvoke = false
@@ -34,8 +33,7 @@ function EventObject:Invoke(...)
 end
 
 function EventObject:SetCallback(callback,caller)
-    self.callback = callback
-    self.caller = caller
+    self.callback = CallObject.New(callback,caller)
     self.allowInvoke = true
 end
 

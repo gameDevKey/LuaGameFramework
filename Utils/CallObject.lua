@@ -1,6 +1,6 @@
 CallObject = Class("CallObject")
 
-function CallObject:OnInit(func,caller, args)
+function CallObject:OnInit(func,caller,args)
     self.func = func
     self.caller = caller
     self.args = args

@@ -89,9 +89,7 @@ ins:Delete()
 print("------------------删除C")
 CheckClsInstanceInMemery()
 
-TestFacade.Instance:Delete()
-CommandManager.Global:Delete()
-EventDispatcher.Global:Delete()
+Uninstall()
 
 print("------------------全部清除")
-CheckClsInstanceInMemery()
+CheckClsInstanceInMemery(true)
