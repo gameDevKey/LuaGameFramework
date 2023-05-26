@@ -1,3 +1,6 @@
+--值监听器
+--包含函数:SetCompareFunc(callback, caller, args)   @params callback(new,old):function
+--包含函数:SetChangeFunc(callback, caller, args)   @params callback(new,old):function
 DataWatcher = Class("DataWatcher",DataWatcherBase)
 
 function DataWatcher:OnInit()

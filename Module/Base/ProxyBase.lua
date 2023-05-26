@@ -1,6 +1,7 @@
 --代理基类，会在游戏启动前自动加载
 --处理协议或者业务数据，数据更新后通过Facade或者全局事件向外通知
 --禁止直接访问视图层
+--最好结合DataWater类监听数据变化
 --函数InitComplete()会在Facade安装完成后自顶向下被调用
 ProxyBase = Class("ProxyBase",ModuleBase)
 

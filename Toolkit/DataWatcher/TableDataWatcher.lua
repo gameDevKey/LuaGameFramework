@@ -1,3 +1,6 @@
+--Table监听器
+--包含函数:SetCompareFunc(callback, caller, args)   @params callback(key,new,old):function
+--包含函数:SetChangeFunc(callback, caller, args)   @params callback(key,new,old):function
 TableDataWatcher = Class("TableDataWatcher",DataWatcherBase)
 
 function TableDataWatcher:OnInit()

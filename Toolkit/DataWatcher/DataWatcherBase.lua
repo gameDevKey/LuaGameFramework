@@ -1,3 +1,4 @@
+--值监听器基类
 DataWatcherBase = Class("DataWatcherBase")
 
 function DataWatcherBase:OnInit()
