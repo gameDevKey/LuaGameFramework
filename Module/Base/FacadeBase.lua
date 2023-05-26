@@ -1,3 +1,6 @@
+--门面基类，会在游戏启动前自动加载
+--负责绑定MVC，以及内部广播
+--函数InitComplete()会在Facade安装完成后自顶向下被调用
 FacadeBase = Class("FacadeBase", ModuleBase)
 
 function FacadeBase:OnInit()
@@ -22,10 +25,9 @@ end
 function FacadeBase:InitComplete()
     for _, list in ipairs({self.ctrls,self.proxys}) do
         for _, cls in pairs(list) do
-            cls:InitComplete()
+            cls:CallFuncDeeply("InitComplete",true)
         end
     end
-    self:OnInitComplete()
 end
 
 function FacadeBase:BindCtrl(ctrl)

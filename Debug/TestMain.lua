@@ -3,6 +3,8 @@
 -- local _ = TestTable
 -- local _ = TestCache
 -- local _ = TestMath
-local _ = TestClass
+-- local _ = TestClass
 -- local _ = TestCmd
 -- local _ = TestModule
+-- local _ = TestNetwork
+local _ = TestDataWatcher

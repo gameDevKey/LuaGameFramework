@@ -26,11 +26,11 @@ local function CallFuncDeeply(cls, caller, fnName, depth, maxDepth, topDir, ...)
 end
 
 local function AssertClass(cls, super)
-    if IsUserdata(cls) then
+    if not IsClass(cls) then
         PrintError("当前类类型异常!",cls)
         return false
     end
-    if IsUserdata(super) then
+    if super and not IsClass(super) then
         PrintError("父类类型异常!",super)
         return false
     end
@@ -72,8 +72,8 @@ end
 
 ---创建类: 子类支持重载ToString()，暂不支持多重继承，支持实现多个接口类
 ---包含字段: _className:string 类名 | _class:Class 所属类 | _super:Class 父类 | _objectId:integer 实例ID
----包含方法: New 静态实例化函数 | Delete 析构函数 | ToFunc 返回某个函数 | CallSuperFunc/DeepCallSuperFunc 调用父类函数
----虚函数: OnInit | OnDelete | ToString
+---包含方法: New 静态实例化函数 | Delete 析构函数 | ToFunc 返回某个函数 | CallFuncDeeply 调用父类函数
+---虚函数: OnInit(自顶向下调用) | OnDelete(自底向上调用) | ToString
 ---@param className string 类名
 ---@param superClass Class|nil Class 父类
 ---@param interfaces List<Interface>|table|nil 接口类列表，只能包含函数
@@ -122,7 +122,7 @@ function Class(className, superClass, interfaces)
         function instance:Ctor(...)
             if not self._alive then
                 self._alive = true
-                CallFuncDeeply(clazz, instance, "OnInit", 0, nil, true, ...)
+                self:CallFuncDeeply("OnInit", true, ...)
             end
         end
 
@@ -132,7 +132,7 @@ function Class(className, superClass, interfaces)
                 if MEM_CHECK then
                     ALL_CLASS[instance] = nil
                 end
-                CallFuncDeeply(clazz, instance, "OnDelete", 0, nil, false, ...)
+                self:CallFuncDeeply("OnDelete", false, ...)
             end
         end
 
@@ -153,11 +153,11 @@ function Class(className, superClass, interfaces)
             return func
         end
 
-        function instance:CallSuperFunc(fnName, ...)
-            CallFuncDeeply(clazz._super, instance, fnName, 0, 1, false, ...)
+        function instance:CallFuncDeeply(fnName, topDir, ...)
+            CallFuncDeeply(clazz, instance, fnName, 0, nil, topDir, ...)
         end
 
-        function instance:DeepCallSuperFunc(fnName, topDir, ...)
+        function instance:CallSuperFuncDeeply(fnName, topDir, ...)
             CallFuncDeeply(clazz._super, instance, fnName, 0, nil, topDir, ...)
         end
 
@@ -165,7 +165,9 @@ function Class(className, superClass, interfaces)
         return instance
     end
 
-    AssertClass(clazz, superClass)
+    if TEST_ENV then
+        AssertClass(clazz, superClass)
+    end
     return clazz
 end
 
@@ -173,8 +175,8 @@ local singletonClasses = {}
 
 ---创建单例类: 每个单例类的实例全局唯一, 子类支持重载ToString()，暂不支持多重继承，支持实现多个接口类
 ---包含字段: Instance 单例Getter | _className:string 类名 | _class:Class 所属类 | _super:Class 父类 | _objectId:integer 实例ID
----包含方法: Instance 单例获取函数 | Delete 析构函数 | ToFunc 返回某个函数 | CallSuperFunc/DeepCallSuperFunc 调用父类函数
----虚函数: OnInit | OnDelete | ToString
+---包含方法: Instance 单例获取函数 | Delete 析构函数 | ToFunc 返回某个函数 | CallFuncDeeply 调用父类函数
+---虚函数: OnInit(自顶向下调用) | OnDelete(自底向上调用) | ToString
 ---@param className string 类名
 ---@param superClass Class|nil Class 父类
 ---@param interfaces List<Interface>|table|nil 接口类列表，只能包含函数
@@ -238,7 +240,7 @@ function SingletonClass(className, superClass, interfaces)
             if not self._alive then
                 self._alive = true
                 singletonClasses[clazz._className] = self
-                CallFuncDeeply(clazz, instance, "OnInit", 0, nil, true, ...)
+                self:CallFuncDeeply("OnInit", true, ...)
             end
         end
 
@@ -249,7 +251,7 @@ function SingletonClass(className, superClass, interfaces)
                 if MEM_CHECK then
                     ALL_CLASS[instance] = nil
                 end
-                CallFuncDeeply(clazz, instance, "OnDelete", 0, nil, false, ...)
+                self:CallFuncDeeply("OnDelete", false, ...)
             end
         end
 
@@ -270,15 +272,11 @@ function SingletonClass(className, superClass, interfaces)
             return func
         end
 
-        function instance:CallSuperFunc(fnName, ...)
-            CallFuncDeeply(clazz._super, instance, fnName, 0, 1, false, ...)
+        function instance:CallFuncDeeply(fnName, topDir, ...)
+            CallFuncDeeply(clazz, instance, fnName, 0, nil, topDir, ...)
         end
 
-        ---递归调用父类函数
-        ---@param fnName string 函数名
-        ---@param topDir boolean 调用方向, true表示从上往下调用, 反之从下往上调用
-        ---@param ... unknown
-        function instance:DeepCallSuperFunc(fnName, topDir, ...)
+        function instance:CallSuperFuncDeeply(fnName, topDir, ...)
             CallFuncDeeply(clazz._super, instance, fnName, 0, nil, topDir, ...)
         end
 
@@ -286,7 +284,9 @@ function SingletonClass(className, superClass, interfaces)
         return instance
     end
 
-    AssertClass(clazz, superClass)
+    if TEST_ENV then
+        AssertClass(clazz, superClass)
+    end
     return clazz
 end
 
@@ -318,7 +318,9 @@ function StaticClass(className)
         end,
     })
 
-    AssertClass(clazz)
+    if TEST_ENV then
+        AssertClass(clazz)
+    end
     return clazz
 end
 

@@ -16,7 +16,7 @@ local function init()
         facades[ins] = true
     end
     for facade, _ in pairs(facades) do
-        facade:InitComplete()
+        facade:CallFuncDeeply("InitComplete",true)
     end
 end
 

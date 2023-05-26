@@ -1,7 +1,7 @@
 --处理界面相关逻辑
 TestViewCtrl = SingletonClass("TestViewCtrl",CtrlBase)
 
-function TestViewCtrl:OnInitComplete()
+function TestViewCtrl:InitComplete()
     self:AddListenerWithSelfFunc(ETestModule.Test, "TestFunc", true)
 end
 
