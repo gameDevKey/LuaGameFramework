@@ -1,4 +1,4 @@
-local Enum = {}
+Enum = {}
 Enum._autoIndex = 0
 
 local extraMeta = {}
@@ -8,6 +8,58 @@ extraMeta.__index = function(tb, key)
         Enum._autoIndex = Enum._autoIndex + 1
         return Enum._autoIndex
     end
+end
+
+local function checkEnum(enum, name)
+    local keys = {}
+    local values = {}
+    for key, value in pairs(enum) do
+        if keys[key] then
+            PrintError("枚举", name, "键重复", key)
+        end
+        if values[value] then
+            PrintError("枚举", name, "值重复", value)
+        end
+        keys[key] = true
+        values[value] = true
+    end
+end
+
+function Enum.New(tb, name)
+    name = name or "Enum"
+    if TEST_ENV then
+        checkEnum(tb, name)
+    end
+
+    --反向映射
+    local data = {}
+    for key, value in pairs(tb) do
+        data[value] = key
+    end
+
+    --枚举遍历函数
+    local proxy = {}
+    local iter, t
+    function proxy:Pairs()
+        if not iter then
+            iter, t = pairs(tb)
+        end
+        return iter, t
+    end
+
+    --枚举不可被修改
+    local mt = {
+        __index = function(t, k)
+            if tb[k] then return tb[k] end
+            if data[k] then return data[k] end
+            PrintError("枚举", name, "不存在键", k)
+        end,
+        __newindex = function(t, k, v)
+            PrintError("枚举", name, "无法修改键", k)
+        end
+    }
+    setmetatable(proxy, mt)
+    return proxy
 end
 
 return Enum

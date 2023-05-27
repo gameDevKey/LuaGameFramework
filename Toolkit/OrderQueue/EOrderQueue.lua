@@ -1,8 +1,8 @@
 EOrderQueue = {}
 
-EOrderQueue.Type = {
+EOrderQueue.Type = Enum.New({
     Last = Enum.Index,
     First = Enum.Index,
-}
+})
 
 return EOrderQueue

@@ -1,26 +1,26 @@
 ELoopScrollView = {}
 
 ---类型
-ELoopScrollView.Type = {
+ELoopScrollView.Type = Enum.New({
     Unknown = 0,
     Horizontal = 1,
     Vertical = 2,
     Grid = 3,
-}
+})
 
 ---对齐模式
-ELoopScrollView.AlignType = {
+ELoopScrollView.AlignType = Enum.New({
     Top = 1,
     Center = 2,
     Bottom = 3,
-}
+})
 
 ---跳转模式
-ELoopScrollView.JumpType = {
+ELoopScrollView.JumpType = Enum.New({
     Top = 1,
     Center = 2,
     Bottom = 3,
-}
+})
 
 ---水平对齐锚点
 ELoopScrollView.HorizontalAlignConfig = {

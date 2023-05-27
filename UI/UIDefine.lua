@@ -1,9 +1,9 @@
 UIDefine = {}
 
-UIDefine.EnterType = {
+UIDefine.EnterType = Enum.New({
     ExitLast = Enum.Index,
     KeepLast = Enum.Index,
-}
+})
 
 --[[
     界面配置
