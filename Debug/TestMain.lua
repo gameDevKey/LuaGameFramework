@@ -5,6 +5,7 @@
 -- local _ = TestMath
 -- local _ = TestCmd
 -- local _ = TestModule
-local _ = TestNetwork
+-- local _ = TestNetwork
 -- local _ = TestDataWatcher
 -- local _ = TestClass
+local _ = TestEnum
