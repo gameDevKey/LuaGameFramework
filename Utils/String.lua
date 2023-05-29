@@ -20,3 +20,7 @@ end
 function string.endswith(str, ending)
     return ending == "" or str:sub(-#ending) == ending
 end
+
+function string.valid(str)
+    return IsString(str) and string.len(str) > 0
+end

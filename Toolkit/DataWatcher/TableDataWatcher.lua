@@ -13,13 +13,13 @@ function TableDataWatcher:OnDelete()
     end
 end
 
-function TableDataWatcher:SetVal(key,val)
+function TableDataWatcher:SetVal(key,val,forceChange)
     if not self.kvs[key] then
         self.kvs[key] = DataWatcher.New()
         self.kvs[key]:SetChangeFunc(self:ToFunc("HandleChange"),self,key)
         self.kvs[key]:SetCompareFunc(self:ToFunc("HandleCompare"),self,key)
     end
-    self.kvs[key]:SetVal(val)
+    self.kvs[key]:SetVal(val,forceChange)
 end
 
 function TableDataWatcher:GetVal(key)

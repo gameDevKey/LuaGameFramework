@@ -10,15 +10,19 @@ end
 function DataWatcher:OnDelete()
 end
 
-function DataWatcher:SetVal(val)
+function DataWatcher:SetVal(val,forceChange)
     local change = false
-    if self.data ~= nil then
-        if self.compareFunc then
-            if not self.compareFunc:Invoke(val,self.data) then
-                change = true
+    if forceChange then
+        change = true
+    else
+        if self.data ~= nil then
+            if self.compareFunc then
+                if not self.compareFunc:Invoke(val,self.data) then
+                    change = true
+                end
+            else
+                change = self.data ~= val
             end
-        else
-            change = self.data ~= val
         end
     end
     local old = self.data
