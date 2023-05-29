@@ -12,5 +12,3 @@ kv:SetVal("A",3)
 kv:SetVal("A",4)
 
 kv:Delete()
-Uninstall()
-CheckClsInstanceInMemery()

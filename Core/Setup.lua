@@ -50,12 +50,3 @@ parentG.__index = function(tb, key)
     end
 end
 --#endregion
-
-
---卸载所有系统(慎用!)
-function Uninstall()
-    GameManager.Instance:Delete()
-    TestFacade.Instance:Delete()
-    CommandManager.Global:Delete()
-    EventDispatcher.Global:Delete()
-end

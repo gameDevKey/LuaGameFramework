@@ -89,7 +89,7 @@ ins:Delete()
 print("------------------删除C")
 CheckClsInstanceInMemery()
 
-Uninstall()
+ClearAllClass()
 
 print("------------------全部清除")
 CheckClsInstanceInMemery(true)

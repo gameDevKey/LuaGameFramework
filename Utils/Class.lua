@@ -326,6 +326,30 @@ function StaticClass(className)
     return clazz
 end
 
+local globalInstances = {}
+
+---获取实例，这个实例全局唯一，某些非单例类需要创建一个全局实例，比如事件系统
+---@param cls Class 类
+---@return table instance 类实例
+function GetGlobalInstance(cls)
+    if not globalInstances[cls._className] then
+        globalInstances[cls._className] = cls.New()
+    end
+    return globalInstances[cls._className]
+end
+
+--卸载所有类实例(慎用!)
+function ClearAllClass()
+    for name, ins in pairs(singletonClasses) do
+        ins:Delete()
+    end
+    singletonClasses = {}
+    for name, ins in pairs(globalInstances) do
+        ins:Delete()
+    end
+    globalInstances = {}
+end
+
 if MEM_CHECK then
     function CheckClsInstanceInMemery(showTraceback)
         collectgarbage("collect")

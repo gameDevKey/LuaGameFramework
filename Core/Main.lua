@@ -2,8 +2,8 @@
 local function pre_init()
     require("Core.Setup")
     MathUtil.RandomSeed()
-    EventDispatcher.Global = EventDispatcher.New()
-    CommandManager.Global = CommandManager.New()
+    EventDispatcher.Global = GetGlobalInstance(EventDispatcher)
+    CommandManager.Global = GetGlobalInstance(CommandManager)
 end
 
 --初始化中
