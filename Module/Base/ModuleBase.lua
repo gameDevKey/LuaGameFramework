@@ -1,5 +1,5 @@
 --MVC基类，只提供最通用的函数
---函数InitComplete()会在Facade安装完成后自顶向下被调用
+--函数OnInitComplete()会在Facade安装完成后自顶向下被调用
 ModuleBase = Class("ModuleBase")
 
 function ModuleBase:OnInit()
@@ -20,6 +20,7 @@ function ModuleBase:SetFacade(facade)
 end
 
 function ModuleBase:InitComplete()
+    self:CallFuncDeeply("OnInitComplete",true)
 end
 
 local function addListener(tbEventKey, eventDispatcher, eventId, callback, caller, callonce)
@@ -91,5 +92,11 @@ function ModuleBase:RemoveAllTimer()
     end
     self.tbTimerId = {}
 end
+
+--#region 虚函数
+
+function ModuleBase:OnInitComplete() end
+
+--#endregion
 
 return ModuleBase

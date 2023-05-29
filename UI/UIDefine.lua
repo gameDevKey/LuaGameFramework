@@ -1,5 +1,9 @@
 UIDefine = {}
 
+UIDefine.ViewType = Enum.New({
+    MainView = Enum.Index,
+})
+
 UIDefine.EnterType = Enum.New({
     ExitLast = Enum.Index,
     KeepLast = Enum.Index,
@@ -12,7 +16,7 @@ UIDefine.EnterType = Enum.New({
     IsMulti:是否允许同时存在多个相同界面
 --]]
 UIDefine.Config = {
-    MainView = {
+    [UIDefine.ViewType.MainView] = {
         Class = MainView,
         EnterType = UIDefine.EnterType.KeepLast,
         IsMulti = false,

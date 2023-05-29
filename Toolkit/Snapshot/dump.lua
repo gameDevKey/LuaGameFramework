@@ -1,19 +1,7 @@
-local oldCpath = package.cpath
-package.cpath = "D:\\LuaGameFramework\\Toolkit\\Snapshot\\lua-snapshot\\snapshot.dll"
 local snapshot = require "snapshot"
-package.cpath = oldCpath
-
-print("加载snapshot",snapshot)
-
 local snapshot_utils = require("Toolkit.Snapshot.lua-snapshot.snapshot_utils")
-
-print("加载snapshot_utils",snapshot_utils)
-
 local construct_indentation = snapshot_utils.construct_indentation
 local print_r = require("Toolkit.Snapshot.lua-snapshot.print_r")
-
-print("加载print_r",print_r)
-
 local S1 = snapshot()
 
 local tmp = {

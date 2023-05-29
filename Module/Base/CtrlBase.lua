@@ -3,7 +3,7 @@
 --函数InitComplete()会在Facade安装完成后自顶向下被调用
 CtrlBase = Class("CtrlBase",ModuleBase)
 
-function CtrlBase:InitComplete()
+function CtrlBase:OnInitComplete()
 end
 
 function CtrlBase:BindMediator(view)

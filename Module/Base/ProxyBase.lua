@@ -23,7 +23,7 @@ function ProxyBase:OnDelete()
     self.rootDataWatcher:Delete()
 end
 
-function ProxyBase:InitComplete()
+function ProxyBase:OnInitComplete()
     self:AddGolbalListenerWithSelfFunc(EGlobalEvent.Proto,"HandleProto", false)
 end
 

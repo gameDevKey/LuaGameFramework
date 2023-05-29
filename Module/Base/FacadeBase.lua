@@ -22,14 +22,6 @@ function FacadeBase:OnDelete()
     self.eventDispatcher = nil
 end
 
-function FacadeBase:InitComplete()
-    for _, list in ipairs({self.ctrls,self.proxys}) do
-        for _, cls in pairs(list) do
-            cls:CallFuncDeeply("InitComplete",true)
-        end
-    end
-end
-
 function FacadeBase:BindCtrl(ctrl)
     if self.ctrls[ctrl._className] then
         PrintError("Ctrl重复绑定",ctrl)
@@ -51,6 +43,14 @@ end
 --模块内部广播
 function FacadeBase:Broadcast(id,...)
     self.eventDispatcher:Broadcast(id,...)
+end
+
+function FacadeBase:OnInitComplete()
+    for _, list in ipairs({self.ctrls,self.proxys}) do
+        for _, cls in pairs(list) do
+            cls:InitComplete()
+        end
+    end
 end
 
 return FacadeBase

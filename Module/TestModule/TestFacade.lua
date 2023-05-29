@@ -6,15 +6,15 @@ function TestFacade:OnInit()
     self:BindProxy(TestProxy.Instance)
 end
 
-function TestFacade:InitComplete()
-    -- print("TestFacade:InitComplete")
-    -- self:AddGolbalListenerWithSelfFunc(EGlobalEvent.TestModule, "TestFunc", "start TestFacade")
+function TestFacade:OnInitComplete()
+    PrintLog("TestFacade:OnInitComplete")
+    self:AddGolbalListenerWithSelfFunc(EGlobalEvent.TestModule, "TestFunc", "start TestFacade")
 end
 
 function TestFacade:TestFunc(...)
-    -- print("执行TestFacade:TestFunc",self)
-    -- self:Broadcast(ETestModule.Test,"test success!")
-    -- self:Broadcast(ETestModule.Test,"test success!")
+    PrintLog("执行TestFacade:TestFunc",self)
+    self:Broadcast(ETestModule.Test,"test success!")
+    self:Broadcast(ETestModule.Test,"test success!")
 end
 
 return TestFacade

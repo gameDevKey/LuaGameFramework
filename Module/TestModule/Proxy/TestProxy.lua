@@ -1,6 +1,6 @@
 TestProxy = SingletonClass("TestProxy",ProxyBase)
 
-function TestProxy:InitComplete()
+function TestProxy:OnInitComplete()
     -- PrintLog("绑定Test协议")
     self:ListenData("Test.data","TestDataChange")
     self:ListenData("Test.a.c","TestDataChange1")
