@@ -11,13 +11,9 @@ function ComUI:SetData(data,viewUI)
     self.viewUI = viewUI
 end
 
-function ComUI:Refresh()
-    self:CallFuncDeeply("OnRefresh")
-end
-
 --#region 虚函数
 
-function ComUI:OnRefresh() end
+
 
 --#endregion
 

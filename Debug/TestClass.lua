@@ -93,3 +93,9 @@ ClearAllClass()
 
 print("------------------全部清除")
 CheckClsInstanceInMemery(true)
+
+-- for key, value in pairs(_G) do
+--     if IsClass(value) then
+--         print("_G:",key,value)
+--     end
+-- end

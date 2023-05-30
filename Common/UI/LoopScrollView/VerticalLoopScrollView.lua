@@ -44,7 +44,7 @@ end
 function VerticalLoopScrollView:UpdateContentSize()
     local h = self.setting.paddingTop
     local maxW = 0
-    for i, data in ipairs(self.tbItemData or {}) do
+    for i, data in ipairs(self.tbItemData or NIL_TABLE) do
         h = h + data.size.h + self.setting.gapY
         if data.size.w > maxW then
             maxW = data.size.w
@@ -67,7 +67,7 @@ function VerticalLoopScrollView:UpdateList()
 
     local targetIndex = 1                   --起始索引
     local targetY = self.setting.paddingTop --起始坐标
-    for i, data in ipairs(self.tbItemData or {}) do
+    for i, data in ipairs(self.tbItemData or NIL_TABLE) do
         targetIndex = i
         local y = targetY + data.size.h
         if y >= startPos then
@@ -105,7 +105,7 @@ function VerticalLoopScrollView:UpdateList()
         end
     end
 
-    for _, insData in pairs(tempShowItems or {}) do
+    for _, insData in pairs(tempShowItems or NIL_TABLE) do
         self:TryRecycleItem(insData)
     end
 

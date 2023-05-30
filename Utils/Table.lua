@@ -15,12 +15,12 @@ function table.IsValid(tb)
 end
 
 function table.Contain(tb, obj)
-    for _, item in pairs(tb or {}) do
+    for k, item in pairs(tb or NIL_TABLE) do
         if item == obj then
-            return true
+            return true, k
         end
     end
-    return false
+    return false, nil
 end
 
 function table.ToString(val, name, skipnewlines, depth)

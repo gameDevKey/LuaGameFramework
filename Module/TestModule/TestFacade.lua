@@ -7,7 +7,7 @@ function TestFacade:OnInit()
 end
 
 function TestFacade:OnInitComplete()
-    PrintLog("TestFacade:OnInitComplete")
+    -- PrintLog("TestFacade:OnInitComplete")
     self:AddGolbalListenerWithSelfFunc(EGlobalEvent.TestModule, "TestFunc", "start TestFacade")
 end
 

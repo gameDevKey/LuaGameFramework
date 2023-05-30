@@ -63,13 +63,13 @@ local function DataCompare(new,old,prefix,key,output)
         return same
     end
     local same = true
-    for k, v in pairs(old or {}) do
+    for k, v in pairs(old or NIL_TABLE) do
         if not DataCompare(new[k],v,curPrefix,k,output) then
             --删除
             same = false
         end
     end
-    for k, v in pairs(new or {}) do
+    for k, v in pairs(new or NIL_TABLE) do
         if not DataCompare(v,old[k],curPrefix,k,output) then
             --新增或者变化
             same = false

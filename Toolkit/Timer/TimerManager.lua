@@ -22,7 +22,7 @@ function TimerManager:RemoveTimer(timerId)
 end
 
 function TimerManager:Tick(deltaTime)
-    for timerId, timer in pairs(self.tbAllTimer or {}) do
+    for timerId, timer in pairs(self.tbAllTimer or NIL_TABLE) do
         if timer:Tick(deltaTime) == true then
             TimerManager.RemoveTimer(timerId)
         end

@@ -244,7 +244,7 @@ function LoopScrollViewBase:TryRecycleItem(insData)
     local index = insData.index
     local _item = insData.obj
     local rect = insData.rectTransform
-    for _, data in ipairs(self.recyclePool or {}) do
+    for _, data in ipairs(self.recyclePool or NIL_TABLE) do
         if data.item == _item then
             LogError("对象被重复回收! Index:", index)
             return false
@@ -344,7 +344,7 @@ end
 
 function LoopScrollViewBase:RangeRenderItem(callback, reverse)
     local list = {}
-    for renderData, itemData in pairs(self.tbShowingItem or {}) do
+    for renderData, itemData in pairs(self.tbShowingItem or NIL_TABLE) do
         table.insert(list, itemData)
     end
     table.sort(list, function(a, b)
@@ -361,7 +361,7 @@ function LoopScrollViewBase:RangeRenderItem(callback, reverse)
 end
 
 function LoopScrollViewBase:GetRenderItemByDataIndex(index)
-    for renderData, itemData in pairs(self.tbShowingItem or {}) do
+    for renderData, itemData in pairs(self.tbShowingItem or NIL_TABLE) do
         if itemData.index == index then
             return itemData
         end

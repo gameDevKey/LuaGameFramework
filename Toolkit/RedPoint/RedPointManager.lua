@@ -25,7 +25,7 @@ end
 
 function RedPointManager:CreateSubTree(treeData, parentNode)
     local node = self:CreateNode(treeData.Id, parentNode, treeData.Callback)
-    for _, childData in pairs(treeData.Children or {}) do
+    for _, childData in pairs(treeData.Children or NIL_TABLE) do
         self:CreateSubTree(childData, node)
     end
     return node

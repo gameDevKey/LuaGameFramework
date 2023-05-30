@@ -46,7 +46,7 @@ end
 ---@param eventId any 监听类型
 ---@param ... any 任意数据
 function EventDispatcher:Broadcast(eventId, ...)
-    for eventKey, eventObject in pairs(self.tbAllEvent[eventId] or {}) do
+    for eventKey, eventObject in pairs(self.tbAllEvent[eventId] or NIL_TABLE) do
         eventObject:Invoke(...)
         if eventObject:IsCallOnce() then
             self:RemoveListener(eventId, eventKey)

@@ -208,7 +208,7 @@ function GridLoopScrollView:UpdateList()
         tempDatas[renderData] = newItem
     end
 
-    for _, insData in pairs(tempShowItems or {}) do
+    for _, insData in pairs(tempShowItems or NIL_TABLE) do
         self:TryRecycleItem(insData)
     end
 

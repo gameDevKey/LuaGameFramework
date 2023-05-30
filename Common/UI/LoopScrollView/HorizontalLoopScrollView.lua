@@ -37,7 +37,7 @@ end
 function HorizontalLoopScrollView:UpdateContentSize()
     local w = self.setting.paddingLeft
     local maxH = 0
-    for i, data in ipairs(self.tbItemData or {}) do
+    for i, data in ipairs(self.tbItemData or NIL_TABLE) do
         w = w + data.size.w + self.setting.gapX
         if data.size.h > maxH then
             maxH = data.size.h
@@ -60,7 +60,7 @@ function HorizontalLoopScrollView:UpdateList()
 
     local targetIndex = 1                    --起始索引
     local targetX = self.setting.paddingLeft --起始坐标
-    for i, data in ipairs(self.tbItemData or {}) do
+    for i, data in ipairs(self.tbItemData or NIL_TABLE) do
         targetIndex = i
         local x = targetX + data.size.w
         if x >= startPos then
@@ -98,7 +98,7 @@ function HorizontalLoopScrollView:UpdateList()
         end
     end
 
-    for _, insData in pairs(tempShowItems or {}) do
+    for _, insData in pairs(tempShowItems or NIL_TABLE) do
         self:TryRecycleItem(insData)
     end
 

@@ -2,11 +2,18 @@ UIDefine = {}
 
 UIDefine.ViewType = Enum.New({
     MainView = Enum.Index,
+    TestView = Enum.Index,
 })
 
+--当界面进入时
 UIDefine.EnterType = Enum.New({
-    ExitLast = Enum.Index,
-    KeepLast = Enum.Index,
+    None = Enum.Index,
+    ExitLast = Enum.Index,--关闭上一个界面
+})
+
+--当界面关闭时
+UIDefine.ExitType = Enum.New({
+    None = Enum.Index,
 })
 
 --[[
@@ -17,8 +24,15 @@ UIDefine.EnterType = Enum.New({
 --]]
 UIDefine.Config = {
     [UIDefine.ViewType.MainView] = {
-        Class = MainView,
-        EnterType = UIDefine.EnterType.KeepLast,
+        Class = "MainView",
+        EnterType = UIDefine.EnterType.None,
+        ExitType = UIDefine.ExitType.None,
+        IsMulti = false,
+    },
+    [UIDefine.ViewType.TestView] = {
+        Class = "TestView",
+        EnterType = UIDefine.EnterType.None,
+        ExitType = UIDefine.ExitType.None,
         IsMulti = false,
     },
 }

@@ -1,5 +1,5 @@
 local function InjectInterfaces(obj,interfaces)
-    for _, interface in ipairs(interfaces or {}) do
+    for _, interface in ipairs(interfaces or NIL_TABLE) do
         if interface._isInterface then
             for fieldName, field in pairs(interface) do
                 if IsFunction(field) then
@@ -58,7 +58,7 @@ function Interface(interfaceName,interfaces)
     local interface = {}
     interface._isInterface = true
     interface._interfaceName = interfaceName
-    interface._interfaces = interfaces or {}
+    interface._interfaces = interfaces or NIL_TABLE
     local nameStr = string.format("接口[%s-%s]", interfaceName, tostring(interface))
     setmetatable(interface, {
         __tostring = function(this)
@@ -84,7 +84,7 @@ function Class(className, superClass, interfaces)
     local clazz = {}
     clazz._isClass = true
     clazz._className = className
-    clazz._interfaces = interfaces or {}
+    clazz._interfaces = interfaces or NIL_TABLE
 
     local nameStr = string.format("类[%s-%s]", className, tostring(clazz))
     setmetatable(clazz, {
@@ -191,7 +191,7 @@ function SingletonClass(className, superClass, interfaces)
     local clazz = {}
     clazz._isClass = true
     clazz._className = className
-    clazz._interfaces = interfaces or {}
+    clazz._interfaces = interfaces or NIL_TABLE
 
     local nameStr = string.format("单例类[%s-%s]", className, tostring(clazz))
     setmetatable(clazz, {
