@@ -79,3 +79,11 @@ function table.ReadUpdateOnly(tb, name)
     setmetatable(proxy, mt)
     return proxy
 end
+
+function table.New()
+    return LuaTablePool.GetTb()
+end
+
+function table.Recycle(tb)
+    tb:Recycle()
+end

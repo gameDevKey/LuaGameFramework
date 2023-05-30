@@ -57,7 +57,7 @@ function CachePoolBase:Recycle(obj)
     if not table.Contain(self.recyclePool, obj) then
         self:CallFuncDeeply("OnBeforeRecycle",false,obj)
         table.insert(self.recyclePool, obj)
-        obj:Recycle()
+        obj:HandleRecycle()
         self:CallFuncDeeply("OnAfterRecycle",false,obj)
     end
     self:CheckMaxLimit()
