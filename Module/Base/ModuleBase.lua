@@ -54,7 +54,7 @@ function ModuleBase:AddListener(eventId, callback, caller, callonce)
 end
 
 function ModuleBase:AddListenerWithSelfFunc(eventId, fnName, callonce)
-    return self:AddListener(eventId, self:ToFunc(fnName), self, callonce)
+    return self:AddListener(eventId, self:ToFunc(fnName), nil, callonce)
 end
 
 function ModuleBase:RemoveListener(eventKey)
@@ -70,7 +70,7 @@ function ModuleBase:AddGolbalListener(eventId, callback, caller, callonce)
 end
 
 function ModuleBase:AddGolbalListenerWithSelfFunc(eventId, fnName, callonce)
-    return self:AddGolbalListener(eventId, self:ToFunc(fnName), self, callonce)
+    return self:AddGolbalListener(eventId, self:ToFunc(fnName), nil, callonce)
 end
 
 function ModuleBase:RemoveGolbalListener(eventKey)

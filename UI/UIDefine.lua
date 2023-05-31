@@ -5,6 +5,10 @@ UIDefine.ViewType = Enum.New({
     TestView = Enum.Index,
 })
 
+UIDefine.ComType = Enum.New({
+    TestCom = Enum.Index,
+})
+
 --当界面进入时
 UIDefine.EnterType = Enum.New({
     None = Enum.Index,

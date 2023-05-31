@@ -9,8 +9,8 @@ function ProxyBase:OnInit()
     self.protoCallbacks = {}
     self.dataCallbacks = {}
     self.rootDataWatcher = TableDataWatcher.New()
-    self.rootDataWatcher:SetChangeFunc(self:ToFunc("HandleProtoDataChange"),self)
-    self.rootDataWatcher:SetCompareFunc(self:ToFunc("HandleProtoDataCompare"),self)
+    self.rootDataWatcher:SetChangeFunc(self:ToFunc("HandleProtoDataChange"))
+    self.rootDataWatcher:SetCompareFunc(self:ToFunc("HandleProtoDataCompare"))
 end
 
 function ProxyBase:OnDelete()
@@ -28,11 +28,11 @@ function ProxyBase:OnInitComplete()
 end
 
 function ProxyBase:ListenProto(proto, selfFuncName)
-    self.protoCallbacks[proto] = CallObject.New(self:ToFunc(selfFuncName),self)
+    self.protoCallbacks[proto] = CallObject.New(self:ToFunc(selfFuncName))
 end
 
 function ProxyBase:ListenData(protoPattern, selfFuncName)
-    self.dataCallbacks[protoPattern] = CallObject.New(self:ToFunc(selfFuncName),self)
+    self.dataCallbacks[protoPattern] = CallObject.New(self:ToFunc(selfFuncName))
 end
 
 function ProxyBase:HandleProto(proto,args)

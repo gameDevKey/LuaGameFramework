@@ -3,7 +3,7 @@ CacheLuaTable = Class("CacheLuaTable",CacheItemBase)
 function CacheLuaTable:OnInit()
     self.tb = {}
     self.tb._cache_class = self
-    self.tb.Recycle = self:ToFunc("_recycle_tb")
+    self.tb.Recycle = self._recycle_tb
 end
 
 function CacheLuaTable:OnDelete()

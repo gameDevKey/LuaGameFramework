@@ -8,12 +8,15 @@ end
 
 --触发回调，注意args拼接在回调的首位，后面才是传入的参数
 function CallObject:Invoke(...)
-    if self.func then
-        if self.caller then
-            if self.args then
+    if self.func ~= nil then
+        if self.caller ~= nil then
+            if self.args ~= nil then
                 return self.func(self.caller,self.args,...)
             end
             return self.func(self.caller,...)
+        end
+        if self.args ~= nil then
+            return self.func(self.args,...)
         end
         return self.func(...)
     end

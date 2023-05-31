@@ -23,7 +23,7 @@ function UIBase:AddAsset(path)
 end
 
 function UIBase:LoadAsset()
-    self.assetLoader:LoadAsset(self:ToFunc("OnAssetLoaded"),self)
+    self.assetLoader:LoadAsset(self:ToFunc("OnAssetLoaded"))
 end
 
 ---进入界面(只能被外界调用，子类不要调用)

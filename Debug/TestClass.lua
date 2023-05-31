@@ -55,47 +55,57 @@
 
 
 
-local clsA = Class("A")
-function clsA:OnInit(...)
-    print("构造A",...)
-end
-function clsA:OnDelete(...)
-    print("删除A",...)
-end
+-- local clsA = Class("A")
+-- function clsA:OnInit(...)
+--     print("构造A",...)
+-- end
+-- function clsA:OnDelete(...)
+--     print("删除A",...)
+-- end
 
-local clsB = Class("B",clsA)
-function clsB:OnInit(...)
-    print("构造B",...)
-end
-function clsB:OnDelete(...)
-    print("删除B",...)
-end
+-- local clsB = Class("B",clsA)
+-- function clsB:OnInit(...)
+--     print("构造B",...)
+-- end
+-- function clsB:OnDelete(...)
+--     print("删除B",...)
+-- end
 
-local clsC = Class("C",clsB)
-function clsC:OnInit(...)
-    print("构造C",...)
-end
-function clsC:OnDelete(...)
-    print("删除C",...)
-end
+-- local clsC = Class("C",clsB)
+-- function clsC:OnInit(...)
+--     print("构造C",...)
+-- end
+-- function clsC:OnDelete(...)
+--     print("删除C",...)
+-- end
 
-local ins = clsC.New("参数12")
+-- local ins = clsC.New("参数12")
 
-print("-------------------创建C")
-CheckClsInstanceInMemery()
+-- print("-------------------创建C")
+-- CheckClsInstanceInMemery()
 
-ins:Delete()
+-- ins:Delete()
 
-print("------------------删除C")
-CheckClsInstanceInMemery()
+-- print("------------------删除C")
+-- CheckClsInstanceInMemery()
 
-ClearAllClass()
+-- ClearAllClass()
 
-print("------------------全部清除")
-CheckClsInstanceInMemery(true)
+-- print("------------------全部清除")
+-- CheckClsInstanceInMemery(true)
 
 -- for key, value in pairs(_G) do
 --     if IsClass(value) then
 --         print("_G:",key,value)
 --     end
 -- end
+
+local cls = Class("A")
+function cls:Func()
+    PrintLog(self,"调用函数Func")
+end
+local ins = cls.New()
+local fn = ins:ToFunc("Func")
+fn()
+ins:Delete()
+fn()

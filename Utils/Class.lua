@@ -143,16 +143,20 @@ function Class(className, superClass, interfaces)
                 PrintError(self, "已被删除，无法获取函数", name)
                 return nil
             end
-            local func = self._funcs[name]
-            if not func then
-                func = self[name]
+            if not self._funcs[name] then
+                local func = self[name]
                 if IsFunction(func) then
-                    self._funcs[name] = func
+                    self._funcs[name] = function (...)
+                        if instance._alive then
+                            return func(instance,...)
+                        end
+                        PrintError(self,'已被删除，但仍被调用函数',name)
+                    end
                 else
                     PrintError(self, "未定义函数", name)
                 end
             end
-            return func
+            return self._funcs[name]
         end
 
         function instance:CallFuncDeeply(fnName, topDir, ...)
@@ -262,16 +266,20 @@ function SingletonClass(className, superClass, interfaces)
                 PrintError(self, "已被删除，无法获取函数", name)
                 return nil
             end
-            local func = self._funcs[name]
-            if not func then
-                func = self[name]
+            if not self._funcs[name] then
+                local func = self[name]
                 if IsFunction(func) then
-                    self._funcs[name] = func
+                    self._funcs[name] = function (...)
+                        if instance._alive then
+                            return func(instance,...)
+                        end
+                        PrintError(self,'已被删除，但仍被调用函数',name)
+                    end
                 else
                     PrintError(self, "未定义函数", name)
                 end
             end
-            return func
+            return self._funcs[name]
         end
 
         function instance:CallFuncDeeply(fnName, topDir, ...)
