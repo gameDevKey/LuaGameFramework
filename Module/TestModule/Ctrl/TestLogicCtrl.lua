@@ -5,8 +5,8 @@ function TestLogicCtrl:OnInitComplete()
     self:AddListenerWithSelfFunc(ETestModule.Test, "TestFunc", true)
 end
 
-function TestLogicCtrl:TestFunc()
-    print("执行TestLogicCtrl:TestFunc")
+function TestLogicCtrl:TestFunc(...)
+    print("执行TestLogicCtrl:TestFunc",...)
 end
 
 return TestLogicCtrl

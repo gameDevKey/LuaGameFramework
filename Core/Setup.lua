@@ -32,7 +32,7 @@ for _, path in ipairs(luaFiles) do
             LuaFiles[key] = table.concat(paths, ".")
             if dir and dir ~= "Module" and string.endswith(dir, "Module") then
                 if string.endswith(key, "Facade") then
-                    facadeFiles[key] = {path=LuaFiles[key],dir=dir}
+                    facadeFiles[key] = dir
                 end
             elseif lastDir and string.endswith(lastDir, "Module") then
                 if not facadeModules[lastDir] then
@@ -41,9 +41,9 @@ for _, path in ipairs(luaFiles) do
                     facadeModules[lastDir].proxys = {}
                 end
                 if dir == "Ctrl" and string.contains(key,"Ctrl") then
-                    facadeModules[lastDir].ctrls[key] = LuaFiles[key]
+                    facadeModules[lastDir].ctrls[key] = true
                 elseif dir == "Proxy" and string.contains(key,"Proxy") then
-                    facadeModules[lastDir].proxys[key] = LuaFiles[key]
+                    facadeModules[lastDir].proxys[key] = true
                 end
             end
         end
@@ -55,11 +55,10 @@ function SetupFacadeModules()
         return
     end
     local facades = {}
-    for key, data in pairs(facadeFiles) do
-        local cls = require(data.path)
-        local ins = cls.Instance
+    for facade, dir in pairs(facadeFiles) do
+        local ins = _G[facade].Instance
         facades[ins] = true
-        local modules = facadeModules[data.dir]
+        local modules = facadeModules[dir]
         for ctrl, _ in pairs(modules.ctrls) do
             ins:BindCtrl(_G[ctrl].Instance)
         end
