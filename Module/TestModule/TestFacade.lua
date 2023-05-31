@@ -1,9 +1,6 @@
 TestFacade = SingletonClass("TestFacade",FacadeBase)
 
 function TestFacade:OnInit()
-    self:BindCtrl(TestViewCtrl.Instance)
-    self:BindCtrl(TestLogicCtrl.Instance)
-    self:BindProxy(TestProxy.Instance)
 end
 
 function TestFacade:OnInitComplete()

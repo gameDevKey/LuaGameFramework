@@ -8,6 +8,10 @@ end
 
 --触发回调，注意args拼接在回调的首位，后面才是传入的参数
 function CallObject:Invoke(...)
+    if not self._alive then
+        PrintError(self,"已被删除，但仍被调用")
+        return
+    end
     if self.func ~= nil then
         if self.caller ~= nil then
             if self.args ~= nil then

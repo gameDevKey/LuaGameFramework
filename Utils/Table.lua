@@ -81,7 +81,8 @@ function table.ReadUpdateOnly(tb, name)
 end
 
 function table.New()
-    return LuaTablePool.GetTb()
+    local obj = CacheManager.Instance:Get(CacheDefine.PoolType.LuaTable)
+    return obj.tb
 end
 
 function table.Recycle(tb)

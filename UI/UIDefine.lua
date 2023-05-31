@@ -1,7 +1,14 @@
 UIDefine = {}
 
+UIDefine.ViewLayer = Enum.New({
+    BG = 1000,--背景层
+    NormalUI = 4000,--普通界面层（后进先出）
+    HoldUI = 7000,--常驻界面层
+    Popup = 10000,--弹窗层
+    Top = 13000,--通知层（最重要的展示信息）
+})
+
 UIDefine.ViewType = Enum.New({
-    MainView = Enum.Index,
     TestView = Enum.Index,
 })
 
@@ -24,19 +31,16 @@ UIDefine.ExitType = Enum.New({
     界面配置
     Class:界面类
     EnterType:入场方式
-    IsMulti:是否允许同时存在多个相同界面
+    ExitType:出场方式
+    ViewLayer:层级类型
+    IsMulti:是否允许多个同类界面共存
 --]]
 UIDefine.Config = {
-    [UIDefine.ViewType.MainView] = {
-        Class = "MainView",
-        EnterType = UIDefine.EnterType.None,
-        ExitType = UIDefine.ExitType.None,
-        IsMulti = false,
-    },
     [UIDefine.ViewType.TestView] = {
         Class = "TestView",
-        EnterType = UIDefine.EnterType.None,
+        EnterType = UIDefine.EnterType.ExitLast,
         ExitType = UIDefine.ExitType.None,
+        ViewLayer = UIDefine.ViewLayer.NormalUI,
         IsMulti = false,
     },
 }

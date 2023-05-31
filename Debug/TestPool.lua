@@ -15,7 +15,7 @@
 -- CacheManager.Instance:Get(CacheDefine.PoolType.Test)
 -- pool:Log()
 
--- local tb = LuaTablePool.GetTb()
+-- local tb = table.New()
 -- LuaTablePool.LogTb()
 -- tb.mark = "yqh"
 -- for key, value in pairs(tb) do
@@ -27,9 +27,9 @@
 --     PrintLog("回收后",key,value)
 -- end
 
--- LuaTablePool.GetTb()
--- LuaTablePool.GetTb()
--- LuaTablePool.GetTb()
+-- table.New()
+-- table.New()
+-- table.New()
 -- LuaTablePool.LogTb()
 
 print("当前内存",collectgarbage("count"))

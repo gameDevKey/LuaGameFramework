@@ -12,7 +12,8 @@ require("Utils.Time")
 
 --#region 获得所有Lua文件路径
 LuaFiles = {}
-FacadeFiles = {}
+local facadeFiles = {}
+local facadeModules = {}
 local currentDir = LFS.currentdir()
 local luaFiles = {}
 FindAllFile(currentDir, ".lua", luaFiles)
@@ -23,16 +24,54 @@ for _, path in ipairs(luaFiles) do
     local len = #paths
     local key = paths[len]
     local dir = paths[len-1]
+    local lastDir = paths[len-2]
     if LuaFiles[key] then
         PrintError("Lua文件重名", path)
     else
         if dir ~= "Debug" or TEST_ENV then
             LuaFiles[key] = table.concat(paths, ".")
-            if string.endswith(key, "Facade") then
-                FacadeFiles[key] = LuaFiles[key]
+            if dir and dir ~= "Module" and string.endswith(dir, "Module") then
+                if string.endswith(key, "Facade") then
+                    facadeFiles[key] = {path=LuaFiles[key],dir=dir}
+                end
+            elseif lastDir and string.endswith(lastDir, "Module") then
+                if not facadeModules[lastDir] then
+                    facadeModules[lastDir] = {}
+                    facadeModules[lastDir].ctrls = {}
+                    facadeModules[lastDir].proxys = {}
+                end
+                if dir == "Ctrl" and string.contains(key,"Ctrl") then
+                    facadeModules[lastDir].ctrls[key] = LuaFiles[key]
+                elseif dir == "Proxy" and string.contains(key,"Proxy") then
+                    facadeModules[lastDir].proxys[key] = LuaFiles[key]
+                end
             end
         end
     end
+end
+--安装模块（一次性，因为Facade没有卸载的必要性）
+function SetupFacadeModules()
+    if not facadeFiles or not facadeModules then
+        return
+    end
+    local facades = {}
+    for key, data in pairs(facadeFiles) do
+        local cls = require(data.path)
+        local ins = cls.Instance
+        facades[ins] = true
+        local modules = facadeModules[data.dir]
+        for ctrl, _ in pairs(modules.ctrls) do
+            ins:BindCtrl(_G[ctrl].Instance)
+        end
+        for proxy, _ in pairs(modules.proxys) do
+            ins:BindProxy(_G[proxy].Instance)
+        end
+    end
+    for facade, _ in pairs(facades) do
+        facade:InitComplete()
+    end
+    facadeFiles = nil
+    facadeModules = nil
 end
 --#endregion
 

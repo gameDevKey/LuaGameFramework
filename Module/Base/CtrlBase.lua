@@ -6,7 +6,4 @@ CtrlBase = Class("CtrlBase",ModuleBase)
 function CtrlBase:OnInitComplete()
 end
 
-function CtrlBase:BindMediator(view)
-end
-
 return CtrlBase

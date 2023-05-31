@@ -14,16 +14,35 @@ function UIBase:OnDelete()
     end
 end
 
+---设置层级
 function UIBase:SetSortOrder(order)
     self.sortingOrder = order
 end
 
+---添加需要加载的资源
 function UIBase:AddAsset(path)
     self.assetLoader:AddAsset(path)
 end
 
-function UIBase:LoadAsset()
-    self.assetLoader:LoadAsset(self:ToFunc("OnAssetLoaded"))
+---请求加载资源
+function UIBase:LoadAsset(callObject)
+    self.assetLoadCallback = callObject
+    self.assetLoader:LoadAsset(self:ToFunc("AssetLoaded"))
+end
+
+---资源加载完成
+function UIBase:AssetLoaded(assets)
+    self:SetAssets(assets)
+    if self.assetLoadCallback then
+        self.assetLoadCallback:Invoke(assets)
+        self.assetLoadCallback:Delete()
+        self.assetLoadCallback = nil
+    end
+    self:CallFuncDeeply("OnAssetLoaded",true,assets)
+end
+
+---设置加载后的资源
+function UIBase:SetAssets(assets)
 end
 
 ---进入界面(只能被外界调用，子类不要调用)
@@ -63,10 +82,7 @@ function UIBase:OnExit()end
 function UIBase:OnExitComplete()end
 function UIBase:OnRefresh()end
 function UIBase:OnHide()end
-function UIBase:OnAssetLoaded(asset)
-    --应用SortingOrder
-    --TODO
-end
+function UIBase:OnAssetLoaded(assets)end
 --#endregion
 
 return UIBase
