@@ -71,17 +71,25 @@ function UIManager:Exit(targetView)
     end
 
     local config = UIDefine.Config[targetView.uiType]
+    local isTopView = targetView == self.uiStack[#self.uiStack]
 
     self:removeView(targetView)
 
-    targetView:Exit()
+    targetView:HandleExit()
 
     if config.ViewLayer == UIDefine.ViewLayer.NormalUI then
         --一般情况下，只有顶部界面会触发关闭界面，假设非顶部界面也想关闭，那就不用ActiveTopView(true)
-        local topView = self.uiStack[#self.uiStack]
-        if topView == targetView then
+        if isTopView then
             self:ActiveTopView(true)
         end
+    end
+end
+
+--栈顶界面出栈
+function UIManager:ExitTop()
+    local topView = self.uiStack[#self.uiStack]
+    if topView then
+        self:Exit(topView)
     end
 end
 
@@ -96,7 +104,7 @@ function UIManager:GoBackTo(uiType)
         local curView = self.uiStack[i]
         if curView.uiType ~= uiType then
             self:removeViewByIndex(curView,i)
-            curView:Exit()
+            curView:HandleExit()
         end
     end
     self:ActiveTopView(true)
@@ -137,7 +145,7 @@ end
 
 function UIManager:AddSortOrder(uiType,offset)
     local config = UIDefine.Config[uiType]
-    local layer = UIDefine.ViewLayer[config.ViewLayer]
+    local layer = config.ViewLayer
     if not self.uiSortOrder[layer] then
         self.uiSortOrder[layer] = layer
     end
@@ -145,6 +153,14 @@ function UIManager:AddSortOrder(uiType,offset)
         self.uiSortOrder[layer] = self.uiSortOrder[layer] + offset
     end
     return self.uiSortOrder[layer]
+end
+
+function UIManager:Log()
+    local stack = {}
+    for _, view in ipairs(self.uiStack) do
+        table.insert(stack, string.format("%s 层级:%d",tostring(view),view.sortingOrder))
+    end
+    PrintLog("\n--------- 当前堆栈 ---------\n",table.concat(stack,'\n'),'\n------------------')
 end
 
 --#region 私有函数

@@ -37,10 +37,12 @@ UIDefine.ExitType = Enum.New({
 --]]
 UIDefine.Config = {
     [UIDefine.ViewType.TestView] = {
-        Class = "TestView",
+        Class = "TestViewUI",
         EnterType = UIDefine.EnterType.ExitLast,
         ExitType = UIDefine.ExitType.None,
         ViewLayer = UIDefine.ViewLayer.NormalUI,
-        IsMulti = false,
+        IsMulti = true,
     },
 }
+
+return UIDefine

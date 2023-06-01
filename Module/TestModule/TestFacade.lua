@@ -9,9 +9,8 @@ function TestFacade:OnInitComplete()
 end
 
 function TestFacade:TestFunc(...)
-    PrintLog("执行TestFacade:TestFunc",self)
-    self:Broadcast(ETestModule.Test,"test success!")
-    self:Broadcast(ETestModule.Test,"test success!")
+    PrintLog("执行TestFacade:TestFunc",...)
+    self:Broadcast(ETestModule.LogicEvent.DoSomething,"DoSomething Success!")
 end
 
 return TestFacade

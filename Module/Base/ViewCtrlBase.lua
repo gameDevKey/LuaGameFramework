@@ -12,8 +12,4 @@ function ViewCtrlBase:EnterView(uiType, data)
     self:BindView(view)
 end
 
-function ViewCtrlBase:ExitView(targetView)
-    UIManager.Instance:Exit(targetView)
-end
-
 return ViewCtrlBase

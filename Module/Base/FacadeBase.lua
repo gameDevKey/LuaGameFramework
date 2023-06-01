@@ -6,6 +6,7 @@ FacadeBase = Class("FacadeBase", ModuleBase)
 function FacadeBase:OnInit()
     self.proxys = {}
     self.ctrls = {}
+    --模块内部广播,只有Facade会拥有eventDispatcher对象，因此广播方向是自顶向下的
     self.eventDispatcher = EventDispatcher.New()
 end
 
@@ -38,11 +39,6 @@ function FacadeBase:BindProxy(proxy)
     end
     proxy:SetFacade(self)
     self.proxys[proxy._className] = proxy
-end
-
---模块内部广播
-function FacadeBase:Broadcast(id,...)
-    self.eventDispatcher:Broadcast(id,...)
 end
 
 function FacadeBase:OnInitComplete()

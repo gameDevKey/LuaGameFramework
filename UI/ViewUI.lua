@@ -1,5 +1,6 @@
 --ViewUI即是一个界面的容器，本身可以没有任何渲染的内容
 --ViewUI可以包含N个其他ViewUI，共存亡，共调用
+--生命周期函数的调用顺序：容器 > 扩展视图1 > 扩展视图2 > ...
 ViewUI = Class("ViewUI", UIBase)
 
 function ViewUI:OnInit()
@@ -63,7 +64,7 @@ end
 function ViewUI:OnExit()
     self:CallComUIsFunc("Delete")
     self.comUIs = {}
-    self:CallExtendViewsFunc("Exit")
+    self:CallExtendViewsFunc("HandleExit")
 end
 function ViewUI:OnExitComplete()
     self:CallExtendViewsFunc("ExitComplete")

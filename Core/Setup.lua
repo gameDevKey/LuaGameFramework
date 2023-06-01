@@ -34,7 +34,7 @@ for _, path in ipairs(luaFiles) do
                 if string.endswith(key, "Facade") then
                     facadeFiles[key] = dir
                 end
-            elseif lastDir and string.endswith(lastDir, "Module") then
+            elseif lastDir and lastDir ~= "Module" and string.endswith(lastDir, "Module") then
                 if not facadeModules[lastDir] then
                     facadeModules[lastDir] = {}
                     facadeModules[lastDir].ctrls = {}

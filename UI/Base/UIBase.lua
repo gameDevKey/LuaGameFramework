@@ -38,7 +38,7 @@ function UIBase:AssetLoaded(assets)
         self.assetLoadCallback:Delete()
         self.assetLoadCallback = nil
     end
-    self:CallFuncDeeply("OnAssetLoaded",true,assets)
+    self:CallFuncDeeply("OnAssetLoaded",false,assets)
 end
 
 ---设置加载后的资源
@@ -47,16 +47,21 @@ end
 
 ---进入界面(只能被外界调用，子类不要调用)
 function UIBase:Enter(data)
-    self:CallFuncDeeply("OnEnter",true,data)
+    self:CallFuncDeeply("OnEnter",false,data)
 end
 
 ---进入界面完成，界面进入可能是一个耗时的操作（受到加载或者入场动画的影响）
 function UIBase:EnterComplete()
-    self:CallFuncDeeply("OnEnterComplete",true)
+    self:CallFuncDeeply("OnEnterComplete",false)
+end
+
+---退出界面(子类调用，方便调用)
+function UIBase:Exit()
+    UIManager.Instance:Exit(self)
 end
 
 ---退出界面(只能被外界调用，子类不要调用)
-function UIBase:Exit()
+function UIBase:HandleExit()
     self:CallFuncDeeply("OnExit",false)
 end
 
@@ -67,7 +72,7 @@ end
 
 ---上级界面退出后，当前界面重新显示出来
 function UIBase:Refresh()
-    self:CallFuncDeeply("OnRefresh",true)
+    self:CallFuncDeeply("OnRefresh",false)
 end
 
 ---上级界面入场后，当前界面暂时隐藏

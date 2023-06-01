@@ -81,6 +81,15 @@ function ModuleBase:RemoveAllGolbalListener()
     removeAllListener(self.tbEventGlobalKey, EventDispatcher.Global)
 end
 
+--模块内部广播,只有Facade会拥有eventDispatcher对象，因此广播方向是自顶向下的
+function ModuleBase:Broadcast(id,...)
+    if not self.eventDispatcher then
+        PrintError("广播失败",id)
+        return
+    end
+    self.eventDispatcher:Broadcast(id,...)
+end
+
 function ModuleBase:AddTimer(callback, tickTime)
     local timerId = TimerManager.Instance:AddTimer(callback, tickTime)
     self.tbTimerId[timerId] = true
