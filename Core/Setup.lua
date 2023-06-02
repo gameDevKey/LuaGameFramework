@@ -25,16 +25,17 @@ for i= 0, luaFiles.Length-1, 1 do
     local key = paths[len]
     local dir = paths[len-1]
     local lastDir = paths[len-2]
+    local lastDir2 = paths[len-3]
     if LuaFiles[key] then
         PrintError("Lua文件重名", path)
     else
-        if dir ~= "Debug" or TEST_ENV then
+        if TEST_ENV or not string.contains(realPath,'Debug') then
             LuaFiles[key] = table.concat(paths, ".")
-            if dir and dir ~= "Module" and string.endswith(dir, "Module") then
+            if lastDir == "Module" then
                 if string.endswith(key, "Facade") then
                     facadeFiles[key] = dir
                 end
-            elseif lastDir and lastDir ~= "Module" and string.endswith(lastDir, "Module") then
+            elseif lastDir2 and lastDir2 == "Module" then
                 if not facadeModules[lastDir] then
                     facadeModules[lastDir] = {}
                     facadeModules[lastDir].ctrls = {}
