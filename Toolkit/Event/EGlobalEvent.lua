@@ -1,6 +1,6 @@
-EGlobalEvent = {
+EGlobalEvent = Enum.New({
     Proto = Enum.Index,
-    TestModule = Enum.Index,
-}
+    TemplateModule = Enum.Index,
+})
 
 return EGlobalEvent

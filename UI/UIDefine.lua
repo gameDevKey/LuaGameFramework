@@ -9,11 +9,11 @@ UIDefine.ViewLayer = Enum.New({
 })
 
 UIDefine.ViewType = Enum.New({
-    TestView = Enum.Index,
+    TemplateView = Enum.Index,
 })
 
 UIDefine.ComType = Enum.New({
-    TestCom = Enum.Index,
+    TemplateCom = Enum.Index,
 })
 
 --当界面进入时
@@ -36,8 +36,8 @@ UIDefine.ExitType = Enum.New({
     IsMulti:是否允许多个同类界面共存
 --]]
 UIDefine.Config = {
-    [UIDefine.ViewType.TestView] = {
-        Class = "TestViewUI",
+    [UIDefine.ViewType.TemplateView] = {
+        Class = "TemplateViewUI",
         EnterType = UIDefine.EnterType.ExitLast,
         ExitType = UIDefine.ExitType.None,
         ViewLayer = UIDefine.ViewLayer.NormalUI,

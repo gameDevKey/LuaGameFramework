@@ -1,2 +1,2 @@
 -- TestFacade.Instance:TestFunc()
-EventDispatcher.Global:Broadcast(EGlobalEvent.TestModule,'broadcast')
+EventDispatcher.Global:Broadcast(EGlobalEvent.TemplateModule,'broadcast')
