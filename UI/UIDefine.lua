@@ -8,14 +8,6 @@ UIDefine.ViewLayer = Enum.New({
     Top = 13000,--通知层（最重要的展示信息）
 })
 
-UIDefine.ViewType = Enum.New({
-    TemplateView = Enum.Index,
-})
-
-UIDefine.ComType = Enum.New({
-    TemplateCom = Enum.Index,
-})
-
 --当界面进入时
 UIDefine.EnterType = Enum.New({
     None = Enum.Index,
@@ -25,6 +17,15 @@ UIDefine.EnterType = Enum.New({
 --当界面关闭时
 UIDefine.ExitType = Enum.New({
     None = Enum.Index,
+})
+
+UIDefine.ViewType = Enum.New({
+    TemplateView = Enum.Index,
+    LoginView = Enum.Index,
+})
+
+UIDefine.ComType = Enum.New({
+    TemplateCom = Enum.Index,
 })
 
 --[[
@@ -38,6 +39,13 @@ UIDefine.ExitType = Enum.New({
 UIDefine.Config = {
     [UIDefine.ViewType.TemplateView] = {
         Class = "TemplateViewUI",
+        EnterType = UIDefine.EnterType.ExitLast,
+        ExitType = UIDefine.ExitType.None,
+        ViewLayer = UIDefine.ViewLayer.NormalUI,
+        IsMulti = true,
+    },
+    [UIDefine.ViewType.LoginView] = {
+        Class = "LoginViewUI",
         EnterType = UIDefine.EnterType.ExitLast,
         ExitType = UIDefine.ExitType.None,
         ViewLayer = UIDefine.ViewLayer.NormalUI,

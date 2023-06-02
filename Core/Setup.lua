@@ -12,38 +12,49 @@ require("CSUtils.CsFileUtil")
 
 --#region 获得所有Lua文件路径
 LuaFiles = {}
+local MODULE,FACADE,CTRL,PROXY = "Module","Facade","Ctrl","Proxy"
 local facadeFiles = {}
 local facadeModules = {}
 local currentDir = CsFileUtil.GetCurrentDir()..'/Scripts/Lua'
 local luaFiles = CsFileUtil.GetAllFilePath(currentDir,"*.lua")
+local function IsValidFile(key,dir,lastDir,lastDir2)
+    if dir == "Debug" then
+        return false
+    end
+    if dir == "Template" or lastDir == "Template" then
+        return false
+    end
+    return true
+end
 for i= 0, luaFiles.Length-1, 1 do
     local path = luaFiles[i]
     local realPath = string.gsub(path, currentDir, "")
     realPath = string.gsub(realPath, ".lua", "")
     local paths = string.split(realPath, '\\')
     local len = #paths
-    local key = paths[len]
-    local dir = paths[len-1]
-    local lastDir = paths[len-2]
-    local lastDir2 = paths[len-3]
+    local key = paths[len]          --当前文件名
+    local dir = paths[len-1]        --文件夹
+    local lastDir = paths[len-2]    --上级文件夹
+    local lastDir2 = paths[len-3]   --上两级文件夹
     if LuaFiles[key] then
         PrintError("Lua文件重名", path)
     else
-        if TEST_ENV or not string.contains(realPath,'Debug') then
+        --文件过滤，带有Debug或者Template的文件不加载
+        if TEST_ENV or IsValidFile(key,dir,lastDir,lastDir2) then
             LuaFiles[key] = table.concat(paths, ".")
-            if lastDir == "Module" then
-                if string.endswith(key, "Facade") then
+            if lastDir == MODULE then
+                if string.endswith(key, FACADE) then
                     facadeFiles[key] = dir
                 end
-            elseif lastDir2 and lastDir2 == "Module" then
+            elseif lastDir2 and lastDir2 == MODULE then
                 if not facadeModules[lastDir] then
                     facadeModules[lastDir] = {}
                     facadeModules[lastDir].ctrls = {}
                     facadeModules[lastDir].proxys = {}
                 end
-                if dir == "Ctrl" and string.contains(key,"Ctrl") then
+                if dir == CTRL and string.contains(key, CTRL) then
                     facadeModules[lastDir].ctrls[key] = true
-                elseif dir == "Proxy" and string.contains(key,"Proxy") then
+                elseif dir == PROXY and string.contains(key, PROXY) then
                     facadeModules[lastDir].proxys[key] = true
                 end
             end
