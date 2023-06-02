@@ -1,12 +1,12 @@
 --#region 必要文件提前加载
-LFS = require("lfs")
 require("Core.Config")
-require("Utils.Class")
-require("Utils.FileUtil")
-require("Utils.String")
 require("Utils.Common")
+require("Utils.Class")
+require("Utils.String")
 require("Utils.Table")
 require("Utils.Time")
+-- require("Utils.LuaFileUtil")
+require("CSUtils.CsFileUtil")
 --#endregion
 
 
@@ -14,10 +14,10 @@ require("Utils.Time")
 LuaFiles = {}
 local facadeFiles = {}
 local facadeModules = {}
-local currentDir = LFS.currentdir()
-local luaFiles = {}
-FindAllFile(currentDir, ".lua", luaFiles)
-for _, path in ipairs(luaFiles) do
+local currentDir = CsFileUtil.GetCurrentDir()..'/Scripts/Lua'
+local luaFiles = CsFileUtil.GetAllFilePath(currentDir,"*.lua")
+for i= 0, luaFiles.Length-1, 1 do
+    local path = luaFiles[i]
     local realPath = string.gsub(path, currentDir, "")
     realPath = string.gsub(realPath, ".lua", "")
     local paths = string.split(realPath, '\\')
