@@ -1,10 +1,11 @@
 CachePoolBase = Class("CachePoolBase",nil,{ICache})
 
-function CachePoolBase:OnInit(poolType)
+function CachePoolBase:OnInit(poolType,poolData)
     self.activePool = {}
     self.recyclePool = {}
 
     self.poolType = poolType
+    self.poolData = poolData
     self.config = CacheDefine.BindInfo[poolType]
     self.maxAmount = self.config.MaxAmount or 0
     self.preloadAmount = self.config.PreloadAmount or 0
@@ -32,7 +33,7 @@ function CachePoolBase:Preload()
     end
 end
 
-function CachePoolBase:Get()
+function CachePoolBase:Get(data)
     local obj = nil
     if #self.recyclePool > 0 then
         obj = table.remove(self.recyclePool)
@@ -43,7 +44,7 @@ function CachePoolBase:Get()
         self:CallFuncDeeply("OnBeforeGet",true,obj)
         obj:SetPool(self)
         table.insert(self.activePool, obj)
-        obj:Use()
+        obj:Use(data)
         self:CallFuncDeeply("OnAfterGet",true,obj)
     end
     return obj

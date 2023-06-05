@@ -1,5 +1,8 @@
 UIDefine = {}
 
+UIDefine.UIRootName = "UIRoot"
+UIDefine.UICacheName = "UICache"
+
 UIDefine.ViewLayer = Enum.New({
     BG = 1000,--背景层
     NormalUI = 4000,--普通界面层（后进先出）

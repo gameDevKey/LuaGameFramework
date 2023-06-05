@@ -7,12 +7,10 @@ UIBase = Class("UIBase", ModuleBase)
 
 function UIBase:OnInit(uiType)
     self.uiType = uiType
-    self.assetLoader = AssetLoader.New()
     self.sortingOrder = 0
 end
 
 function UIBase:OnDelete()
-    self.assetLoader:Delete()
     if self.gameObject then
         GameObject.Destroy(self.gameObject)
         self.gameObject = nil
@@ -24,38 +22,18 @@ function UIBase:SetSortOrder(order)
     self.sortingOrder = order
 end
 
----添加需要加载的资源
-function UIBase:AddAsset(path,callObject)
-    self.assetLoader:AddAsset(path,callObject)
-end
-
 --设置界面资源路径
 function UIBase:SetViewAsset(path)
-    self:AddAsset(path, CallObject.New(self:ToFunc("ViewAssetLoaded",nil)))
+    self.viewAssetPath = path
 end
 
---界面加载完成，做一些初始化工作
-function UIBase:ViewAssetLoaded(asset)
-    self.gameObject = asset
+--界面资源初始化
+function UIBase:SetupViewAsset(gameObject)
+    self.gameObject = gameObject
     self.transform = self.gameObject.transform
+    self:CallFuncDeeply("FindTargets")
+    self:CallFuncDeeply("InitTargets")
 end
-
----请求加载所有资源
-function UIBase:LoadAsset(callObject)
-    self.assetLoadCallback = callObject
-    self.assetLoader:LoadAsset(self:ToFunc("AssetLoaded"))
-end
-
----所有资源加载完成
-function UIBase:AssetLoaded(assets)
-    self:CallFuncDeeply("OnAssetLoaded",false,assets)
-    if self.assetLoadCallback then
-        self.assetLoadCallback:Invoke(assets)
-        self.assetLoadCallback:Delete()
-        self.assetLoadCallback = nil
-    end
-end
-
 
 ---进入界面(只能被外界调用，子类不要调用)
 function UIBase:Enter(data)
@@ -92,14 +70,18 @@ function UIBase:Hide()
     self:CallFuncDeeply("OnHide",false)
 end
 
---#region 虚函数
+--#region 虚函数(生命周期)
 function UIBase:OnEnter(data)end
 function UIBase:OnEnterComplete()end
 function UIBase:OnExit()end
 function UIBase:OnExitComplete()end
 function UIBase:OnRefresh()end
 function UIBase:OnHide()end
-function UIBase:OnAssetLoaded(assets)end
+--#endregion
+
+--#region 虚函数(行为)
+function UIBase:FindTargets()end
+function UIBase:InitTargets()end
 --#endregion
 
 return UIBase

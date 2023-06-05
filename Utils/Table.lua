@@ -31,7 +31,9 @@ function table.ToString(val, name, skipnewlines, depth)
 
     if name then tmp = tmp .. name .. " = " end
 
-    if type(val) == "table" then
+    if IsClass(val) then
+        tmp = tmp .. tostring(val)
+    elseif type(val) == "table" then
         tmp = tmp .. "{" .. (not skipnewlines and "\n" or "")
 
         for k, v in pairs(val) do
@@ -86,5 +88,7 @@ function table.New()
 end
 
 function table.Recycle(tb)
-    tb:Recycle()
+    if IsFunction(tb.Recycle) then
+        tb:Recycle()
+    end
 end

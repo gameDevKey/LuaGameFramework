@@ -1,7 +1,6 @@
 CacheItemBase = Class("CacheItemBase")
 
 function CacheItemBase:OnInit()
-    self.isCache = false
 end
 
 function CacheItemBase:OnDelete()
@@ -18,8 +17,9 @@ function CacheItemBase:GetPool()
 end
 
 --外界调用，创建或者复用都会被调用
-function CacheItemBase:Use()
+function CacheItemBase:Use(data)
     self.isCache = false
+    self.data = data
     self:CallFuncDeeply("OnUse",true)
 end
 

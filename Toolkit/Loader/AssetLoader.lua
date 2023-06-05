@@ -29,9 +29,9 @@ end
 
 function AssetLoader:TestLoadFunc()
     for _, data in ipairs(self.toLoads) do
-        self.results[data.path] = CS.UnityEngine.Resources.Load(data.path)
+        self.results[data.path] = UnityUtil.LoadResources(data.path)
         if data.callObject then
-            data.callObject:Invoke(self.results[data.path])
+            data.callObject:Invoke(self.results[data.path],data.path)
         end
     end
     self:LoadDone()
@@ -39,6 +39,7 @@ end
 
 function AssetLoader:LoadDone()
     self.isDone = true
+    self.toLoads = {}
     if self.finishCallback then
         self.finishCallback:Invoke(self.results)
     end

@@ -72,6 +72,31 @@ function Interface(interfaceName,interfaces)
     return interface
 end
 
+---调用当前类的父类的方法, 注意不能直接通过 self._super:Func() 去调用, 因为self可能不是当前类,
+---比如 function A:Func() self._super:Func() end 中, B继承A, 此时 B:Func() 调用后, self指向B, 就引起了死循环
+---@param cls Class 类
+---@param caller Class 类的实例, 注意这个实例不一定是cls实例化出来的
+---@param fnName string 函数名
+---@param force boolean 当前类的父类没有该函数时，是否一直往上找直至调用成功
+function CallMySuperFunc(cls, caller, fnName, force, ...)
+    if cls._isInstance then
+        PrintError("禁止通过实例调用父类函数",cls,fnName)
+        return
+    end
+    local super = cls._super
+    if not super then
+        return
+    end
+    local fn = rawget(super, fnName)
+    if not fn then
+        if not force then
+            return
+        end
+        return CallMySuperFunc(super, caller, fnName, force)
+    end
+    return fn(caller,...)
+end
+
 ---创建类: 子类支持重载ToString()，暂不支持多重继承，支持实现多个接口类
 ---包含字段: _className:string 类名 | _class:Class 所属类 | _super:Class 父类 | _objectId:integer 实例ID
 ---包含方法: New 静态实例化函数 | Delete 析构函数 | ToFunc 返回某个函数 | CallFuncDeeply 调用父类函数
@@ -102,6 +127,7 @@ function Class(className, superClass, interfaces)
 
     function clazz.New(...)
         local instance = {}
+        instance._isInstance = true
         instance._class = clazz
         instance._objectId = tostring(instance)
         instance._alive = false
@@ -223,6 +249,7 @@ function SingletonClass(className, superClass, interfaces)
             return singletonClasses[clazz._className]
         end
         local instance = {}
+        instance._isInstance = true
         instance._class = clazz
         instance._objectId = tostring(instance)
         instance._alive = false

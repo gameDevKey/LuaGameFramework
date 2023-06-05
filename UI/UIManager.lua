@@ -14,7 +14,8 @@ function UIManager:OnInit()
     self.uiStack = {}       --普通界面堆栈 List<ViewUI>
     self.uiHoldList = {}    --常驻界面队列
     self.uiSortOrder = {}   --层级 map[viewLayer]sortOrder
-    self.uiPool = xxx --TODO
+    self.uiRoot = UnityUtil.FindGameObject(UIDefine.UIRootName)
+    self.cacheNode = UnityUtil.FindGameObject(UIDefine.UICacheName)
 end
 
 function UIManager:OnDelete()
@@ -52,8 +53,9 @@ function UIManager:Enter(uiType, data)
     self:addView(view)
 
     view:SetSortOrder(self:GetSortOrder(view.uiType))
-    view:LoadAsset(CallObject.New(self:ToFunc("onViewLoaded"),nil,
-        {uiType=uiType,data=data,view=view}))
+
+    local pool = CacheManager.Instance:GetPool(CacheDefine.PoolType.UI,true)
+    pool:Get(uiType, {path = view.viewAssetPath, callback = self:ToFunc("onViewEnter"), args = {view=view,data=data}})
 
     return view
 end
@@ -194,10 +196,11 @@ function UIManager:getCacheList(view)
     return self.uiStack
 end
 
-function UIManager:onViewLoaded(sc)
-    local uiType = sc.uiType
-    local data = sc.data
-    local view = sc.view
+--TODO 复用的界面还需要跑findTargets()?
+function UIManager:onViewEnter(args,gameObject)
+    local view = args.view
+    local data = args.data
+    view:SetupViewAsset(gameObject)
     view:Enter(data)
 end
 
