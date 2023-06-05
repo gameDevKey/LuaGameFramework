@@ -6,7 +6,6 @@ function TemplateLogicCtrl:OnInitComplete()
 end
 
 function TemplateLogicCtrl:TemplateFunc(result)
-    PrintLog("执行TemplateLogicCtrl:TemplateFunc",result)
     for i = 1, 3 do
         self:Broadcast(ETemplateModule.ViewEvent.ActiveTemplateView,{msg="数据"..i})
         UIManager.Instance:Log()

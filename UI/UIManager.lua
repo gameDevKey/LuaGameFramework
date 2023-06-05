@@ -14,6 +14,7 @@ function UIManager:OnInit()
     self.uiStack = {}       --普通界面堆栈 List<ViewUI>
     self.uiHoldList = {}    --常驻界面队列
     self.uiSortOrder = {}   --层级 map[viewLayer]sortOrder
+    self.uiPool = xxx --TODO
 end
 
 function UIManager:OnDelete()
@@ -50,9 +51,9 @@ function UIManager:Enter(uiType, data)
     local view = clazz.New(uiType)
     self:addView(view)
 
-    view:LoadAsset(CallObject.New(view:ToFunc("Enter"),nil,data))
-
     view:SetSortOrder(self:GetSortOrder(view.uiType))
+    view:LoadAsset(CallObject.New(self:ToFunc("onViewLoaded"),nil,
+        {uiType=uiType,data=data,view=view}))
 
     return view
 end
@@ -191,6 +192,13 @@ function UIManager:getCacheList(view)
         return self.uiHoldList
     end
     return self.uiStack
+end
+
+function UIManager:onViewLoaded(sc)
+    local uiType = sc.uiType
+    local data = sc.data
+    local view = sc.view
+    view:Enter(data)
 end
 
 --#endregion

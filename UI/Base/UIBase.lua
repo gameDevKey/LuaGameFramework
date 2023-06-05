@@ -1,3 +1,8 @@
+--[[
+    UI界面基类
+    1.可选择性实现'#region 虚函数'
+    2.界面加载完成后，可直接访问self.gameObject/self.transform等等变量，具体看ViewAssetLoaded()逻辑
+]]--
 UIBase = Class("UIBase", ModuleBase)
 
 function UIBase:OnInit(uiType)
@@ -20,30 +25,37 @@ function UIBase:SetSortOrder(order)
 end
 
 ---添加需要加载的资源
-function UIBase:AddAsset(path)
-    self.assetLoader:AddAsset(path)
+function UIBase:AddAsset(path,callObject)
+    self.assetLoader:AddAsset(path,callObject)
 end
 
----请求加载资源
+--设置界面资源路径
+function UIBase:SetViewAsset(path)
+    self:AddAsset(path, CallObject.New(self:ToFunc("ViewAssetLoaded",nil)))
+end
+
+--界面加载完成，做一些初始化工作
+function UIBase:ViewAssetLoaded(asset)
+    self.gameObject = asset
+    self.transform = self.gameObject.transform
+end
+
+---请求加载所有资源
 function UIBase:LoadAsset(callObject)
     self.assetLoadCallback = callObject
     self.assetLoader:LoadAsset(self:ToFunc("AssetLoaded"))
 end
 
----资源加载完成
+---所有资源加载完成
 function UIBase:AssetLoaded(assets)
-    self:SetAssets(assets)
+    self:CallFuncDeeply("OnAssetLoaded",false,assets)
     if self.assetLoadCallback then
         self.assetLoadCallback:Invoke(assets)
         self.assetLoadCallback:Delete()
         self.assetLoadCallback = nil
     end
-    self:CallFuncDeeply("OnAssetLoaded",false,assets)
 end
 
----设置加载后的资源
-function UIBase:SetAssets(assets)
-end
 
 ---进入界面(只能被外界调用，子类不要调用)
 function UIBase:Enter(data)
