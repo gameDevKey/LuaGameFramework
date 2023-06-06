@@ -4,10 +4,11 @@
 -- local _ = TestCache
 -- local _ = TestMath
 -- local _ = TestCmd
-local _ = TestModule
+-- local _ = TestModule
 -- local _ = TestNetwork
 -- local _ = TestDataWatcher
 -- local _ = TestEnum
 -- local _ = TestPool
+local _ = TestCalculator
 
 -- local _ = TestClass

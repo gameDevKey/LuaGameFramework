@@ -1,3 +1,5 @@
+local unpack = unpack or table.unpack
+
 function IsTable(input)
     return type(input) == "table"
 end
@@ -69,8 +71,12 @@ function PrintWarning(...)
 end
 
 function PrintError(...)
-    PrintAny("[ERROR]", ...)
-    print(debug.traceback())
+    if not PRINT_SWITCH then
+        return
+    end
+    local tb = {...}
+    table.insert(tb, "\n" .. debug.traceback())
+    PrintAny("[ERROR]", unpack(tb))
 end
 
 local function _copy(lookup_table, object, copyMeta)

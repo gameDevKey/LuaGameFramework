@@ -25,9 +25,9 @@ local function checkEnum(enum, name)
     end
 end
 
-function Enum.New(tb, name)
+function Enum.New(tb, name, args)
     name = name or "Enum"
-    if TEST_ENV then
+    if not args or not args.allowRepeat then
         checkEnum(tb, name)
     end
 
@@ -52,7 +52,9 @@ function Enum.New(tb, name)
         __index = function(t, k)
             if tb[k] then return tb[k] end
             if data[k] then return data[k] end
-            PrintError("枚举", name, "不存在键", k)
+            -- if TEST_ENV then
+            --     PrintError("枚举", name, "不存在键", k)
+            -- end
         end,
         __newindex = function(t, k, v)
             PrintError("枚举", name, "无法修改键", k)
