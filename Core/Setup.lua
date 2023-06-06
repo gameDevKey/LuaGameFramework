@@ -5,8 +5,11 @@ require("Utils.Class")
 require("Utils.String")
 require("Utils.Table")
 require("Utils.Time")
--- require("Utils.LuaFileUtil")
-require("CSUtils.CsFileUtil")
+if PURE_LUA_TEST_ENV then
+    require("Utils.LuaFileUtil")
+else
+    require("CSUtils.CsFileUtil")
+end
 --#endregion
 
 
@@ -15,9 +18,23 @@ LuaFiles = {}
 local MODULE,FACADE,CTRL,PROXY = "Module","Facade","Ctrl","Proxy"
 local facadeFiles = {}
 local facadeModules = {}
-local currentDir = CsFileUtil.GetCurrentDir()..'/Scripts/Lua'
-local luaFiles = CsFileUtil.GetAllFilePath(currentDir,"*.lua")
+local currentDir
+local luaFiles
+if PURE_LUA_TEST_ENV then
+    currentDir = LFS.currentdir()
+    luaFiles = {}
+    LuaFileUtil.FindAllFile(currentDir, ".lua", luaFiles)
+else
+    currentDir = CsFileUtil.GetCurrentDir()..'/Scripts/Lua'
+    luaFiles = CsFileUtil.GetAllFilePath(currentDir,"*.lua")
+end
 local function IsValidFile(key,dir,lastDir,lastDir2)
+    if string.endswith(key,"meta") then
+        return false
+    end
+    if TEST_ENV then
+        return true
+    end
     if dir == "Debug" then
         return false
     end
@@ -26,7 +43,13 @@ local function IsValidFile(key,dir,lastDir,lastDir2)
     end
     return true
 end
-for i= 0, luaFiles.Length-1, 1 do
+local startIndex,endIndex
+if PURE_LUA_TEST_ENV then
+    startIndex,endIndex = 1,#luaFiles
+else
+    startIndex,endIndex = 0,luaFiles.Length-1
+end
+for i = startIndex, endIndex, 1 do
     local path = luaFiles[i]
     local realPath = string.gsub(path, currentDir, "")
     realPath = string.gsub(realPath, ".lua", "")
@@ -40,7 +63,7 @@ for i= 0, luaFiles.Length-1, 1 do
         PrintError("Lua文件重名", path)
     else
         --文件过滤，带有Debug或者Template的文件不加载
-        if TEST_ENV or IsValidFile(key,dir,lastDir,lastDir2) then
+        if IsValidFile(key,dir,lastDir,lastDir2) then
             LuaFiles[key] = table.concat(paths, ".")
             if lastDir == MODULE then
                 if string.endswith(key, FACADE) then

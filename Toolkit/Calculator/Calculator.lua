@@ -6,61 +6,118 @@
 --(a+-if(if(1+1!=2,!2,!3),b+c,d+f))*e+(1*-3/(4+8.25678+(6*-8)/123)+-458*(124*3)+max(1,2)/min(3,4))
 --ceil(if(1,max(sqrt(2.2),pow(3,3)),min(sin(4.4),cos(5.5))))
 
-
-
 Calculator = Class("Calculator")
 
-function Calculator:OnInit()
+Calculator.Log = false
+
+function Calculator:OnInit(str)
     self:reset()
+    self:SetPattern(str)
 end
 
-function Calculator:Calc(str)
-    -- PrintLog("计算",str)
-    self:reset()
+function Calculator:OnDelete()
+    self.opStack = nil
+    self.resultStack = nil
+    self.calcStack = nil
+    self.kvs = nil
+end
+
+function Calculator:SetPattern(str)
     self.calPattern = str
+end
+
+function Calculator:SetVar(k,v)
+    self.kvs[k] = v
+end
+
+function Calculator:Calc()
+    if self.finalResult then
+        return self.finalResult
+    end
     self:parse()
     return self:calc()
 end
 
 function Calculator:reset()
-    self.calPattern = nil
-    self.opStack = {}       --运算符
+    self.opStack = {}       --运算符堆栈
     self.resultStack = {}   --后缀表达式堆栈
-    self.calcStack = {}
+    self.calcStack = {}     --求值堆栈
+    self.kvs = {}           --自定义键值对
 end
 
 --中缀表达式转后缀表达式
---TODO 支持小数点
 function Calculator:parse()
-    for i = 1, string.len(self.calPattern) do
-        local cur = string.sub(self.calPattern, i, i)
+    local len = string.len(self.calPattern)
+    local index = 1
+    while index <= len do
+        local cur = string.sub(self.calPattern, index, index)
         local op = CalcDefine.OpSign[cur]
         if op then
-            -- PrintLog("运算符",cur)
+            -- 运算符
+            self:log("运算符",cur)
             if op == CalcDefine.OpType.LBracket then
-                self:addOp(op)
+                table.insert(self.opStack, op)
             elseif op == CalcDefine.OpType.RBracket then
                 self:popToLB()
             else
                 self:insertOp(op)
             end
+            index = index + 1
         else
-            -- PrintLog("操作数",cur)
-            local num = tonumber(cur)
-            if not num then
-                PrintError("数字转换失败",cur)
-                return
+            if tonumber(cur) then
+                -- 数字
+                local num,endIndex = self:findNumber(index,len)
+                if not num or endIndex == 0 then
+                    PrintError("数字查找失败，位置:",index)
+                    return
+                end
+                self:log("操作数",num)
+                self:addResult(CalcDefine.Type.Num, num)
+                index = endIndex + 1
+            else
+                -- 变量
+                local var,endIndex = self:findVar(index,len)
+                if not var or endIndex == 0 then
+                    PrintError("变量查找失败，位置:",index)
+                    return
+                end
+                self:log("操作数[变量]",var)
+                self:addResult(CalcDefine.Type.Var, var)
+                index = endIndex + 1
             end
-            self:addResult(CalcDefine.Type.Num, num)
         end
-        -- self:log()
+        self:logStacks()
     end
     --TODO 检查这里是逆序还是顺序
     for i = #self.opStack, 1, -1 do
-        local op = self:removeOp(i)
+        local op = table.remove(self.opStack, i)
         self:addResult(CalcDefine.Type.Op, op)
     end
-    -- self:log()
+    self:logStacks()
+end
+
+function Calculator:findNumber(startIndex,endIndex)
+    local tb = {}
+    local lastIndex = startIndex - 1
+    for i = startIndex, endIndex do
+        local cur = string.sub(self.calPattern, i, i)
+        local op = CalcDefine.OpSign[cur]
+        if op then
+            break
+        end
+        table.insert(tb,cur)
+        lastIndex = lastIndex + 1
+    end
+    return tonumber(table.concat(tb)),lastIndex
+end
+
+function Calculator:findVar(startIndex,endIndex)
+    local str = string.sub(self.calPattern, startIndex, endIndex)
+    local left,right = string.find(str,"%w+")
+    left = startIndex+left-1
+    right = startIndex+right-1
+    local var = string.sub(self.calPattern, left, right)
+    return var,right
 end
 
 function Calculator:addResult(type, data)
@@ -69,20 +126,12 @@ end
 
 function Calculator:popToLB()
     for i = #self.opStack, 1, -1 do
-        local op = self:removeOp(i)
+        local op = table.remove(self.opStack, i)
         if op == CalcDefine.OpType.LBracket then
             break
         end
         self:addResult(CalcDefine.Type.Op, op)
     end
-end
-
-function Calculator:addOp(op)
-    table.insert(self.opStack, op)
-end
-
-function Calculator:removeOp(index)
-    return table.remove(self.opStack, index)
 end
 
 function Calculator:insertOp(op)
@@ -92,31 +141,25 @@ function Calculator:insertOp(op)
             or CalcDefine.OpPriority[op] > CalcDefine.OpPriority[topOp] then
             break
         else
-            self:removeOp(i)
+            table.remove(self.opStack, i)
             self:addResult(CalcDefine.Type.Op, topOp)
         end
     end
-    self:addOp(op)
+    table.insert(self.opStack, op)
 end
 
 --后缀表达式求值
 function Calculator:calc()
     for _, data in ipairs(self.resultStack) do
         if data.type == CalcDefine.Type.Op then
-            local num2 = table.remove(self.calcStack, #self.calcStack)
-            local num1 = table.remove(self.calcStack, #self.calcStack)
-            if not num1 or not num2 then
-                PrintError("参数不足, 请检查parse逻辑")
-                return
-            end
-            local fn = CalcDefine.OpFunc[data.data]
-            if not fn then
-                PrintError("未定义求值函数 OpType=",data.data)
-                return
-            end
-            local result = fn(num1,num2)
-            -- PrintLog("计算",num1,CalcDefine.OpSign[data.data],num2,'=',result)
+            local result = self:callFuncByOp(data.data)
             table.insert(self.calcStack, result)
+        elseif data.type == CalcDefine.Type.Var then
+            if not self.kvs[data.data] then
+                PrintError("未定义变量具体值",data.data)
+                return
+            end
+            table.insert(self.calcStack, self.kvs[data.data])
         else
             table.insert(self.calcStack, data.data)
         end
@@ -125,10 +168,48 @@ function Calculator:calc()
         PrintError("计算出错，请检查逻辑")
         return
     end
-    return self.calcStack[1]
+    self.finalResult = self.calcStack[1]
+    self:reset()
+    return self.finalResult
 end
 
-function Calculator:log()
+function Calculator:callFunc(fnType)
+    if not fnType then
+        return
+    end
+    local fnData = CalcDefine.Func[fnType]
+    if not fnData then
+        PrintError("未配置求值函数 FuncType=",fnType)
+        return
+    end
+    local fn = fnData.fn
+    local args = {}
+    for i = fnData.argsNum, 1, -1 do
+        local arg = table.remove(self.calcStack)
+        table.insert(args,1,arg)
+    end
+    if fnData.argsNum ~= #args then
+        PrintError("参数个数不匹配 FuncType=",fnType)
+        return
+    end
+    return fn(table.SafeUpack(args))
+end
+
+function Calculator:callFuncByOp(op)
+    return self:callFunc(CalcDefine.Op2Func[op])
+end
+
+function Calculator:log(...)
+    if not self.Log then
+        return
+    end
+    PrintLog(...)
+end
+
+function Calculator:logStacks()
+    if not self.Log then
+        return
+    end
     local ops = {}
     for _, cur in ipairs(self.opStack) do
         table.insert(ops, CalcDefine.OpSign[cur])

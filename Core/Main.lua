@@ -25,7 +25,7 @@ local function after_init()
 end
 
 local function main()
-    print("lua main 启动!")
+    -- print("lua main 启动!")
     pre_init()
     init()
     after_init()

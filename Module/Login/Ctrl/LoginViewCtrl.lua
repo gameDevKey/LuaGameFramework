@@ -6,7 +6,7 @@ function LoginViewCtrl:OnInitComplete()
 end
 
 function LoginViewCtrl:BindEvents()
-    PrintLog("执行LoginViewCtrl:BindEvents")
+    -- PrintLog("执行LoginViewCtrl:BindEvents")
     self:AddListenerWithSelfFunc(ELoginModule.ViewEvent.ActiveLoginView, "SetActiveLoginView", false)
 end
 

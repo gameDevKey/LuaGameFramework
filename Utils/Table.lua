@@ -92,3 +92,8 @@ function table.Recycle(tb)
         tb:Recycle()
     end
 end
+
+local _unpack = unpack or table.unpack
+function table.SafeUpack(...)
+    return _unpack(...)
+end

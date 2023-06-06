@@ -3,6 +3,8 @@ CalcDefine = StaticClass("CalcDefine")
 CalcDefine.Type = Enum.New({
     Op = 1,
     Num = 2,
+    Var = 3,
+    Func = 4,
 })
 
 CalcDefine.OpType = Enum.New({
@@ -32,19 +34,59 @@ CalcDefine.OpPriority = Enum.New({
     [CalcDefine.OpType.RBracket] = 9999,
 },"OpPriority",{allowRepeat=true})
 
-CalcDefine.OpFunc = {
-    [CalcDefine.OpType.Add] = function (a,b)
-        return a+b
-    end,
-    [CalcDefine.OpType.Sub] = function (a,b)
-        return a-b
-    end,
-    [CalcDefine.OpType.Mul] = function (a,b)
-        return a*b
-    end,
-    [CalcDefine.OpType.Div] = function (a,b)
-        return a/b
-    end,
+CalcDefine.FuncType = {
+    Add = 1,
+    Sub = 2,
+    Mul = 3,
+    Div = 4,
+
+    --自定义函数类型
+    IF = 5,
+}
+
+CalcDefine.Op2Func = {
+    [CalcDefine.OpType.Add] = CalcDefine.FuncType.Add,
+    [CalcDefine.OpType.Sub] = CalcDefine.FuncType.Sub,
+    [CalcDefine.OpType.Mul] = CalcDefine.FuncType.Mul,
+    [CalcDefine.OpType.Div] = CalcDefine.FuncType.Div,
+}
+
+CalcDefine.Func = {
+    [CalcDefine.FuncType.Add] = {
+        fn = function (a,b)
+            return a+b
+        end,
+        argsNum = 2,
+    },
+    [CalcDefine.FuncType.Sub] = {
+        fn = function (a,b)
+            return a-b
+        end,
+        argsNum = 2,
+    },
+    [CalcDefine.FuncType.Mul] = {
+        fn = function (a,b)
+            return a*b
+        end,
+        argsNum = 2,
+    },
+    [CalcDefine.FuncType.Div] = {
+        fn = function (a,b)
+            return a/b
+        end,
+        argsNum = 2,
+    },
+
+    --自定义函数
+    [CalcDefine.FuncType.IF] = {
+        fn = function (a,b,c)
+            if a == 1 then
+                return b
+            end
+            return c
+        end,
+        argsNum = 3,
+    },
 }
 
 return CalcDefine
