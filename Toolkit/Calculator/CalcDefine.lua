@@ -26,8 +26,8 @@ CalcDefine.FuncType = Enum.New({
     IF = "IF",
     Equal = "Equal",
     Large = "Large",
-    LargeEqual ="LargeEqual",
-    Small ="Small",
+    LargeEqual = "LargeEqual",
+    Small = "Small",
     SmallEqual = "SmallEqual",
     NotEqual = "NotEqual",
     Not = "Not",
@@ -45,85 +45,85 @@ CalcDefine.FuncSign = Enum.New({
 
 CalcDefine.Func = {
     [CalcDefine.FuncType.Add] = {
-        fn = function (a,b)
-            return a+b
+        fn = function(a, b)
+            return a + b
         end,
         argsNum = 2,
     },
     [CalcDefine.FuncType.Sub] = {
-        fn = function (a,b)
-            return a-b
+        fn = function(a, b)
+            return a - b
         end,
         argsNum = 2,
     },
     [CalcDefine.FuncType.Mul] = {
-        fn = function (a,b)
-            return a*b
+        fn = function(a, b)
+            return a * b
         end,
         argsNum = 2,
     },
     [CalcDefine.FuncType.Div] = {
-        fn = function (a,b)
-            return a/b
+        fn = function(a, b)
+            return a / b
         end,
         argsNum = 2,
     },
     [CalcDefine.FuncType.IF] = {
-        fn = function (a,b,c)
+        fn = function(a, b, c)
             return a > 0 and b or c
         end,
         argsNum = 3,
     },
     [CalcDefine.FuncType.Equal] = {
-        fn = function (a,b)
-            return a==b and 1 or 0
+        fn = function(a, b)
+            return a == b and 1 or 0
         end,
         argsNum = 2,
     },
     [CalcDefine.FuncType.Large] = {
-        fn = function (a,b)
-            return a>b and 1 or 0
+        fn = function(a, b)
+            return a > b and 1 or 0
         end,
         argsNum = 2,
     },
     [CalcDefine.FuncType.LargeEqual] = {
-        fn = function (a,b)
-            return a>=b and 1 or 0
+        fn = function(a, b)
+            return a >= b and 1 or 0
         end,
         argsNum = 2,
     },
     [CalcDefine.FuncType.Small] = {
-        fn = function (a,b)
-            return a<b and 1 or 0
+        fn = function(a, b)
+            return a < b and 1 or 0
         end,
         argsNum = 2,
     },
     [CalcDefine.FuncType.SmallEqual] = {
-        fn = function (a,b)
-            return a<=b and 1 or 0
+        fn = function(a, b)
+            return a <= b and 1 or 0
         end,
         argsNum = 2,
     },
     [CalcDefine.FuncType.NotEqual] = {
-        fn = function (a,b)
-            return a~=b and 1 or 0
+        fn = function(a, b)
+            return a ~= b and 1 or 0
         end,
         argsNum = 2,
     },
     [CalcDefine.FuncType.Not] = {
-        fn = function (a)
+        fn = function(a)
             return a == 0 and 1 or 0
         end,
         argsNum = 1,
     },
     [CalcDefine.FuncType.Min] = {
-        fn = function (a,b)
+        fn = function(a, b)
             return a < b and a or b
         end,
         argsNum = 2,
     },
     [CalcDefine.FuncType.Max] = {
-        fn = function (a,b)
+        fn = function(a, b)
             return a > b and a or b
         end,
         argsNum = 2,
@@ -181,7 +181,7 @@ CalcDefine.OpPriority = Enum.New({
     [CalcDefine.OpType.Small] = 5,
     [CalcDefine.OpType.SmallEqual] = 5,
     [CalcDefine.OpType.NotEqual] = 5,
-},"OpPriority",{allowRepeat=true})
+}, "OpPriority", { allowRepeat = true })
 
 -- 操作符与函数的映射（操作符其实也是一种函数，所以需要转义）
 CalcDefine.Op2Func = {
@@ -203,7 +203,7 @@ CalcDefine.Op2Func = {
 
 CalcDefine.FuncArgSplitLength = string.len(CalcDefine.FuncArgSplit)
 
---初始化查找字典
+--初始化查找字典,比如abc会存["a"]["ab"]["abc"]三份
 local function init_sign_map(enum)
     local map = {}
     local maxLen = 0
@@ -212,16 +212,18 @@ local function init_sign_map(enum)
         if len > maxLen then
             maxLen = len
         end
+        local last = ""
         for i = 1, len do
-            local subSign = string.sub(sign,i,i)
-            map[subSign] = true
+            local subSign = string.sub(sign, i, i)
+            last = last .. subSign
+            map[last] = true
         end
     end
-    return map,maxLen
+    return map, maxLen
 end
 
-CalcDefine.FuncSignMap,CalcDefine.MAX_FUNC_LEN = init_sign_map(CalcDefine.FuncSign)
-CalcDefine.OpSignMap,CalcDefine.MAX_OP_LEN = init_sign_map(CalcDefine.OpSign)
+CalcDefine.FuncSignMap, CalcDefine.MAX_FUNC_LEN = init_sign_map(CalcDefine.FuncSign)
+CalcDefine.OpSignMap, CalcDefine.MAX_OP_LEN = init_sign_map(CalcDefine.OpSign)
 
 --#endregion
 

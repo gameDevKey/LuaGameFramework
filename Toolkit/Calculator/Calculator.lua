@@ -13,8 +13,8 @@ Calculator = Class("Calculator")
 Calculator.Log = false
 
 function Calculator:OnInit()
-    self.calPattern = nil   --公式
-    self.kvs = {}           --变量值
+    self.calPattern = nil --公式
+    self.kvs = {}         --变量值
 end
 
 function Calculator:OnDelete()
@@ -64,7 +64,7 @@ function Calculator:resetParse()
 end
 
 function Calculator:resetCalc()
-    self.calcStack = {}   --求值堆栈
+    self.calcStack = {} --求值堆栈
 end
 
 --中缀表达式转后缀表达式
@@ -92,13 +92,13 @@ function Calculator:parse()
                 lastElem.data = num
                 lastElem.type = CalcDefine.Type.Num
             else
-                local fnName, endIndex = self:findFunc(cur, index, len)
-                if fnName then
+                local fnType, endIndex = self:findFunc(cur, index, len)
+                if fnType then
                     -- 函数
-                    self:log("函数", fnName)
-                    self:addOp(CalcDefine.OpKind.Func, CalcDefine.FuncSign[fnName])
+                    self:log("函数", CalcDefine.FuncSign[fnType])
+                    self:addOp(CalcDefine.OpKind.Func, fnType)
                     index = endIndex + 1
-                    lastElem.data = fnName
+                    lastElem.data = fnType
                     lastElem.type = CalcDefine.Type.Func
                 else
                     local op, endIndex = self:findOp(cur, index, len)
@@ -152,35 +152,30 @@ function Calculator:parse()
     self:logStacks()
 end
 
-local function findWordsByMap(calPattern,maxLen,map,enum,startIndex)
-    local temp = ""
+local function findWordsByMap(calPattern, maxLen, map, enum, startIndex)
+    local result = ""
     local right = startIndex
-    local find = false
     for i = 1, maxLen do
         local str = string.sub(calPattern, right, right)
         --不在字典中，直接跳出
-        if not map[str] then
+        local temp = result .. str
+        if not map[temp] then
             break
         end
-        --找到运算符一部分，但是拼接下一个却不是运算符，跳出
-        if find and not enum[temp..str] then
-            break
-        end
-        temp = temp .. str
+        result = temp
         right = right + 1
-        find = true
     end
-    return enum[temp], right-1
+    return enum[result], right - 1
 end
 
 function Calculator:findOp(cur, startIndex, endIndex)
-    return findWordsByMap(self.calPattern,CalcDefine.MAX_OP_LEN,
-        CalcDefine.OpSignMap,CalcDefine.OpSign,startIndex)
+    return findWordsByMap(self.calPattern, CalcDefine.MAX_OP_LEN,
+        CalcDefine.OpSignMap, CalcDefine.OpSign, startIndex)
 end
 
 function Calculator:findFunc(curChar, startIndex, endIndex)
-    return findWordsByMap(self.calPattern,CalcDefine.MAX_FUNC_LEN,
-        CalcDefine.FuncSignMap,CalcDefine.FuncSign,startIndex)
+    return findWordsByMap(self.calPattern, CalcDefine.MAX_FUNC_LEN,
+        CalcDefine.FuncSignMap, CalcDefine.FuncSign, startIndex)
 end
 
 function Calculator:findNumber(curChar, startIndex, endIndex)
@@ -189,13 +184,22 @@ function Calculator:findNumber(curChar, startIndex, endIndex)
     end
     local tb = {}
     local lastIndex = startIndex - 1
+    local findPoint = false
     for i = startIndex, endIndex do
         local cur = string.sub(self.calPattern, i, i)
         if cur == CalcDefine.FuncArgSplit then
             break
         end
-        if cur ~= "." and not string.find(cur, "%d") then
-            break
+        if cur == "." then
+            if findPoint then
+                PrintError("公式错误，出现了连续的小数点", self.calPattern)
+                break
+            end
+            findPoint = true
+        else
+            if not string.find(cur, "%d") then
+                break
+            end
         end
         table.insert(tb, cur)
         lastIndex = lastIndex + 1
@@ -204,8 +208,8 @@ function Calculator:findNumber(curChar, startIndex, endIndex)
 end
 
 function Calculator:findVar(curChar, startIndex, endIndex)
-    --变量首位不能是数字
-    if tonumber(curChar) then
+    --变量首位只能是字母
+    if not string.find(curChar, "%a") then
         return
     end
     local str = string.sub(self.calPattern, startIndex, endIndex)
@@ -363,7 +367,7 @@ function Calculator:callFunc(fnType)
         return
     end
     local result = fn(table.SafeUpack(args))
-    self:log("计算", fnType, args, "结果",result)
+    self:log("计算", fnType, args, "结果", result)
     return result
 end
 
