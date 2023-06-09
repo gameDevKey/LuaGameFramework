@@ -1,29 +1,36 @@
-local tester = { tb={}, calculator = Calculator.New()}
-function tester:add(calc,result)
-    table.insert(self.tb,{calc=calc,result=result})
+local tester = { tb = {}, calculator = Calculator.New() }
+function tester:add(calc, result)
+    table.insert(self.tb, { calc = calc, result = result })
 end
+
 function tester:start()
     for index, data in ipairs(self.tb) do
         self.calculator:SetPattern(data.calc)
         local result = self.calculator:Calc()
-        print("测试",data.calc,"结果",result,
-            (result==data.result) and "正确" or "======错误=======")
+        print("测试", data.calc, "结果", result,
+            (result == data.result) and "正确" or "错误,正确结果为", data.result)
     end
 end
 
-tester:add("((9-3)*(8-5)-2+(4-5))*(2-3)/(5-2)",-5)
-tester:add("((9-3)*(8-5)-2+(4-5))",15)
-tester:add("if((9-6),2,3)",2)
-tester:add("not(3)+if(1,2,3)",2)
+-- tester:add("3-4", -1)
 
-tester:add("if(if(1,2,3),2+3,4+5)",5)
-tester:add("if(if(1+1!=2,not(2),not(3)),2+3,4+5)",9)
-tester:add("1*-3/(4+8.25+(6*-8)/100",-11.77)
-tester:add("-2*3",-6)
-tester:add("-2*-3",6)
-tester:add("-2*-if(1,2,3)",4)
-tester:add("-1==-2",0)
-tester:add("-if(1,2,3)",-2)
+-- tester:add("((9-3)*(8-5)-2+(4-5))*(2-3)/(5-2)", -5)
+-- tester:add("((9-3)*(8-5)-2+(4-5))", 15)
+-- tester:add("if((9-6),2,3)", 2)
+-- tester:add("not(3)+if(1,2,3)", 2)
+
+-- tester:add("if(if(1,2,3),2+3,4+5)", 5)
+-- tester:add("if(if(1+1!=2,not(2),not(3)),2+3,4+5)", 9)
+tester:add("1*-1/(1+1.05+(1*-2))/2.5", -8)
+-- tester:add("-+1*-2+-24", -22)
+-- tester:add("--3", 3)
+-- tester:add("+-3", -3)
+-- tester:add("+-3-+4", -7)
+-- tester:add("-2*3", -6)
+-- tester:add("-2*-3", 6)
+-- tester:add("-2*-if(1,2,3)", 4)
+-- tester:add("-1==-2", 0)
+-- tester:add("-if(1,2,3)", -2)
 -- tester:add("(1-if(if(1+1!=2,not(2),not(3)),2+3,4+5))*6+(1*-3/(4+8.25678+(6*-8)/123)",)
 
 tester:start()

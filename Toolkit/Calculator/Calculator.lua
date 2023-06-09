@@ -79,7 +79,7 @@ function Calculator:parse()
                 self:log("数字", num)
                 self:addResult(CalcDefine.Type.Num, num)
                 index = endIndex + 1
-                lastElem.data = cur
+                lastElem.data = num
                 lastElem.type = CalcDefine.Type.Num
             else
                 local fnName, endIndex = self:findFunc(cur, index, len)
@@ -88,15 +88,17 @@ function Calculator:parse()
                     self:log("函数", fnName)
                     self:addOp(CalcDefine.OpKind.Func, CalcDefine.FuncSign[fnName])
                     index = endIndex + 1
-                    lastElem.data = cur
+                    lastElem.data = fnName
                     lastElem.type = CalcDefine.Type.Func
                 else
                     local op, endIndex = self:findOp(cur, index, len)
                     if op then
                         -- 运算符
                         self:log("运算符", op)
-                        if ( op == CalcDefine.OpType.Sub or op == CalcDefine.OpType.Add )
-                            and ( index == 1 or lastElem.type == CalcDefine.Type.Op ) then
+                        if (op == CalcDefine.OpType.Sub or op == CalcDefine.OpType.Add)
+                            and
+                            (index == 1
+                                or (lastElem.type == CalcDefine.Type.Op and lastElem.data ~= CalcDefine.OpType.RBracket)) then
                             -- +/-比较特殊，可以用来修饰后面的组，比如-2*-3,4*-(4+5)
                             self:pushWaitOp(op)
                         else
@@ -109,7 +111,7 @@ function Calculator:parse()
                             end
                         end
                         index = endIndex + 1
-                        lastElem.data = cur
+                        lastElem.data = op
                         lastElem.type = CalcDefine.Type.Op
                     else
                         -- 变量
@@ -118,7 +120,7 @@ function Calculator:parse()
                             self:log("变量", var)
                             self:addResult(CalcDefine.Type.Var, var)
                             index = endIndex + 1
-                            lastElem.data = cur
+                            lastElem.data = var
                             lastElem.type = CalcDefine.Type.Var
                         else
                             PrintError("出现未知字符", cur, "无法解析公式:", self.calPattern)
@@ -340,7 +342,7 @@ function Calculator:callFunc(fnType)
     local fn = fnData.fn
     local args = {}
     local argsCount = 0
-    for i = fnData.argsNum, 1, -1 do
+    for i = 1, fnData.argsNum do
         local index = fnData.argsNum - i + 1 --倒序
         local num = table.remove(self.calcStack)
         args[index] = num or fnData.defaultVal
@@ -364,8 +366,8 @@ end
 --1.运算符粘连
 --2.首字符为运算符
 function Calculator:pushWaitOp(op)
-    table.insert(self.waitOps,op)
-    self:log(" >>> pushWaitOp",CalcDefine.OpSign[op])
+    table.insert(self.waitOps, op)
+    self:log(" >>> pushWaitOp", CalcDefine.OpSign[op])
 end
 
 --出栈时机
@@ -374,13 +376,13 @@ end
 function Calculator:popWaitOp()
     local op = #self.waitOps > 0 and table.remove(self.waitOps)
     if op then
-        self:log(" >>> popWaitOp",CalcDefine.OpSign[op])
+        self:log(" >>> popWaitOp", CalcDefine.OpSign[op])
         if op == CalcDefine.OpType.Add then
             self:addResult(CalcDefine.Type.Num, 1)
         elseif op == CalcDefine.OpType.Sub then
             self:addResult(CalcDefine.Type.Num, -1)
         else
-            PrintError("错误的类型",op)
+            PrintError("错误的类型", op)
             return
         end
         self:addResult(CalcDefine.Type.Op, CalcDefine.OpType.Mul)
@@ -451,7 +453,7 @@ end
 --                         findFunc = true
 --                     elseif next.type == CalcDefine.Type.Op then
 --                         if not findFunc then
-                            
+
 --                         end
 --                         if next.data == ")" then
 --                             break
