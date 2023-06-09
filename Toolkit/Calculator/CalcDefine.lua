@@ -49,14 +49,12 @@ CalcDefine.Func = {
             return a+b
         end,
         argsNum = 2,
-        defaultVal = 0, -- 加号比较特殊，可以修饰后面的组，入参不足自动补0, 比如+2-3
     },
     [CalcDefine.FuncType.Sub] = {
         fn = function (a,b)
             return a-b
         end,
         argsNum = 2,
-        defaultVal = 0, -- 负号比较特殊，可以修饰后面的组，入参不足自动补0, 比如-2-3
     },
     [CalcDefine.FuncType.Mul] = {
         fn = function (a,b)
@@ -167,6 +165,7 @@ CalcDefine.OpSign = Enum.New({
 })
 
 CalcDefine.OpPriority = Enum.New({
+    -- 括号是最高优先级
     [CalcDefine.OpType.LBracket] = 9999,
     [CalcDefine.OpType.RBracket] = 9999,
     -- 先乘除

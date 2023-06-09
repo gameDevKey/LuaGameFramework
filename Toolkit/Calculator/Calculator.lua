@@ -345,7 +345,8 @@ function Calculator:callFunc(fnType)
     for i = 1, fnData.argsNum do
         local index = fnData.argsNum - i + 1 --倒序
         local num = table.remove(self.calcStack)
-        args[index] = num or fnData.defaultVal
+        -- args[index] = num or fnData.defaultVal
+        args[index] = num
         if args[index] ~= nil then
             argsCount = argsCount + 1
         end
