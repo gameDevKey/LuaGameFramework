@@ -24,3 +24,7 @@ end
 function string.valid(str)
     return IsString(str) and string.len(str) > 0
 end
+
+function string.trim(str)
+    return string.gsub(str,"%s+","")
+end

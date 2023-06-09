@@ -4,7 +4,7 @@
     local str = "((a-3)*(8-5)-2+(4-5))*(2-3)/(5-2)"
     local calc = Calculator.New()
     calc:SetPattern(str)
-    calc:SetVar("a",6)
+    calc:SetVarVal("a",6)
     print("计算",str,"结果",calc:Calc())
 --]]
 
@@ -26,8 +26,7 @@ end
 ---设置公式
 ---@param str string
 function Calculator:SetPattern(str)
-    self.calPattern = str
-    -- self:fixCalcPattern(str)
+    self.calPattern = string.trim(str)
     self.finalResult = nil
 end
 
@@ -55,7 +54,7 @@ function Calculator:reset()
     self.resultStack = {} --后缀表达式堆栈
     self.calcStack = {}   --求值堆栈
     self.kvs = {}         --自定义键值对
-    self.waitOps = {}
+    self.waitOps = {}     --前置运算符缓存，某些运算符有修饰后面的组的作用
 end
 
 --中缀表达式转后缀表达式
@@ -95,10 +94,8 @@ function Calculator:parse()
                     if op then
                         -- 运算符
                         self:log("运算符", op)
-                        if (op == CalcDefine.OpType.Sub or op == CalcDefine.OpType.Add)
-                            and
-                            (index == 1
-                                or (lastElem.type == CalcDefine.Type.Op and lastElem.data ~= CalcDefine.OpType.RBracket)) then
+                        if (op == CalcDefine.OpType.Sub or op == CalcDefine.OpType.Add) and
+                            (index == 1 or (lastElem.type == CalcDefine.Type.Op and lastElem.data ~= CalcDefine.OpType.RBracket)) then
                             -- +/-比较特殊，可以用来修饰后面的组，比如-2*-3,4*-(4+5)
                             self:pushWaitOp(op)
                         else
@@ -145,22 +142,24 @@ function Calculator:parse()
 end
 
 function Calculator:findOp(cur, startIndex, endIndex)
-    if string.find(cur, "%w") then
-        return
+    local temp = ""
+    local right = startIndex
+    local find = false
+    for i = 1, CalcDefine.MAX_OP_LEN do
+        local str = string.sub(self.calPattern, right, right)
+        --不在字典中，直接跳出
+        if not CalcDefine.OpSignMap[str] then
+            break
+        end
+        --找到运算符一部分，但是拼接下一个却不是运算符，跳出
+        if find and not CalcDefine.OpSign[temp..str] then
+            break
+        end
+        temp = temp .. str
+        right = right + 1
+        find = true
     end
-    if CalcDefine.OpSign[cur] then
-        return CalcDefine.OpSign[cur], startIndex
-    end
-    --两位长度以上的运算符走正则，前提是运算符之间不可粘连
-    local str = string.sub(self.calPattern, startIndex, endIndex)
-    local left, right = string.find(str, CalcDefine.OpSignPattern)
-    if not left or not right then
-        return
-    end
-    left = startIndex + left - 1
-    right = startIndex + right - 1
-    local var = string.sub(self.calPattern, left, right)
-    return CalcDefine.OpSign[var], right
+    return CalcDefine.OpSign[temp], right-1
 end
 
 function Calculator:findNumber(curChar, startIndex, endIndex)
@@ -184,6 +183,7 @@ function Calculator:findNumber(curChar, startIndex, endIndex)
 end
 
 function Calculator:findVar(curChar, startIndex, endIndex)
+    --变量首位不能是数字
     if tonumber(curChar) then
         return
     end
@@ -350,12 +350,13 @@ function Calculator:callFunc(fnType)
             argsCount = argsCount + 1
         end
     end
-    self:log("计算", fnType, args)
     if fnData.argsNum ~= argsCount then
         PrintError("函数", fnType, '需要', fnData.argsNum, '个参数，却输入了', argsCount, '个')
         return
     end
-    return fn(table.SafeUpack(args))
+    local result = fn(table.SafeUpack(args))
+    self:log("计算", fnType, args, "结果",result)
+    return result
 end
 
 function Calculator:callFuncByOp(op)
@@ -388,97 +389,6 @@ function Calculator:popWaitOp()
         self:addResult(CalcDefine.Type.Op, CalcDefine.OpType.Mul)
     end
 end
-
---#region 分析过程太复杂了尤其是要考虑函数的闭合问题
-
--- --公式格式化
--- function Calculator:fixCalcPattern(str)
---     local len = string.len(str)
---     local index = 1
---     local stack = {}
---     while index <= len do
---         local cur = string.sub(str, index, index)
---         if cur == CalcDefine.FuncArgSplit then
---             index = index + CalcDefine.FuncArgSplitLength
---             table.insert(stack,{data=cur,type=nil})
---         else
---             local num, endIndex = self:findNumber(cur, index, len)
---             if num then
---                 index = endIndex + 1
---                 table.insert(stack,{data=num,type=CalcDefine.Type.Num})
---             else
---                 local fnName, endIndex = self:findFunc(cur, index, len)
---                 if fnName then
---                     index = endIndex + 1
---                     table.insert(stack,{data=fnName,type=CalcDefine.Type.Func})
---                 else
---                     local op, endIndex = self:findOp(cur, index, len)
---                     if op then
---                         index = endIndex + 1
---                         table.insert(stack,{data=CalcDefine.OpSign[op],type=CalcDefine.Type.Op})
---                     else
---                         local var, endIndex = self:findVar(cur, index, len)
---                         if var then
---                             index = endIndex + 1
---                             table.insert(stack,{data=var,type=CalcDefine.Type.Var})
---                         else
---                             PrintError("出现未知字符", cur, "无法解析公式:", str)
---                             return
---                         end
---                     end
---                 end
---             end
---         end
---     end
---     PrintLog("stack:",stack)
---     -- 加号/减号补全：
---     -- 1.运算符粘连 -a*-b ==> (0-a)*(0-b)
---     -- 2.首个字符就是运算符  -a ==> 0-a
---     local len = #stack
---     local index = 1
---     local result = {}
---     local last
---     while index <= len do
---         local ele = stack[index]
---         --运算符粘连
---         if ele.type == CalcDefine.Type.Op and last and last.type == CalcDefine.Type.Op then
---             if ele.data == "-" or ele.data == "+" then
---                 table.insert(result,"(0")
---                 table.insert(result,ele.data)
---                 local nextIndex
---                 local findFunc = false
---                 for j = index+1, len do
---                     local next = stack[j]
---                     if next.type == CalcDefine.Type.Func then
---                         findFunc = true
---                     elseif next.type == CalcDefine.Type.Op then
---                         if not findFunc then
-
---                         end
---                         if next.data == ")" then
---                             break
---                         end
---                     end
---                     table.insert(result,ele.data)
---                     nextIndex = j
---                 end
---                 if nextIndex then
---                     index = nextIndex+1
---                     table.insert(result,")")
---                 end
---             else
---                 PrintLog("公式有误，运算符粘连",str)
---                 return
---             end
---         else
---             table.insert(result,ele.data)
---             index = index + 1
---         end
---         last = ele
---     end
--- end
-
---#endregion
 
 function Calculator:log(...)
     if not self.Log then

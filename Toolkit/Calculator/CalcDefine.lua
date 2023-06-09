@@ -31,12 +31,16 @@ CalcDefine.FuncType = Enum.New({
     SmallEqual = "SmallEqual",
     NotEqual = "NotEqual",
     Not = "Not",
+    Max = "Max",
+    Min = "Min",
 })
 
 -- 因为函数名需要和变量作区分，所以要单独标记一下
 CalcDefine.FuncSign = Enum.New({
     [CalcDefine.FuncType.IF] = "if",
     [CalcDefine.FuncType.Not] = "not",
+    [CalcDefine.FuncType.Max] = "max",
+    [CalcDefine.FuncType.Min] = "min",
 })
 
 CalcDefine.Func = {
@@ -114,6 +118,18 @@ CalcDefine.Func = {
         end,
         argsNum = 1,
     },
+    [CalcDefine.FuncType.Min] = {
+        fn = function (a,b)
+            return a < b and a or b
+        end,
+        argsNum = 2,
+    },
+    [CalcDefine.FuncType.Max] = {
+        fn = function (a,b)
+            return a > b and a or b
+        end,
+        argsNum = 2,
+    },
 }
 
 --#endregion
@@ -188,6 +204,7 @@ CalcDefine.Op2Func = {
 
 CalcDefine.FuncArgSplitLength = string.len(CalcDefine.FuncArgSplit)
 
+
 -- 类似于[if|max|min]+
 local funcSignPattern = {"["}
 local tempFuncSignPattern = {}
@@ -197,21 +214,20 @@ end
 table.insert(funcSignPattern,table.concat(tempFuncSignPattern,"|"))
 table.insert(funcSignPattern,"]+")
 CalcDefine.FuncSignPattern = table.concat(funcSignPattern)
--- print("FuncSignPattern",CalcDefine.FuncSignPattern)
 
--- 类似于[+|-|*|/]+
-local opSignPattern = {"["}
-local tempOpSignPattern = {}
-for key, value in CalcDefine.OpSign:Pairs() do
-    if key ~= CalcDefine.OpType.LBracket and key ~= CalcDefine.OpType.RBracket then
-        table.insert(tempOpSignPattern,value)
+
+CalcDefine.MAX_OP_LEN = 0 --运算符最大长度
+CalcDefine.OpSignMap = {} --运算符查找字典
+for _, op in CalcDefine.OpSign:Pairs() do
+    local len = string.len(op)
+    if len > CalcDefine.MAX_OP_LEN then
+        CalcDefine.MAX_OP_LEN = len
+    end
+    for i = 1, len do
+        local subOp = string.sub(op,i,i)
+        CalcDefine.OpSignMap[subOp] = true
     end
 end
-table.insert(opSignPattern,table.concat(tempOpSignPattern,"|"))
-table.insert(opSignPattern,"]+")
-CalcDefine.OpSignPattern = table.concat(opSignPattern)
--- print("OpSignPattern",CalcDefine.OpSignPattern)
-
 
 --#endregion
 
