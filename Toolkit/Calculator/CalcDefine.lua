@@ -203,30 +203,25 @@ CalcDefine.Op2Func = {
 
 CalcDefine.FuncArgSplitLength = string.len(CalcDefine.FuncArgSplit)
 
-
--- 类似于[if|max|min]+
-local funcSignPattern = {"["}
-local tempFuncSignPattern = {}
-for key, value in CalcDefine.FuncSign:Pairs() do
-    table.insert(tempFuncSignPattern,value)
-end
-table.insert(funcSignPattern,table.concat(tempFuncSignPattern,"|"))
-table.insert(funcSignPattern,"]+")
-CalcDefine.FuncSignPattern = table.concat(funcSignPattern)
-
-
-CalcDefine.MAX_OP_LEN = 0 --运算符最大长度
-CalcDefine.OpSignMap = {} --运算符查找字典
-for _, op in CalcDefine.OpSign:Pairs() do
-    local len = string.len(op)
-    if len > CalcDefine.MAX_OP_LEN then
-        CalcDefine.MAX_OP_LEN = len
+--初始化查找字典
+local function init_sign_map(enum)
+    local map = {}
+    local maxLen = 0
+    for _, sign in enum:Pairs() do
+        local len = string.len(sign)
+        if len > maxLen then
+            maxLen = len
+        end
+        for i = 1, len do
+            local subSign = string.sub(sign,i,i)
+            map[subSign] = true
+        end
     end
-    for i = 1, len do
-        local subOp = string.sub(op,i,i)
-        CalcDefine.OpSignMap[subOp] = true
-    end
+    return map,maxLen
 end
+
+CalcDefine.FuncSignMap,CalcDefine.MAX_FUNC_LEN = init_sign_map(CalcDefine.FuncSign)
+CalcDefine.OpSignMap,CalcDefine.MAX_OP_LEN = init_sign_map(CalcDefine.OpSign)
 
 --#endregion
 

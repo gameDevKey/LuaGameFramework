@@ -49,3 +49,17 @@ end
 -- tester:add("-1!=-2", 1)
 
 tester:start()
+
+
+--复用逻辑
+-- local calculator = Calculator.New()
+-- calculator:SetPattern("1+a-5")
+-- calculator:SetVarVal("a",100)
+-- print("100 结果",calculator:Calc())
+-- calculator:SetVarVal("a",200)
+-- print("200 结果",calculator:Calc())
+-- calculator:SetPattern("1+a")
+-- calculator:SetVarVal("a",300)
+-- print("200 结果",calculator:Calc())
+-- calculator:SetVarVal("a",400)
+-- print("200 结果",calculator:Calc())

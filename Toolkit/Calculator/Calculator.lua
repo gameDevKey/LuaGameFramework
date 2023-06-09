@@ -13,52 +13,63 @@ Calculator = Class("Calculator")
 Calculator.Log = false
 
 function Calculator:OnInit()
-    self:reset()
+    self.calPattern = nil   --公式
+    self.kvs = {}           --变量值
 end
 
 function Calculator:OnDelete()
     self.opStack = nil
     self.resultStack = nil
     self.calcStack = nil
+    self.waitOps = nil
     self.kvs = nil
 end
 
 ---设置公式
+---需要重新解析并计算
 ---@param str string
 function Calculator:SetPattern(str)
     self.calPattern = string.trim(str)
-    self.finalResult = nil
+    self.doParse = true
+    self.doCalc = true
 end
 
 ---设置变量的值
+---只需要重新计算，不需要重新解析
 ---@param k any
 ---@param v number
 function Calculator:SetVarVal(k, v)
     self.kvs[k] = v
-    self.finalResult = nil
+    self.doCalc = true
 end
 
 ---计算并返回结果，相同的公式只会计算一次
 function Calculator:Calc()
-    if self.finalResult then
-        return self.finalResult
+    if self.doParse == true then
+        self:resetParse()
+        self:parse()
+        self.doParse = false
     end
-    self:parse()
-    self.finalResult = self:calc()
-    self:reset()
-    return self.finalResult
+    if self.doCalc == true then
+        self:calc()
+        self.doCalc = false
+    end
+    return self.calcStack[1]
 end
 
-function Calculator:reset()
+function Calculator:resetParse()
     self.opStack = {}     --运算符堆栈
     self.resultStack = {} --后缀表达式堆栈
-    self.calcStack = {}   --求值堆栈
-    self.kvs = {}         --自定义键值对
     self.waitOps = {}     --前置运算符缓存，某些运算符有修饰后面的组的作用
+end
+
+function Calculator:resetCalc()
+    self.calcStack = {}   --求值堆栈
 end
 
 --中缀表达式转后缀表达式
 function Calculator:parse()
+    self:resetParse()
     local len = string.len(self.calPattern)
     local index = 1
     local lastElem = {}
@@ -141,25 +152,35 @@ function Calculator:parse()
     self:logStacks()
 end
 
-function Calculator:findOp(cur, startIndex, endIndex)
+local function findWordsByMap(calPattern,maxLen,map,enum,startIndex)
     local temp = ""
     local right = startIndex
     local find = false
-    for i = 1, CalcDefine.MAX_OP_LEN do
-        local str = string.sub(self.calPattern, right, right)
+    for i = 1, maxLen do
+        local str = string.sub(calPattern, right, right)
         --不在字典中，直接跳出
-        if not CalcDefine.OpSignMap[str] then
+        if not map[str] then
             break
         end
         --找到运算符一部分，但是拼接下一个却不是运算符，跳出
-        if find and not CalcDefine.OpSign[temp..str] then
+        if find and not enum[temp..str] then
             break
         end
         temp = temp .. str
         right = right + 1
         find = true
     end
-    return CalcDefine.OpSign[temp], right-1
+    return enum[temp], right-1
+end
+
+function Calculator:findOp(cur, startIndex, endIndex)
+    return findWordsByMap(self.calPattern,CalcDefine.MAX_OP_LEN,
+        CalcDefine.OpSignMap,CalcDefine.OpSign,startIndex)
+end
+
+function Calculator:findFunc(curChar, startIndex, endIndex)
+    return findWordsByMap(self.calPattern,CalcDefine.MAX_FUNC_LEN,
+        CalcDefine.FuncSignMap,CalcDefine.FuncSign,startIndex)
 end
 
 function Calculator:findNumber(curChar, startIndex, endIndex)
@@ -189,21 +210,6 @@ function Calculator:findVar(curChar, startIndex, endIndex)
     end
     local str = string.sub(self.calPattern, startIndex, endIndex)
     local left, right = string.find(str, "%w+")
-    if not left or not right then
-        return
-    end
-    left = startIndex + left - 1
-    right = startIndex + right - 1
-    local var = string.sub(self.calPattern, left, right)
-    return var, right
-end
-
-function Calculator:findFunc(curChar, startIndex, endIndex)
-    if not string.find(curChar, "%a") then
-        return
-    end
-    local str = string.sub(self.calPattern, startIndex, endIndex)
-    local left, right = string.find(str, CalcDefine.FuncSignPattern)
     if not left or not right then
         return
     end
@@ -303,6 +309,7 @@ end
 
 --后缀表达式求值
 function Calculator:calc()
+    self:resetCalc()
     for _, data in ipairs(self.resultStack) do
         if data.type == CalcDefine.Type.Func then
             local result = self:callFunc(data.data)
