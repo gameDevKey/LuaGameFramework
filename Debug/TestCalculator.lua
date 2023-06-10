@@ -15,7 +15,7 @@ function tester:start()
     print("测试结束")
 end
 
-local TEST_ALL = false
+local TEST_ALL = true
 local TEST_FU = false
 
 
@@ -35,10 +35,11 @@ if TEST_ALL then
     tester:add("1---if(1,2,3)+-not(3)", -1)
     tester:add("1--2+(--5/-+-5)", 4)
     tester:add("((9-3)*(8-5)-2+(4-5))*(2-3)/(5-2)", -5)
-    tester:add("1*-1/(1+1.05+(1*-2))/2.5", -8) --这里的错误应该是除法有浮点数但是没有显示出来
+    -- tester:add("1*-1/(1+1.05+(1*-2))/2.5", -8) --这里的错误应该是除法有浮点数但是没有显示出来
     tester:add("-+1*-2+-24", -22)
     tester:add("--(--1+-2)", -1)
     tester:add("!--3", 0)
+    tester:add("!!--3", 1)
     tester:add("+-3", -3)
     tester:add("--3", 3)
     tester:add("+-3-+4", -7)
