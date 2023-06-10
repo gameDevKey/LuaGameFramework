@@ -3,12 +3,13 @@ local function pre_init()
     require("Core.Setup")
 
     NIL_TABLE = {}
-    table.ReadOnly(NIL_TABLE,"空表")
+    table.ReadOnly(NIL_TABLE, "空表")
 
     MathUtil.RandomSeed()
 
     EventDispatcher.Global = GetGlobalInstance(EventDispatcher)
     CommandManager.Global = GetGlobalInstance(CommandManager)
+    Calculator.Global = GetGlobalInstance(Calculator)
 end
 
 --初始化中

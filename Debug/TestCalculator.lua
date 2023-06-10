@@ -15,8 +15,9 @@ function tester:start()
     print("测试结束")
 end
 
-local TEST_ALL = true
+local TEST_ALL = false
 local TEST_FU = false
+local TEST_VAR = false
 
 
 if TEST_ALL then
@@ -78,3 +79,29 @@ if TEST_FU then
     calculator:SetVarVal("a", 400)
     print("400 结果", calculator:Calc())
 end
+
+if TEST_VAR then
+    local calculator = Calculator.New()
+    calculator:SetPattern("1+a-5")
+    calculator:SetVarVal("a", 100)
+    print("1+a-5 结果", calculator:Calc())
+    calculator:SetPattern("1+a.b-5")
+    calculator:SetVarVal("a.b", 100)
+    print("1+a.b-5 结果", calculator:Calc())
+    calculator:SetPattern("1+abc.efg.hij-k89g")
+    calculator:SetVarVal("abc.efg.hij", 100)
+    calculator:SetVarVal("k89g", 2)
+    print("1+abc.efg.hij-k89g 结果", calculator:Calc())
+    --错误案例
+    -- calculator:SetPattern("1+a.b.-5")
+    -- calculator:SetVarVal("a.b.", 100)
+    -- print("1+a.b.-5 结果", calculator:Calc())
+end
+
+-- local regex = "^[a-zA-Z][a-zA-Z0-9.]*[a-zA-Z0-9]?[^.]$"
+-- -- local regex = "^[a-zA-Z][a-zA-Z0-9.]*[a-zA-Z0-9]?$"
+-- local strs = { ".", ".ab", "a", "ab", "ab.", 'a.e', "ab.ef", 'ac.e.ff.', "a,c,b", "1+a+5" }
+-- for _, str in ipairs(strs) do
+--     local a, b = str:find(regex)
+--     print(str, '匹配', a, b)
+-- end

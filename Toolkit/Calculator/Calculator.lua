@@ -29,7 +29,11 @@ end
 ---需要重新解析并计算
 ---@param str string
 function Calculator:SetPattern(str)
-    self.calPattern = string.trim(str)
+    local pattern = string.trim(str)
+    if self.calPattern == pattern then
+        return
+    end
+    self.calPattern = pattern
     self.doParse = true
     self.doCalc = true
 end
@@ -207,19 +211,44 @@ function Calculator:findNumber(curChar, startIndex, endIndex)
 end
 
 function Calculator:findVar(curChar, startIndex, endIndex)
-    --变量首位只能是字母
-    if not string.find(curChar, "%a") then
+    --变量:首位是字母，结尾只能是字母或者数字，中间允许有点号，但是点号后面紧跟着的必须是字母
+    --比如 a, abc, abc.efg, abc.efg.hij, a12, a12.e34
+    local tb = {}
+    local right = startIndex - 1
+    local findPoint = false
+    for i = startIndex, endIndex do
+        local cur = string.sub(self.calPattern, i, i)
+        if cur == CalcDefine.FuncArgSplit then
+            break
+        end
+        if i == startIndex and not string.find(cur, "%a") then
+            break
+        end
+        if findPoint then
+            if cur == "." then
+                PrintError("公式错误，出现了连续的小数点", self.calPattern)
+                return
+            end
+            if not string.find(cur, "%a") then
+                break
+            end
+            findPoint = false
+        end
+        if cur == "." then
+            findPoint = true
+        else
+            if not string.find(cur, "%w") then
+                break
+            end
+        end
+        table.insert(tb, cur)
+        right = right + 1
+    end
+    if tb[#tb] == "." then
+        PrintError("变量不能以小数点结尾", self.calPattern)
         return
     end
-    local str = string.sub(self.calPattern, startIndex, endIndex)
-    local left, right = string.find(str, "%w+")
-    if not left or not right then
-        return
-    end
-    left = startIndex + left - 1
-    right = startIndex + right - 1
-    local var = string.sub(self.calPattern, left, right)
-    return var, right
+    return table.concat(tb), right
 end
 
 function Calculator:popLastOp()
