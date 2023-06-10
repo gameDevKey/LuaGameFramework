@@ -33,6 +33,8 @@ CalcDefine.FuncType = Enum.New({
     Not = "Not",
     Max = "Max",
     Min = "Min",
+    Pow = "Pow",
+    Sqrt = "Sqrt",
 
     --前置运算符函数，某些运算符可以像函数一样前置
     PrefixAdd = "PrefixAdd",
@@ -45,6 +47,7 @@ CalcDefine.FuncSign = Enum.New({
     [CalcDefine.FuncType.Not] = "not",
     [CalcDefine.FuncType.Max] = "max",
     [CalcDefine.FuncType.Min] = "min",
+    [CalcDefine.FuncType.Sqrt] = "sqrt",
 })
 
 CalcDefine.Func = {
@@ -144,6 +147,18 @@ CalcDefine.Func = {
         end,
         argsNum = 1,
     },
+    [CalcDefine.FuncType.Pow] = {
+        fn = function(a, b)
+            return a ^ b
+        end,
+        argsNum = 2,
+    },
+    [CalcDefine.FuncType.Sqrt] = {
+        fn = function(a)
+            return math.sqrt(a)
+        end,
+        argsNum = 1,
+    },
 }
 
 --#endregion
@@ -165,6 +180,7 @@ CalcDefine.OpType = Enum.New({
     SmallEqual = Enum.Index,
     NotEqual = Enum.Index,
     Not = Enum.Index,
+    Pow = Enum.Index,
 })
 
 CalcDefine.OpSign = Enum.New({
@@ -181,6 +197,7 @@ CalcDefine.OpSign = Enum.New({
     [CalcDefine.OpType.SmallEqual] = "<=",
     [CalcDefine.OpType.NotEqual] = "!=",
     [CalcDefine.OpType.Not] = "!",
+    [CalcDefine.OpType.Pow] = "^",
 })
 
 CalcDefine.OpPriority = Enum.New({
@@ -190,6 +207,7 @@ CalcDefine.OpPriority = Enum.New({
     -- 先乘除
     [CalcDefine.OpType.Mul] = 20,
     [CalcDefine.OpType.Div] = 20,
+    [CalcDefine.OpType.Pow] = 20,
     -- 后加减
     [CalcDefine.OpType.Add] = 10,
     [CalcDefine.OpType.Sub] = 10,
@@ -214,6 +232,7 @@ CalcDefine.Op2Func = {
     [CalcDefine.OpType.Small] = CalcDefine.FuncType.Small,
     [CalcDefine.OpType.SmallEqual] = CalcDefine.FuncType.SmallEqual,
     [CalcDefine.OpType.NotEqual] = CalcDefine.FuncType.NotEqual,
+    [CalcDefine.OpType.Pow] = CalcDefine.FuncType.Pow,
 }
 
 --前置运算符函数，某些运算符可以像函数一样前置
