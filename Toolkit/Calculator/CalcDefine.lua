@@ -33,6 +33,10 @@ CalcDefine.FuncType = Enum.New({
     Not = "Not",
     Max = "Max",
     Min = "Min",
+
+    --前置运算符函数，某些运算符可以像函数一样前置
+    PrefixAdd = "PrefixAdd",
+    PrefixSub = "PrefixSub",
 })
 
 -- 因为函数名需要和变量作区分，所以要单独标记一下
@@ -128,6 +132,18 @@ CalcDefine.Func = {
         end,
         argsNum = 2,
     },
+    [CalcDefine.FuncType.PrefixAdd] = {
+        fn = function(elem)
+            return elem
+        end,
+        argsNum = 1,
+    },
+    [CalcDefine.FuncType.PrefixSub] = {
+        fn = function(elem)
+            return -elem
+        end,
+        argsNum = 1,
+    },
 }
 
 --#endregion
@@ -135,6 +151,7 @@ CalcDefine.Func = {
 --#region 操作符
 
 CalcDefine.OpType = Enum.New({
+    Nil = Enum.Index, --无含义，只是为了隔断
     LBracket = Enum.Index,
     RBracket = Enum.Index,
     Add = Enum.Index,
@@ -147,6 +164,7 @@ CalcDefine.OpType = Enum.New({
     Small = Enum.Index,
     SmallEqual = Enum.Index,
     NotEqual = Enum.Index,
+    Not = Enum.Index,
 })
 
 CalcDefine.OpSign = Enum.New({
@@ -162,6 +180,7 @@ CalcDefine.OpSign = Enum.New({
     [CalcDefine.OpType.Small] = "<",
     [CalcDefine.OpType.SmallEqual] = "<=",
     [CalcDefine.OpType.NotEqual] = "!=",
+    [CalcDefine.OpType.Not] = "!",
 })
 
 CalcDefine.OpPriority = Enum.New({
@@ -195,6 +214,13 @@ CalcDefine.Op2Func = {
     [CalcDefine.OpType.Small] = CalcDefine.FuncType.Small,
     [CalcDefine.OpType.SmallEqual] = CalcDefine.FuncType.SmallEqual,
     [CalcDefine.OpType.NotEqual] = CalcDefine.FuncType.NotEqual,
+}
+
+--前置运算符函数，某些运算符可以像函数一样前置
+CalcDefine.PrefixOp2Func = {
+    [CalcDefine.OpType.Add] = CalcDefine.FuncType.PrefixAdd,
+    [CalcDefine.OpType.Sub] = CalcDefine.FuncType.PrefixSub,
+    [CalcDefine.OpType.Not] = CalcDefine.FuncType.Not,
 }
 
 --#endregion

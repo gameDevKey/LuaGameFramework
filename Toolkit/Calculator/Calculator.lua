@@ -46,7 +46,6 @@ end
 ---计算并返回结果，相同的公式只会计算一次
 function Calculator:Calc()
     if self.doParse == true then
-        self:resetParse()
         self:parse()
         self.doParse = false
     end
@@ -104,10 +103,9 @@ function Calculator:parse()
                     local op, endIndex = self:findOp(cur, index, len)
                     if op then
                         -- 运算符
-                        self:log("运算符", op)
-                        if (op == CalcDefine.OpType.Sub or op == CalcDefine.OpType.Add) and
+                        self:log("运算符", CalcDefine.OpSign[op])
+                        if CalcDefine.PrefixOp2Func[op] and
                             (index == 1 or (lastElem.type == CalcDefine.Type.Op and lastElem.data ~= CalcDefine.OpType.RBracket)) then
-                            -- +/-比较特殊，可以用来修饰后面的组，比如-2*-3,4*-(4+5)
                             self:pushWaitOp(op)
                         else
                             if op == CalcDefine.OpType.LBracket then
@@ -149,6 +147,7 @@ function Calculator:parse()
             self:addResult(CalcDefine.Type.Func, op.op)
         end
     end
+    self:popWaitOp()
     self:logStacks()
 end
 
@@ -280,6 +279,9 @@ end
 function Calculator:addOp(type, op)
     local sc = { type = type, op = op }
     table.insert(self.opStack, sc)
+    if type == CalcDefine.OpKind.Op then
+        self:pushWaitOp(CalcDefine.OpType.Nil)
+    end
 end
 
 function Calculator:insertOp(op)
@@ -356,7 +358,6 @@ function Calculator:callFunc(fnType)
     for i = 1, fnData.argsNum do
         local index = fnData.argsNum - i + 1 --倒序
         local num = table.remove(self.calcStack)
-        -- args[index] = num or fnData.defaultVal
         args[index] = num
         if args[index] ~= nil then
             argsCount = argsCount + 1
@@ -378,27 +379,34 @@ end
 --入栈时机
 --1.运算符粘连
 --2.首字符为运算符
+--3.括号入栈时
 function Calculator:pushWaitOp(op)
+    if op == CalcDefine.OpType.Nil and #self.waitOps == 0 then
+        return
+    end
     table.insert(self.waitOps, op)
-    self:log(" >>> pushWaitOp", CalcDefine.OpSign[op])
 end
 
 --出栈时机
 --1.右括号闭合
 --2.在非函数体内时，数字或者变量加入了result栈
+--3.一直出栈，直至遇到隔断符号
+--4.至少出栈一个
 function Calculator:popWaitOp()
-    local op = #self.waitOps > 0 and table.remove(self.waitOps)
-    if op then
-        self:log(" >>> popWaitOp", CalcDefine.OpSign[op])
-        if op == CalcDefine.OpType.Add then
-            self:addResult(CalcDefine.Type.Num, 1)
-        elseif op == CalcDefine.OpType.Sub then
-            self:addResult(CalcDefine.Type.Num, -1)
-        else
-            PrintError("错误的类型", op)
-            return
+    local hasPop = false
+    while #self.waitOps > 0 do
+        local op = table.remove(self.waitOps)
+        if op then
+            if hasPop and op == CalcDefine.OpType.Nil then
+                break
+            else
+                local fnType = CalcDefine.PrefixOp2Func[op]
+                if fnType then
+                    hasPop = true
+                    self:addResult(CalcDefine.Type.Func, fnType)
+                end
+            end
         end
-        self:addResult(CalcDefine.Type.Op, CalcDefine.OpType.Mul)
     end
 end
 
@@ -416,23 +424,28 @@ function Calculator:logStacks()
     local ops = {}
     for _, cur in ipairs(self.opStack) do
         if cur.type == CalcDefine.OpKind.Op then
-            table.insert(ops, CalcDefine.OpSign[cur.op])
+            table.insert(ops, CalcDefine.OpSign[cur.op] or 'nil')
         else
             table.insert(ops, CalcDefine.FuncSign[cur.op])
         end
     end
-    PrintLog("当前opStack", table.concat(ops, ' '))
+    PrintLog("opStack:", table.concat(ops, ' '))
     local res = {}
     for _, cur in ipairs(self.resultStack) do
         if cur.type == CalcDefine.Type.Op then
-            table.insert(res, CalcDefine.OpSign[cur.data])
+            table.insert(res, CalcDefine.OpSign[cur.data] or 'nil')
         elseif cur.type == CalcDefine.Type.Func then
-            table.insert(res, CalcDefine.FuncSign[cur.data])
+            table.insert(res, cur.data)
         else
             table.insert(res, tostring(cur.data))
         end
     end
-    PrintLog("当前resultStack", table.concat(res, ' '))
+    PrintLog("resultStack:", table.concat(res, ' '))
+    local wops = {}
+    for _, op in ipairs(self.waitOps) do
+        table.insert(wops, CalcDefine.OpSign[op] or 'nil')
+    end
+    PrintLog("waitOps:", table.concat(wops, " "))
 end
 
 return Calculator
