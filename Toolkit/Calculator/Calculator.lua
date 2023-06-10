@@ -248,6 +248,9 @@ function Calculator:findVar(curChar, startIndex, endIndex)
         PrintError("变量不能以小数点结尾", self.calPattern)
         return
     end
+    if #tb == 0 then
+        return
+    end
     return table.concat(tb), right
 end
 
