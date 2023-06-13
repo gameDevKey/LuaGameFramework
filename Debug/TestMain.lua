@@ -9,6 +9,8 @@
 -- local _ = TestDataWatcher
 -- local _ = TestEnum
 -- local _ = TestPool
-local _ = TestCalculator
+-- local _ = TestCalculator
+-- local _ = TestListMap
+local _ = TestECSL
 
 -- local _ = TestClass

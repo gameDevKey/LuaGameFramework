@@ -12,7 +12,7 @@ end
 
 function UIBase:OnDelete()
     if self.gameObject then
-        GameObject.Destroy(self.gameObject)
+        CS.UnityEngine.GameObject.Destroy(self.gameObject)
         self.gameObject = nil
     end
 end
