@@ -23,6 +23,7 @@ local function AfterInit()
     if TEST_ENV then
         require("Debug.TestMain")
     end
+    EventDispatcher.Global:Broadcast(EGlobalEvent.Lanuch)
 end
 
 local function Main()

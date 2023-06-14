@@ -6,13 +6,11 @@ function LoginViewCtrl:OnInitComplete()
 end
 
 function LoginViewCtrl:BindEvents()
-    -- PrintLog("执行LoginViewCtrl:BindEvents")
-    self:AddListenerWithSelfFunc(ELoginModule.ViewEvent.ActiveLoginView, "SetActiveLoginView", false)
+    self:AddGolbalListenerWithSelfFunc(EGlobalEvent.Lanuch, "ActiveLoginView",false)
 end
 
-function LoginViewCtrl:SetActiveLoginView(data)
-    PrintLog("执行LoginViewCtrl:SetActiveLoginView",data)
-    self:EnterView(UIDefine.ViewType.LoginView,data)
+function LoginViewCtrl:ActiveLoginView()
+    self:EnterView(UIDefine.ViewType.LoginView)
 end
 
 return LoginViewCtrl

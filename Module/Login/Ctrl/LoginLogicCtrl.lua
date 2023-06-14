@@ -2,11 +2,6 @@
 LoginLogicCtrl = SingletonClass("LoginLogicCtrl",CtrlBase)
 
 function LoginLogicCtrl:OnInitComplete()
-    self:AddGolbalListenerWithSelfFunc(EGlobalEvent.Login, "HandleLogin")
-end
-
-function LoginLogicCtrl:HandleLogin()
-    self:Broadcast(ELoginModule.ViewEvent.ActiveLoginView,{account='lua',password='framework'})
 end
 
 return LoginLogicCtrl

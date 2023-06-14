@@ -2,7 +2,11 @@
 GamePlayViewCtrl = SingletonClass("GamePlayViewCtrl",ViewCtrlBase)
 
 function GamePlayViewCtrl:OnInitComplete()
+    self:AddGolbalListenerWithSelfFunc(EGlobalEvent.Login, "ActiveGameView", false)
+end
 
+function GamePlayViewCtrl:ActiveGameView()
+    self:EnterView(UIDefine.ViewType.GameView)
 end
 
 return GamePlayViewCtrl

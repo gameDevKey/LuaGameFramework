@@ -16,6 +16,7 @@ function UIManager:OnInit()
     self.uiSortOrder = {}   --层级 map[viewLayer]sortOrder
     self.uiRoot = UnityUtil.FindGameObject(UIDefine.UIRootName)
     self.cacheNode = UnityUtil.FindGameObject(UIDefine.UICacheName)
+    self.cacheNode:SetActive(false)
 end
 
 function UIManager:OnDelete()
@@ -55,7 +56,8 @@ function UIManager:Enter(uiType, data)
     view:SetSortOrder(self:GetSortOrder(view.uiType))
 
     local pool = CacheManager.Instance:GetPool(CacheDefine.PoolType.UI,true)
-    pool:Get(uiType, {path = view.viewAssetPath, callback = self:ToFunc("onViewEnter"), args = {view=view,data=data}})
+    local cacheUI = pool:Get(uiType, {path = view.viewAssetPath, callback = self:ToFunc("onViewEnter"), args = {view=view,data=data}})
+    view:SetCacheHandler(cacheUI)
 
     return view
 end
@@ -76,8 +78,14 @@ function UIManager:Exit(targetView)
     local config = UIDefine.Config[targetView.uiType]
     local isTopView = targetView == self.uiStack[#self.uiStack]
 
+    --移除UIMgr缓存
     self:removeView(targetView)
 
+    --回收到UI池，移动到隐藏节点
+    local pool = CacheManager.Instance:GetPool(CacheDefine.PoolType.UI,true)
+    pool:Recycle(targetView.uiType,targetView:GetCacheHandler())
+
+    --数据清理
     targetView:HandleExit()
 
     if config.ViewLayer == UIDefine.ViewLayer.NormalUI then

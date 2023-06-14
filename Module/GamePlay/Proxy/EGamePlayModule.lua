@@ -1,12 +1,12 @@
 EGamePlayModule = {}
 
 EGamePlayModule.LogicEvent = Enum.New({
-    
+    StartGame = Enum.Index,
+    GameOver = Enum.Index,
 })
 
 EGamePlayModule.ViewEvent = Enum.New({
-    EnterGame = Enum.Index,
-    ExitGame = Enum.Index,
+
 })
 
 return EGamePlayModule

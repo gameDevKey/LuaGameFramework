@@ -13,10 +13,12 @@ function ComplexPoolBase:OnDelete()
 end
 
 function ComplexPoolBase:Get(key,data)
+    --调用的是CachePoolBase里面的方法
     return CallMySuperFunc(ComplexPoolBase,self:getPool(key),"Get",false,data)
 end
 
 function ComplexPoolBase:Recycle(key,obj)
+    --调用的是CachePoolBase里面的方法
     return CallMySuperFunc(ComplexPoolBase,self:getPool(key),"Recycle",false,obj)
 end
 

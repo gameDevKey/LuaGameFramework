@@ -10,7 +10,7 @@ end
 
 function CacheUI:OnDelete()
     if self.gameObject then
-        GameObject.Destroy(self.gameObject)
+        UnityUtil.DestroyGameObject(self.gameObject)
         self.gameObject = nil
     end
 end
@@ -34,7 +34,7 @@ end
 
 function CacheUI:OnRecycle()
     if self.gameObject then
-        self.transfrom:SetParent(UIManager.Instance.cacheNode.transform)
+        self.gameObject.transform:SetParent(UIManager.Instance.cacheNode.transform)
     end
 end
 

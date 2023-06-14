@@ -18,20 +18,23 @@ end
 
 function TimerManager:AddTimer(callback, tickTime)
     local timerId = self.timerKeyGenerator()
-    self.tbAllTimer[timerId] = Timer.New(timerId, callback, tickTime)
+    self.tbAllTimer:Add(timerId,Timer.New(timerId, callback, tickTime))
     return timerId
 end
 
 function TimerManager:RemoveTimer(timerId)
-    self.tbAllTimer[timerId] = nil
+    self.tbAllTimer:Remove(timerId)
 end
 
 function TimerManager:Tick(deltaTime)
+    self.deltaTime = deltaTime
     self.time = self.time + deltaTime
-    for timerId, timer in pairs(self.tbAllTimer or NIL_TABLE) do
-        if timer:Tick(deltaTime) == true then
-            TimerManager.RemoveTimer(timerId)
-        end
+    self.tbAllTimer:Range(self.UpdateTimer,self)
+end
+
+function TimerManager:UpdateTimer(iter)
+    if iter.value:Tick(self.deltaTime) then
+        self:RemoveTimer(iter.key)
     end
 end
 

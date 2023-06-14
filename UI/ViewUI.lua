@@ -55,6 +55,21 @@ function ViewUI:CallComUIsFunc(fnName,...)
     end
 end
 
+---退出界面(子类调用，方便调用)
+function ViewUI:Exit()
+    UIManager.Instance:Exit(self)
+end
+
+---退出界面(只能被外界调用，子类不要调用)
+function ViewUI:HandleExit()
+    self:CallFuncDeeply("OnExit",false)
+end
+
+--退出界面完成，界面退出可能是一个耗时的操作（受到离场动画的影响）
+function UIBase:ExitComplete()
+    self:CallFuncDeeply("OnExitComplete",false)
+end
+
 function ViewUI:OnEnter(data)
     self:CallExtendViewsFunc("Enter",data)
 end

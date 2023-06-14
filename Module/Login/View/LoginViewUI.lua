@@ -5,17 +5,15 @@ function LoginViewUI:OnInit()
 end
 
 function LoginViewUI:FindTargets()
-    self.loginBtn = self.transform:Find("btn").gameObject:GetComponent(typeof(CS.UnityEngine.UI.Button))
-    self.txtName = self.transform:Find("btn/txt").gameObject:GetComponent(typeof(CS.UnityEngine.UI.Text))
+    self.loginBtn = self:GetButton("btn")
+    self.txtName = self:GetText("btn/txt")
 end
 
 function LoginViewUI:InitTargets()
     ButtonExt.SetClick(self.loginBtn, self:ToFunc("onLoginBtnClick"))
-    self.txtName.text = "登录按钮"
 end
 
 function LoginViewUI:OnEnter(data)
-    PrintLog("OnEnter",self.gameObject,data)
     self.data = data
     self:EnterComplete()
 end
@@ -24,24 +22,21 @@ function LoginViewUI:OnEnterComplete()
 end
 
 function LoginViewUI:OnExit()
-    PrintLog("OnExit",self.gameObject)
 end
 
 function LoginViewUI:OnExitComplete()
-
 end
 
 function LoginViewUI:OnRefresh()
-
+    self.gameObject:SetActive(true)
 end
 
 function LoginViewUI:OnHide()
-
+    self.gameObject:SetActive(false)
 end
 
-
 function LoginViewUI:onLoginBtnClick()
-    PrintLog("登录了 -->",self.data)
+    EventDispatcher.Global:Broadcast(EGlobalEvent.Login, ELoginModule.LoginState.OK)
 end
 
 return LoginViewUI

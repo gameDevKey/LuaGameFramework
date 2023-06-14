@@ -373,6 +373,12 @@ function GetGlobalInstance(cls)
     return globalInstances[cls._className]
 end
 
+---扩展类
+---@param cls Class 类
+function ExtendClass(cls)
+    return cls
+end
+
 --卸载所有类实例(慎用!)
 function ClearAllClass()
     for name, ins in pairs(singletonClasses) do

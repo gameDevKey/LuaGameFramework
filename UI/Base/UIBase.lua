@@ -4,6 +4,7 @@
     2.界面加载完成后，可直接访问self.gameObject/self.transform等等变量，具体看ViewAssetLoaded()逻辑
 ]]--
 UIBase = Class("UIBase", ModuleBase)
+local _ = UIExtendBase
 
 function UIBase:OnInit(uiType)
     self.uiType = uiType
@@ -15,6 +16,15 @@ function UIBase:OnDelete()
         CS.UnityEngine.GameObject.Destroy(self.gameObject)
         self.gameObject = nil
     end
+end
+
+--关联一个UI缓存处理类
+function UIBase:SetCacheHandler(handler)
+    self.cacheHandler = handler
+end
+
+function UIBase:GetCacheHandler()
+    return self.cacheHandler
 end
 
 ---设置层级
@@ -45,21 +55,6 @@ function UIBase:EnterComplete()
     self:CallFuncDeeply("OnEnterComplete",false)
 end
 
----退出界面(子类调用，方便调用)
-function UIBase:Exit()
-    UIManager.Instance:Exit(self)
-end
-
----退出界面(只能被外界调用，子类不要调用)
-function UIBase:HandleExit()
-    self:CallFuncDeeply("OnExit",false)
-end
-
---退出界面完成，界面退出可能是一个耗时的操作（受到离场动画的影响）
-function UIBase:ExitComplete()
-    self:CallFuncDeeply("OnExitComplete",false)
-end
-
 ---上级界面退出后，当前界面重新显示出来
 function UIBase:Refresh()
     self:CallFuncDeeply("OnRefresh",false)
@@ -73,8 +68,6 @@ end
 --#region 虚函数(生命周期)
 function UIBase:OnEnter(data)end
 function UIBase:OnEnterComplete()end
-function UIBase:OnExit()end
-function UIBase:OnExitComplete()end
 function UIBase:OnRefresh()end
 function UIBase:OnHide()end
 --#endregion

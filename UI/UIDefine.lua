@@ -25,6 +25,7 @@ UIDefine.ExitType = Enum.New({
 UIDefine.ViewType = Enum.New({
     TemplateView = Enum.Index,
     LoginView = Enum.Index,
+    GameView = Enum.Index,
 })
 
 UIDefine.ComType = Enum.New({
@@ -52,7 +53,14 @@ UIDefine.Config = {
         EnterType = UIDefine.EnterType.ExitLast,
         ExitType = UIDefine.ExitType.None,
         ViewLayer = UIDefine.ViewLayer.NormalUI,
-        IsMulti = true,
+        IsMulti = false,
+    },
+    [UIDefine.ViewType.GameView] = {
+        Class = "GamePlayViewUI",
+        EnterType = UIDefine.EnterType.ExitLast,
+        ExitType = UIDefine.ExitType.None,
+        ViewLayer = UIDefine.ViewLayer.NormalUI,
+        IsMulti = false,
     },
 }
 

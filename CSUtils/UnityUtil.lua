@@ -18,4 +18,8 @@ function UnityUtil.Instantiate(prefab)
     return engine.GameObject.Instantiate(prefab)
 end
 
+function UnityUtil.DestroyGameObject(gameObject)
+    return engine.GameObject.Destroy(gameObject)
+end
+
 return UnityUtil
