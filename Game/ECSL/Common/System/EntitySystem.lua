@@ -28,4 +28,17 @@ function EntitySystem:UpdateEntity(entityIter)
     entityIter.value:Update()
 end
 
+function EntitySystem:OnAfterInit()
+    self.entitys:Range(self.InitEntity,self)
+    self.entitys:Range(self.AfterInitEntity,self)
+end
+
+function EntitySystem:InitEntity(entityIter)
+    entityIter.value:InitComplete()
+end
+
+function EntitySystem:AfterInitEntity(entityIter)
+    entityIter.value:AfterInit()
+end
+
 return EntitySystem

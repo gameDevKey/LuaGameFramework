@@ -32,4 +32,27 @@ end
 function ECSLWorld:OnEnable()
 end
 
+--是否执行表现层逻辑
+function ECSLWorld:SetRender(flag)
+    self.isRender = flag
+end
+
+function ECSLWorld:IsRender()
+    return self.isRender
+end
+
+-- 外界调用初始化
+function ECSLWorld:InitComplete()
+    self.systems:Range(self.InitSystem,self)
+    self.systems:Range(self.AfterInitSystem,self)
+end
+
+function ECSLWorld:InitSystem(iter)
+    iter.value:InitComplete()
+end
+
+function ECSLWorld:AfterInitSystem(iter)
+    iter.value:AfterInit()
+end
+
 return ECSLWorld

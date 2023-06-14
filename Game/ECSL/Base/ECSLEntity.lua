@@ -37,4 +37,17 @@ end
 function ECSLEntity:OnEnable()
 end
 
+function ECSLEntity:OnAfterInit()
+    self.components:Range(self.InitComponent,self)
+    self.components:Range(self.AfterInitComponent,self)
+end
+
+function ECSLEntity:InitComponent(iter)
+    iter.value:InitComplete()
+end
+
+function ECSLEntity:AfterInitComponent(iter)
+    iter.value:AfterInit()
+end
+
 return ECSLEntity

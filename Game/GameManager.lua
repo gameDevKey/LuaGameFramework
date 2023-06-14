@@ -2,6 +2,7 @@
 GameManager = SingletonClass("GameManager")
 
 function GameManager:OnInit()
+    self.EntityRoot = UnityUtil.FindGameObject("EntityRoot")
 end
 
 function GameManager:OnDelete()

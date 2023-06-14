@@ -5,13 +5,11 @@ function GamePlayViewUI:OnInit()
 end
 
 function GamePlayViewUI:FindTargets()
-    self.startBtn = self:GetButton("btn_start")
-    self.returnBtn = self:GetButton("btn_return")
+
 end
 
 function GamePlayViewUI:InitTargets()
-    ButtonExt.SetClick(self.startBtn, self:ToFunc("OnStartBtnClick"))
-    ButtonExt.SetClick(self.returnBtn, self:ToFunc("OnReturnBtnClick"))
+
 end
 
 function GamePlayViewUI:OnEnter(data)
@@ -33,14 +31,6 @@ end
 
 function GamePlayViewUI:OnHide()
     self.gameObject:SetActive(false)
-end
-
-function GamePlayViewUI:OnStartBtnClick()
-    self:Broadcast(EGamePlayModule.LogicEvent.StartGame)
-end
-
-function GamePlayViewUI:OnReturnBtnClick()
-    self:Exit()
 end
 
 return GamePlayViewUI

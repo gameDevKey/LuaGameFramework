@@ -3,6 +3,8 @@ GamePlayCtrl = SingletonClass("GamePlayCtrl",CtrlBase)
 
 function GamePlayCtrl:OnInitComplete()
     RunWorld = nil
+    self:AddListenerWithSelfFunc(EGamePlayModule.LogicEvent.StartGame,"StartGame",false)
+    self:AddListenerWithSelfFunc(EGamePlayModule.LogicEvent.GameOver,"GameOver",false)
 end
 
 function GamePlayCtrl:StartGame()
@@ -11,7 +13,9 @@ function GamePlayCtrl:StartGame()
         return
     end
     RunWorld = GamePlayWorld.New()
+    RunWorld:SetRender(true)
     WorldManager.Instance:AddWorld(RunWorld)
+    RunWorld:InitComplete()
 end
 
 function GamePlayCtrl:GameOver()
@@ -19,7 +23,7 @@ function GamePlayCtrl:GameOver()
         PrintError("游戏未开始")
         return
     end
-    WorldManager.Instance:AddWorld(RunWorld)
+    WorldManager.Instance:RemoveWorld(RunWorld)
     RunWorld = nil
 end
 
