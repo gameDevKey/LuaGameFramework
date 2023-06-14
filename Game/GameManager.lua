@@ -1,3 +1,4 @@
+--统一管理游戏内所有逻辑
 GameManager = SingletonClass("GameManager")
 
 function GameManager:OnInit()
@@ -8,6 +9,7 @@ end
 
 function GameManager:Tick(deltaTime)
     TimerManager.Instance:Tick(deltaTime)
+    WorldManager.Instance:Tick(deltaTime)
 end
 
 return GameManager

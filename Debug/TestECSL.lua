@@ -15,7 +15,7 @@ print("---------世界update")
 world:Update()
 
 print("----------再创建一个实体")
-world.EntityCreateSystem:CreateTestEntity()
+local entity = world.EntityCreateSystem:CreateTestEntity()
 
 print("---------世界update")
 world:Update()

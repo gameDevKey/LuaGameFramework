@@ -1,24 +1,15 @@
-ECSLComponent = Class("ECSLComponent",ECSLBase)
+ECSLComponent = Class("ECSLComponent",ECSLBehaivor)
 ECSLComponent.TYPE = ECSLConfig.Type.Component
 
 function ECSLComponent:OnInit()
-    self:SetEnable(true)
+    self.entity = nil
 end
 
 function ECSLComponent:OnDelete()
 end
 
-function ECSLComponent:Update()
-    if self.enable then
-        self:CallFuncDeeply("OnUpdate",true)
-    end
-end
-
-function ECSLComponent:SetEnable(enable)
-    if enable ~= self.enable then
-        self.enable = enable
-        self:CallFuncDeeply("OnEnable",true)
-    end
+function ECSLComponent:SetEntity(entity)
+    self.entity = entity
 end
 
 function ECSLComponent:OnUpdate()

@@ -8,7 +8,7 @@ PRINT_SWITCH = true
 TEST_ENV = true
 
 --纯Lua测试环境（无需Unity启动）
-PURE_LUA_TEST_ENV = true
+PURE_LUA_TEST_ENV = false
 
 --检查泄露
 MEM_CHECK = true

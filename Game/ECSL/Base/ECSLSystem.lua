@@ -1,4 +1,4 @@
-ECSLSystem = Class("ECSLSystem",ECSLBase)
+ECSLSystem = Class("ECSLSystem",ECSLBehaivor)
 ECSLSystem.TYPE = ECSLConfig.Type.System
 
 function ECSLSystem:OnInit()
@@ -7,11 +7,10 @@ end
 function ECSLSystem:OnDelete()
 end
 
-function ECSLSystem:Update()
-    self:CallFuncDeeply("OnUpdate",true)
+function ECSLSystem:OnUpdate()
 end
 
-function ECSLSystem:OnUpdate()
+function ECSLSystem:OnEnable()
 end
 
 return ECSLSystem

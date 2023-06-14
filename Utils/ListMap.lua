@@ -47,6 +47,10 @@ function ListMap:Get(key)
     return self.dict[key]
 end
 
+function ListMap:GetVal(key)
+    return self.dict[key] and self.dict[key].value
+end
+
 function ListMap:Range(func,caller)
     for key, value in pairs(self.list) do
         if caller then
