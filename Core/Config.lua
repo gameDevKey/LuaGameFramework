@@ -4,6 +4,9 @@ PRINT_LOG_WITH_TIME = false
 --打印开关
 PRINT_SWITCH = true
 
+--只是跑TestMain
+TEST_ONLY = false
+
 --测试环境
 TEST_ENV = true
 

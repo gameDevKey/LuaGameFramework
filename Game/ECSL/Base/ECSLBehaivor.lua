@@ -18,9 +18,9 @@ function ECSLBehaivor:AfterInit()
     self:CallFuncDeeply("OnAfterInit",true)
 end
 
-function ECSLBehaivor:Update()
+function ECSLBehaivor:Update(deltaTime)
     if self.enable then
-        self:CallFuncDeeply("OnUpdate",true)
+        self:CallFuncDeeply("OnUpdate",true,deltaTime)
     end
 end
 
@@ -34,6 +34,6 @@ end
 function ECSLBehaivor:OnInitComplete()end
 function ECSLBehaivor:OnAfterInit()end
 function ECSLBehaivor:OnEnable()end
-function ECSLBehaivor:OnUpdate()end
+function ECSLBehaivor:OnUpdate(deltaTime)end
 
 return ECSLBehaivor

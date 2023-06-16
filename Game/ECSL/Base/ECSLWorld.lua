@@ -21,12 +21,13 @@ function ECSLWorld:AddSystem(system)
     self.systems:Add(system._className,system)
 end
 
-function ECSLWorld:OnUpdate()
+function ECSLWorld:OnUpdate(deltaTime)
+    self.deltaTime = deltaTime
     self.systems:Range(self.UpdateSystem,self)
 end
 
 function ECSLWorld:UpdateSystem(iter)
-    iter.value:Update()
+    iter.value:Update(self.deltaTime)
 end
 
 function ECSLWorld:OnEnable()

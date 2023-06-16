@@ -1,6 +1,7 @@
 TransformComponent = Class("TransformComponent",ECSLComponent)
 
 function TransformComponent:OnInit()
+    self.posVec3 = CS.UnityEngine.Vector3.zero
 end
 
 function TransformComponent:OnDelete()
@@ -13,11 +14,19 @@ function TransformComponent:OnEnable()
 end
 
 function TransformComponent:SetPos(x,y,z)
-    self.posX,self.posY,self.posZ = (x or 0),(y or 0),(z or 0)
+    self.posVec3.x,self.posVec3.y,self.posVec3.z = (x or 0),(y or 0),(z or 0)
+end
+
+function TransformComponent:SetPosVec3(vec)
+    self.posVec3 = vec
 end
 
 function TransformComponent:GetPos()
-    return self.posX,self.posY,self.posZ
+    return self.posVec3.x,self.posVec3.y,self.posVec3.z
+end
+
+function TransformComponent:GetPosVec3()
+    return self.posVec3
 end
 
 return TransformComponent

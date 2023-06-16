@@ -10,13 +10,16 @@ ECSLEntityConfig.Class = {
 
 ECSLEntityConfig.LogicComponents = {
     [ECSLEntityConfig.Type.GamePlay] = {
-        "TransformComponent"
+        "TransformComponent",
+        "MoveComponent",
+        "AttrComponent",
     },
 }
 
 ECSLEntityConfig.RenderComponents = {
     [ECSLEntityConfig.Type.GamePlay] = {
-        "TransformRenderComponent"
+        "TransformRenderComponent",
+        "SkinComponent"
     },
 }
 

@@ -22,6 +22,7 @@ function EntityCreateSystem:CreateEntity(type)
         end
         entity.gameObject = UnityUtil.NewGameObject(ECSLEntityConfig.Type[type]..":"..entity:GetUid())
         entity.gameObject.transform:SetParent(GameManager.Instance.EntityRoot.transform)
+        entity.SkinComponent:SetSkin(nil)
     end
     self.world.EntitySystem:AddEntity(entity)
     return entity

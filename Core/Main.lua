@@ -23,7 +23,9 @@ local function AfterInit()
     if TEST_ENV then
         require("Debug.TestMain")
     end
-    EventDispatcher.Global:Broadcast(EGlobalEvent.Lanuch)
+    if not TEST_ONLY then
+        EventDispatcher.Global:Broadcast(EGlobalEvent.Lanuch)
+    end
 end
 
 local function Main()
@@ -33,16 +35,18 @@ local function Main()
 end
 Main()
 
-if PURE_LUA_TEST_ENV then
-    local tickTime = 1
-    local socket = require("socket")
-    while true do
-        socket.sleep(tickTime)
-        GameManager.Instance:Tick(tickTime)
-    end
-else
-    local CSTime = CS.UnityEngine.Time
-    function Update()
-        GameManager.Instance:Tick(CSTime.deltaTime)
+if not TEST_ONLY then
+    if PURE_LUA_TEST_ENV then
+        local tickTime = 1
+        local socket = require("socket")
+        while true do
+            socket.sleep(tickTime)
+            GameManager.Instance:Tick(tickTime)
+        end
+    else
+        local CSTime = CS.UnityEngine.Time
+        function Update()
+            GameManager.Instance:Tick(CSTime.deltaTime)
+        end
     end
 end

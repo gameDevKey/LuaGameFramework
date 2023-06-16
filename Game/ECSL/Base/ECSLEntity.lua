@@ -26,12 +26,13 @@ function ECSLEntity:AddComponent(component)
     self.components:Add(component._className,component)
 end
 
-function ECSLEntity:OnUpdate()
+function ECSLEntity:OnUpdate(deltaTime)
+    self.deltaTime = deltaTime
     self.components:Range(self.UpdateComponent,self)
 end
 
 function ECSLEntity:UpdateComponent(iter)
-    iter.value:Update()
+    iter.value:Update(self.deltaTime)
 end
 
 function ECSLEntity:OnEnable()

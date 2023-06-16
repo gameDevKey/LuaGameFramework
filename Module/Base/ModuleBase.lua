@@ -26,9 +26,9 @@ function ModuleBase:InitComplete()
     self:CallFuncDeeply("OnInitComplete",true)
 end
 
-local function addListener(tbEventKey, eventDispatcher, eventId, callback, caller, callonce)
+local function addListener(tbEventKey, eventDispatcher, eventId, callObject, callonce)
     if not eventDispatcher then return end
-    local eventKey = eventDispatcher:AddListener(eventId, callback, caller, callonce)
+    local eventKey = eventDispatcher:AddListener(eventId, callObject, callonce)
     tbEventKey[eventKey] = eventId
     return eventKey
 end
@@ -50,7 +50,7 @@ local function removeAllListener(tbEventKey, eventDispatcher)
 end
 
 function ModuleBase:AddListener(eventId, callback, caller, callonce)
-    return addListener(self.tbEventKey, self.eventDispatcher, eventId, callback, caller, callonce)
+    return addListener(self.tbEventKey, self.eventDispatcher, eventId, CallObject.New(callback, caller), callonce)
 end
 
 function ModuleBase:AddListenerWithSelfFunc(eventId, fnName, callonce)
@@ -66,7 +66,7 @@ function ModuleBase:RemoveAllListener()
 end
 
 function ModuleBase:AddGolbalListener(eventId, callback, caller, callonce)
-    return addListener(self.tbEventGlobalKey, EventDispatcher.Global, eventId, callback, caller, callonce)
+    return addListener(self.tbEventGlobalKey, EventDispatcher.Global, eventId, CallObject.New(callback, caller), callonce)
 end
 
 function ModuleBase:AddGolbalListenerWithSelfFunc(eventId, fnName, callonce)

@@ -20,12 +20,13 @@ function EntitySystem:RemoveEntity(entity)
     self.entitys:Remove(entity:GetUid())
 end
 
-function EntitySystem:OnUpdate()
+function EntitySystem:OnUpdate(deltaTime)
+    self.deltaTime = deltaTime
     self.entitys:Range(self.UpdateEntity,self)
 end
 
 function EntitySystem:UpdateEntity(entityIter)
-    entityIter.value:Update()
+    entityIter.value:Update(self.deltaTime)
 end
 
 function EntitySystem:OnAfterInit()
