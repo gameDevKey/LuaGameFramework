@@ -1,60 +1,61 @@
-FSM = Class("FSM")
+--有限状态机，FSMState的容器
+FSM = Class("FSM", FSMBehavior)
 
-function FSM:OnInit()
+function FSM:OnInit(type)
+    self.type = type
     self.tbState = {}
     self.curState = nil
+    self.exitLink = {}
+end
+
+function FSM:GetCurState()
+    return self.curState
 end
 
 ---状态是否注册
----@param stateId EFSM.State 状态枚举
----@return boolean
 function FSM:ContainState(stateId)
     return self.tbState[stateId] ~= nil
 end
 
 ---添加FSM状态
----@param state EFSM.State 状态
 function FSM:AddState(state)
     local id = state:GetStateID()
     if self:ContainState(id) then
-        PrintWarning("FSM：状态已注册", id)
+        PrintWarning("FSM:状态已注册", id)
         return
     end
+    state:SetOwnerFSM(self)
+    state:SetWorld(self.world)
     self.tbState[id] = state
 end
 
 ---移除FSM状态
----@param state EFSM.State 状态枚举
 function FSM:RemoveState(stateId)
     if not self:ContainState(stateId) then
-        PrintWarning("FSM：状态未注册", stateId)
+        PrintWarning("FSM:状态未注册", stateId)
         return
     end
     self.tbState[stateId] = nil
 end
 
 ---切换到某个状态
----@param stateId EFSM.State 状态枚举
----@param data any|nil 任意数据结构体
----@return boolean transitionSuccess 是否切换成功
-function FSM:ChangeState(stateId, data)
-    return self:ChangeStateByOrder(FSMOrder.New(stateId), data)
+function FSM:ChangeState(stateId)
+    return self:ChangeStateByOrder(FSMOrder.New(stateId))
 end
 
 ---切换到某个状态
----@param order FSMOrder 状态切换指令
----@param data any|nil 任意数据结构体
----@return boolean transitionSuccess 是否切换成功
-function FSM:ChangeStateByOrder(order, data)
+function FSM:ChangeStateByOrder(order)
     if not order then
         return false
     end
 
     local stateId = order:GetStateId()
-    local cbEnter = order:GetEnterCallback()
+    local enterData = order:GetEnterData()
+    local exitData = order:GetExitData()
+    local transitionData = order:GetTransitionData()
 
     if not self:ContainState(stateId) then
-        PrintWarning("FSM：状态未注册", stateId)
+        PrintWarning("FSM:状态未注册", stateId)
         return false
     end
 
@@ -62,25 +63,40 @@ function FSM:ChangeStateByOrder(order, data)
     local lastState = self.curState
 
     if state ~= lastState then
-        if not state:CanTransition() then
+        if not state:CanTransition(transitionData) then
             return false
         end
         self.curState = state
         if lastState ~= nil then
-            lastState:OnExit()
+            lastState:Exit(exitData)
         end
-        self.curState:OnEnter(data, cbEnter)
+        self.curState:Enter(enterData)
         return true
-    else
-        self.curState:OnEnterAgain(data, cbEnter)
-        return false
+    end
+    return false
+end
+
+---设置退出时自动切换的状态
+function FSM:SetExitLink(stateId1, stateId2)
+    self.exitLink[stateId1] = stateId2
+end
+
+---主动退出某个状态
+function FSM:ExitState(stateId)
+    local state = self.tbState[stateId]
+    if not state then
+        return
+    end
+    state:Exit()
+    local linkStateId = self.exitLink[stateId]
+    if linkStateId then
+        self:ChangeState(linkStateId)
     end
 end
 
----Tick接口
-function FSM:Tick(data)
+function FSM:OnTick(deltaTime)
     if self.curState ~= nil then
-        self.curState:OnTick(data)
+        self.curState:Tick(deltaTime)
     end
 end
 

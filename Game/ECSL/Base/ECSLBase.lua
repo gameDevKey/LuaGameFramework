@@ -15,8 +15,8 @@ function ECSLBase:SetWorld(world)
     self.world = world
 end
 
-function ECSLBase:SetUid()
-    self.uid = ECSLUtil.GetUid(self.TYPE)
+function ECSLBase:SetUid(uid)
+    self.uid = uid or ECSLUtil.GetUid(self.TYPE)
 end
 
 function ECSLBase:GetUid()
