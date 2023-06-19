@@ -42,8 +42,7 @@ function ECSLWorld:IsRender()
     return self.isRender
 end
 
--- 外界调用初始化
-function ECSLWorld:InitComplete()
+function ECSLWorld:OnInitComplete()
     self.systems:Range(self.InitSystem,self)
     self.systems:Range(self.AfterInitSystem,self)
 end

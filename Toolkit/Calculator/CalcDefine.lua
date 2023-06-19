@@ -35,6 +35,8 @@ CalcDefine.FuncType = Enum.New({
     Min = "Min",
     Pow = "Pow",
     Sqrt = "Sqrt",
+    And = "And",
+    Or = "Or",
 
     --前置运算符函数，某些运算符可以像函数一样前置
     PrefixAdd = "PrefixAdd",
@@ -159,6 +161,18 @@ CalcDefine.Func = {
         end,
         argsNum = 1,
     },
+    [CalcDefine.FuncType.And] = {
+        fn = function(a,b)
+            return (a == 1 and b == 1) and 1 or 0
+        end,
+        argsNum = 2,
+    },
+    [CalcDefine.FuncType.Or] = {
+        fn = function(a,b)
+            return (a == 1 or b == 1) and 1 or 0
+        end,
+        argsNum = 2,
+    },
 }
 
 --#endregion
@@ -181,6 +195,8 @@ CalcDefine.OpType = Enum.New({
     NotEqual = Enum.Index,
     Not = Enum.Index,
     Pow = Enum.Index,
+    And = Enum.Index,
+    Or = Enum.Index,
 })
 
 CalcDefine.OpSign = Enum.New({
@@ -198,6 +214,8 @@ CalcDefine.OpSign = Enum.New({
     [CalcDefine.OpType.NotEqual] = "!=",
     [CalcDefine.OpType.Not] = "!",
     [CalcDefine.OpType.Pow] = "^",
+    [CalcDefine.OpType.And] = "&&",
+    [CalcDefine.OpType.Or] = "||",
 })
 
 CalcDefine.OpPriority = Enum.New({
@@ -205,19 +223,22 @@ CalcDefine.OpPriority = Enum.New({
     [CalcDefine.OpType.LBracket] = 9999,
     [CalcDefine.OpType.RBracket] = 9999,
     -- 先乘除
-    [CalcDefine.OpType.Mul] = 20,
-    [CalcDefine.OpType.Div] = 20,
-    [CalcDefine.OpType.Pow] = 20,
+    [CalcDefine.OpType.Mul] = 200,
+    [CalcDefine.OpType.Div] = 200,
+    [CalcDefine.OpType.Pow] = 200,
     -- 后加减
-    [CalcDefine.OpType.Add] = 10,
-    [CalcDefine.OpType.Sub] = 10,
+    [CalcDefine.OpType.Add] = 150,
+    [CalcDefine.OpType.Sub] = 150,
     -- 比较
-    [CalcDefine.OpType.Equal] = 5,
-    [CalcDefine.OpType.Large] = 5,
-    [CalcDefine.OpType.LargeEqual] = 5,
-    [CalcDefine.OpType.Small] = 5,
-    [CalcDefine.OpType.SmallEqual] = 5,
-    [CalcDefine.OpType.NotEqual] = 5,
+    [CalcDefine.OpType.Large] = 100,
+    [CalcDefine.OpType.LargeEqual] = 100,
+    [CalcDefine.OpType.Small] = 100,
+    [CalcDefine.OpType.SmallEqual] = 100,
+    [CalcDefine.OpType.Equal] = 90,
+    [CalcDefine.OpType.NotEqual] = 90,
+    -- 逻辑
+    [CalcDefine.OpType.And] = 60,
+    [CalcDefine.OpType.Or] = 50,
 }, "OpPriority", { allowRepeat = true })
 
 -- 操作符与函数的映射（操作符其实也是一种函数，所以需要转义）
@@ -233,6 +254,8 @@ CalcDefine.Op2Func = {
     [CalcDefine.OpType.SmallEqual] = CalcDefine.FuncType.SmallEqual,
     [CalcDefine.OpType.NotEqual] = CalcDefine.FuncType.NotEqual,
     [CalcDefine.OpType.Pow] = CalcDefine.FuncType.Pow,
+    [CalcDefine.OpType.And] = CalcDefine.FuncType.And,
+    [CalcDefine.OpType.Or] = CalcDefine.FuncType.Or,
 }
 
 --前置运算符函数，某些运算符可以像函数一样前置

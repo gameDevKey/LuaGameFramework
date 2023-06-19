@@ -9,7 +9,6 @@ local function PreInit()
 
     EventDispatcher.Global = GetGlobalInstance(EventDispatcher)
     CommandManager.Global = GetGlobalInstance(CommandManager)
-    Calculator.Global = GetGlobalInstance(Calculator)
 end
 
 --初始化中

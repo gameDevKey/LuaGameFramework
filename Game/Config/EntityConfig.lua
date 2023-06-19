@@ -18,6 +18,7 @@ EntityConfig.LogicComponents = {
         "AttrComponent",
         "SkillComponent",
         "StateComponent",
+        "CalcComponent",
     },
     [EntityConfig.Type.Proj] = {
         "TransformComponent",

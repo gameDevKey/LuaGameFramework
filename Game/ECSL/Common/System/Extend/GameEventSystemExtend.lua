@@ -1,7 +1,7 @@
 GameEventSystemExtend = ExtendClass(GameEventSystem)
 
 function GameEventSystemExtend:BindAllHandler()
-    self:BindHandlerBySelfFunc(EventConfig.Type.Input, "HandleInputEvent")
+    self:BindHandlerBySelfFunc(EventConfig.Type.MoveInput, "HandleInputEvent")
 end
 
 function GameEventSystemExtend:HandleInputEvent(judgeData, ...)

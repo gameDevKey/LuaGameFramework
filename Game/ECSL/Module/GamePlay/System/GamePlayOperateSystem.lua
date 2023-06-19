@@ -6,7 +6,7 @@ function GamePlayOperateSystem:OnInitComplete()
 end
 
 function GamePlayOperateSystem:AddListeners()
-    self.world.GameEventSystem:AddListener(EventConfig.Type.Input,
+    self.world.GameEventSystem:AddListener(EventConfig.Type.MoveInput,
         CallObject.New(self:ToFunc("OnUserInput")),nil)
 end
 

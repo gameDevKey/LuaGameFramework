@@ -41,7 +41,7 @@ end
 ---设置变量的值
 ---只需要重新计算，不需要重新解析
 ---@param k any
----@param v number
+---@param v number|function
 function Calculator:SetVarVal(k, v)
     self.kvs[k] = v
     self.doCalc = true
@@ -360,7 +360,11 @@ function Calculator:calc()
                 PrintError("未定义变量具体值", data.data)
                 return
             end
-            table.insert(self.calcStack, self.kvs[data.data])
+            local val = self.kvs[data.data]
+            if IsFunction(val) then
+                val = val(data.data)
+            end
+            table.insert(self.calcStack, val)
         elseif data.type == CalcDefine.Type.Num then
             table.insert(self.calcStack, data.data)
         else

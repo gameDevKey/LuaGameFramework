@@ -12,7 +12,7 @@ end
 function GamePlayWorld:OnDelete()
 end
 
-function GamePlayWorld:OnUpdate()
+function GamePlayWorld:OnUpdate(deltaTime)
 end
 
 return GamePlayWorld

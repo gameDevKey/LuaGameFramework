@@ -1,8 +1,8 @@
 EventConfig = StaticClass("EventConfig")
 
 EventConfig.Type = Enum.New({
-    Input = 1,
-    AttrChange = 2,
+    MoveInput = Enum.Index,
+    AttrChange = Enum.Index,
 })
 
 return EventConfig

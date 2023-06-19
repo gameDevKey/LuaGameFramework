@@ -32,6 +32,7 @@ function EntityCreateSystem:CreateMainRole()
     entity:SetPlayerType(EGamePlayModule.PlayerType.Player)
     entity.TransformComponent:SetPos(0,0,0)
     entity.StateComponent:SetFSM(StateFSM.New())
+    entity.AttrComponent:SetAttr(AttrConfig.Type.HP,100)
     entity.AttrComponent:SetAttr(AttrConfig.Type.MoveSpeed,10)
     entity.SkinComponent:SetSkin(nil)
     return entity
