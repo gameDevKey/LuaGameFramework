@@ -1,8 +1,11 @@
---FSM的叶子节点，只处理具体逻辑，不能包含子节点
-FSMState = Class("FSMState", FSMBehavior)
+-- FSMState也可以当成FSM来用，即实现分层状态机
+FSMState = Class("FSMState", FSM)
 
 function FSMState:OnInit(stateId)
-    self.stateId = stateId
+    self.stateId = stateId or self._className
+end
+
+function FSMState:OnDelete()
 end
 
 function FSMState:GetStateID()

@@ -1,30 +1,26 @@
 StateComponent = Class("StateComponent", ECSLComponent)
 
 function StateComponent:OnInit()
-    self.curFSM = self:CreateFSM(StateConfig.FSM.State)
+    self.curFSM = nil
 end
 
 function StateComponent:OnDelete()
+    if self.curFSM then
+        self.curFSM:Delete()
+    end
 end
 
 function StateComponent:OnUpdate(deltaTime)
-    self.curFSM:Tick(deltaTime)
+    if self.curFSM then
+        self.curFSM:Tick(deltaTime)
+    end
 end
 
 function StateComponent:OnEnable()
 end
 
----根据配置构造FSM
-function StateComponent:CreateFSM(fsmType)
-    local config = StateConfig.FSMConfig[fsmType]
-    local fsmIns = _G[fsmType].New(fsmType)
-    fsmIns:SetWorld(self.world)
-    for _, state in pairs(config.States or NIL_TABLE) do
-        fsmIns:AddState(_G[state].New(state))
-    end
-    for state1, state2 in pairs(config.ExitTo or NIL_TABLE) do
-        fsmIns:SetExitLink(state1, state2)
-    end
+function StateComponent:SetFSM(fsm)
+    self.curFSM = fsm
 end
 
 return StateComponent

@@ -22,7 +22,7 @@ end
 
 function MoveComponent:To(moveType,moveArgs)
     self:Stop()
-    self.mover = _G[ECSLMoveConfig.Class[moveType]].New(moveType,moveArgs)
+    self.mover = _G[MoveConfig.Class[moveType]].New(moveType,moveArgs)
     self.mover:SetEntity(self.entity)
     self.mover:Start()
 end

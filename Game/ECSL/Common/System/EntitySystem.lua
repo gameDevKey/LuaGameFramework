@@ -11,6 +11,14 @@ function EntitySystem:OnDelete()
     end
 end
 
+function EntitySystem:GetEntitys()
+    return self.entitys
+end
+
+function EntitySystem:GetEntity(uid)
+    return self.entitys:Get(uid)
+end
+
 function EntitySystem:AddEntity(entity)
     entity:SetWorld(self.world)
     self.entitys:Add(entity:GetUid(),entity)

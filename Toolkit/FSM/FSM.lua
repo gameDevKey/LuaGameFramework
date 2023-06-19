@@ -1,11 +1,22 @@
---有限状态机，FSMState的容器
 FSM = Class("FSM", FSMBehavior)
 
-function FSM:OnInit(type)
-    self.type = type
+function FSM:OnInit(fsmId)
+    self.fsmId = fsmId or self._className
     self.tbState = {}
     self.curState = nil
     self.exitLink = {}
+end
+
+function FSM:OnDelete()
+    for id, state in pairs(self.tbState) do
+        state:Delete()
+    end
+    self.tbState = nil
+    self.exitLink = nil
+end
+
+function FSM:GetId()
+    return self.fsmId
 end
 
 function FSM:GetCurState()
@@ -18,7 +29,8 @@ function FSM:ContainState(stateId)
 end
 
 ---添加FSM状态
-function FSM:AddState(state)
+function FSM:AddState(stateId)
+    local state = _G[stateId].New(stateId)
     local id = state:GetStateID()
     if self:ContainState(id) then
         PrintWarning("FSM:状态已注册", id)
@@ -35,6 +47,7 @@ function FSM:RemoveState(stateId)
         PrintWarning("FSM:状态未注册", stateId)
         return
     end
+    self.tbState[stateId]:Delete()
     self.tbState[stateId] = nil
 end
 

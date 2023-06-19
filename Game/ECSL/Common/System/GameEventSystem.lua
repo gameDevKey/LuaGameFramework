@@ -12,7 +12,7 @@ function GameEventSystem:OnDelete()
 end
 
 ---绑定处理器
----@param eventId ECSLEventConfig.Type
+---@param eventId EventConfig.Type
 ---@param callObject CallObject func(judgeData,...):bool
 function GameEventSystem:BindHandler(eventId, callObject)
     self.eventHandlers[eventId] = callObject

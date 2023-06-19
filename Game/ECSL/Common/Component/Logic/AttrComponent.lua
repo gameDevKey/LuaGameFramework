@@ -19,7 +19,7 @@ function AttrComponent:GetAttr(attrType)
 end
 
 function AttrComponent:OnAttrChange(attrType,new,old)
-    self.world.GameEventSystem:Broadcast(ECSLEventConfig.Type.AttrChange,{
+    self.world.GameEventSystem:Broadcast(EventConfig.Type.AttrChange,{
         entityUid = self.entity:GetUid(),
         attrType = attrType,
         new = new,

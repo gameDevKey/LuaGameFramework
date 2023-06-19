@@ -6,7 +6,7 @@ function GamePlayOperateSystem:OnInitComplete()
 end
 
 function GamePlayOperateSystem:AddListeners()
-    self.world.GameEventSystem:AddListener(ECSLEventConfig.Type.Input,
+    self.world.GameEventSystem:AddListener(EventConfig.Type.Input,
         CallObject.New(self:ToFunc("OnUserInput")),nil)
 end
 
@@ -15,12 +15,12 @@ function GamePlayOperateSystem:OnUserInput(h,v)
     if not mainRole then
         return
     end
-    local speed = mainRole.AttrComponent:GetAttr(ECSLAttrConfig.Type.MoveSpeed)
+    local speed = mainRole.AttrComponent:GetAttr(AttrConfig.Type.MoveSpeed)
     self.targetPosOffset.x = h * self.world.deltaTime * speed
     self.targetPosOffset.y = v * self.world.deltaTime * speed
     local targetPos = mainRole.TransformComponent:GetPosVec3() + self.targetPosOffset
     mainRole.TransformComponent:SetPosVec3(targetPos)
-    -- mainRole.MoveComponent:To(ECSLMoveConfig.Type.Linear,{
+    -- mainRole.MoveComponent:To(MoveConfig.Type.Linear,{
     --     targetPos = targetPos,
     --     speed = 10,
     -- })

@@ -13,6 +13,14 @@ function ECSLEntity:OnDelete()
         self.components:Delete()
         self.components = nil
     end
+    if self.gameObject then
+        UnityUtil.DestroyGameObject(self.gameObject)
+        self.gameObject = nil
+    end
+end
+
+function ECSLEntity:SetGameObject(gameObject)
+    self.gameObject = gameObject
 end
 
 function ECSLEntity:AddComponent(component)

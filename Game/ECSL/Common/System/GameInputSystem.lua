@@ -12,7 +12,7 @@ function GameInputSystem:OnUpdate()
     local h = CS.UnityEngine.Input.GetAxisRaw("Horizontal")
     local v = CS.UnityEngine.Input.GetAxisRaw("Vertical")
     if h~=0 or v~=0 then
-        self.world.GameEventSystem:Broadcast(ECSLEventConfig.Type.Input,h,v)
+        self.world.GameEventSystem:Broadcast(EventConfig.Type.Input,h,v)
     end
 end
 

@@ -1,6 +1,6 @@
 MoverBase = Class("MoverBase")
 
----@param type ECSLMoveConfig.Type
+---@param type MoveConfig.Type
 ---@param args table { targetPos, callback, args }
 function MoverBase:OnInit(type,args)
     self.isRunning = false
