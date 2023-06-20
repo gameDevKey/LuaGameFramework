@@ -1,3 +1,4 @@
+--- 世界负责更新系统, 全部系统InitComplete之后再AfterInit
 ECSLWorld = Class("ECSLWorld",ECSLBehaivor)
 ECSLWorld.TYPE = ECSLConfig.Type.World
 

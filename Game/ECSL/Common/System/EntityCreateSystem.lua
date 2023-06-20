@@ -27,14 +27,26 @@ function EntityCreateSystem:CreateEntity(type)
     return entity
 end
 
-function EntityCreateSystem:CreateMainRole()
+function EntityCreateSystem:CreateMainRole(pos)
     local entity = self:CreateEntity(EntityConfig.Type.GamePlay)
     entity:SetPlayerType(EGamePlayModule.PlayerType.Player)
-    entity.TransformComponent:SetPos(0,0,0)
+    entity.TransformComponent:SetPos(pos.x,pos.y,pos.z)
     entity.StateComponent:SetFSM(StateFSM.New())
     entity.AttrComponent:SetAttr(AttrConfig.Type.HP,100)
     entity.AttrComponent:SetAttr(AttrConfig.Type.MoveSpeed,10)
-    entity.SkinComponent:SetSkin(nil)
+    entity.SkinComponent:SetSkin({Asset="Player"})
+    entity.SkillComponent:AddSkill("Skill001",1)
+    return entity
+end
+
+function EntityCreateSystem:CreateEnermy(pos)
+    local entity = self:CreateEntity(EntityConfig.Type.GamePlay)
+    entity:SetPlayerType(EGamePlayModule.PlayerType.NPC)
+    entity.TransformComponent:SetPos(pos.x,pos.y,pos.z)
+    -- entity.StateComponent:SetFSM(StateFSM.New())
+    entity.AttrComponent:SetAttr(AttrConfig.Type.HP,100)
+    entity.AttrComponent:SetAttr(AttrConfig.Type.MoveSpeed,10)
+    entity.SkinComponent:SetSkin({Asset="Enermy"})
     return entity
 end
 

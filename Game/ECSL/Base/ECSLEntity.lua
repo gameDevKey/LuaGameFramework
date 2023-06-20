@@ -1,3 +1,4 @@
+--- 实体负责更新组件, 全部组件InitComplete之后再AfterInit
 ECSLEntity = Class("ECSLEntity",ECSLBehaivor)
 ECSLEntity.TYPE = ECSLConfig.Type.Entity
 

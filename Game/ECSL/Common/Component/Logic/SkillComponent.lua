@@ -8,7 +8,8 @@ function SkillComponent:OnDelete()
     self.skills:Delete()
 end
 
-function SkillComponent:OnUpdate()
+function SkillComponent:OnUpdate(deltaTime)
+    self.deltaTime = deltaTime
     self.skills:Range(self.UpdateSkillByIter,self)
 end
 
@@ -17,7 +18,7 @@ function SkillComponent:OnEnable()
 end
 
 function SkillComponent:UpdateSkillByIter(iter)
-    iter.value:Update()
+    iter.value:Update(self.deltaTime)
 end
 
 function SkillComponent:EnableSkillByIter(iter)
@@ -29,7 +30,16 @@ function SkillComponent:AddSkill(skillId,skillLv)
         PrintError("技能已存在",skillId)
         return
     end
-    local skill = SkillBase.New(skillId,skillLv)
+    skillLv = skillLv or 1
+    local conf = require("Data.Skill."..skillId)--TODO cache
+    local skill
+    if conf.Type == SkillConfig.Type.Act then
+        skill = ActSkill.New(conf,skillLv)
+    else
+        skill = PasvSkill.New(conf,skillLv)
+    end
+    skill:SetWorld(self.world)
+    skill:SetEntity(self.entity)
     self.skills:Add(skillId,skill)
 end
 

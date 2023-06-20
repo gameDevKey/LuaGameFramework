@@ -7,6 +7,7 @@ function GamePlayWorld:OnInit()
     self:AddSystem(GameInputSystem.New())
     self:AddSystem(GamePlayOperateSystem.New())
     self:AddSystem(GameEventSystem.New())
+    self:AddSystem(SearchSystem.New())
 end
 
 function GamePlayWorld:OnDelete()

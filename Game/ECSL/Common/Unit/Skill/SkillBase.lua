@@ -6,53 +6,41 @@
 ---技能Timeline配置
 ---命中系统
 ---结算系统
-SkillBase = Class("SkillBase")
+SkillBase = Class("SkillBase",ECSLBase)
 
 function SkillBase:OnInit(conf)
+    self.enable = true
     self.conf = conf
+    self.skillId = self.conf.Id
     self.cdTime = 0
     self.cdTimer = 0
-    self.calculator = Calculator.New()
+    self.canReduceCD = true
+    self:SetCD(self.conf.CD)
 end
 
 function SkillBase:OnDelete()
-    if self.calculator then
-        self.calculator:Delete()
-        self.calculator = nil
-    end
-end
-
-function SkillBase:SetEntity(entity)
-    self.entity = entity
-end
-
-function SkillBase:SetCD(cdTime)
-    self.cdTime = cdTime
-    self.cdTimer = self.cdTime
-end
-
-function SkillBase:GetCD()
-    return self.cdTimer
-end
-
-function SkillBase:IsCD()
-    return self.cdTimer > 0
 end
 
 --技能释放
 function SkillBase:Rel()
-    if self:IsCD() then
+    if not self.enable then
         return false
     end
-    if not self:CheckCond(self.conf.RelCondition) then
-        return false
-    end
-    
+    local targetUids = self:FindTargets()
+    self:Exec(targetUids)
 end
 
 --技能执行
-function SkillBase:Exec()
-    
+function SkillBase:Exec(targetUids)
+    if not self.enable then
+        return
+    end
+    --TODO
+    PrintLog("技能释放对象",targetUids)
+
+
+    --Test
+    self:Finish()
 end
 
 --技能结束
@@ -65,12 +53,47 @@ function SkillBase:Abort()
     self.cdTimer = self.cdTime
 end
 
-function SkillBase:Update(delatTime)
-    if self.cdTime > 0 and self.cdTimer > 0 then
+function SkillBase:SetEntity(entity)
+    self.entity = entity
+end
+
+---设置冷却时间
+---@param cdTime number 数值小于0时, 表示冷却时间无穷大
+function SkillBase:SetCD(cdTime)
+    self.cdTime = cdTime
+    self.cdTimer = self.cdTime
+    self.canReduceCD = self.cdTime >= 0
+end
+
+function SkillBase:GetCD()
+    return self.cdTime
+end
+
+function SkillBase:GetRemainCD()
+    return self.cdTimer
+end
+
+function SkillBase:IsCD()
+    if not self.canReduceCD then
+        return true
+    end
+    return self.cdTimer > 0
+end
+
+function SkillBase:UpdateCD(delatTime)
+    if not self.canReduceCD then
+        return
+    end
+    if self.cdTimer > 0 then
         self.cdTimer = self.cdTimer - delatTime
     else
         self.cdTimer = 0
     end
+end
+
+function SkillBase:Update(delatTime)
+    self:UpdateCD(delatTime)
+    self:CallFuncDeeply("OnUpdate",true,delatTime)
 end
 
 function SkillBase:Enable(enable)
@@ -80,5 +103,16 @@ end
 function SkillBase:CheckCond(pattern)
     return self.entity.CalcComponent:IsTrue(pattern)
 end
+
+function SkillBase:FindTargets()
+    local targets = self.world.SearchSystem:FindEntity({
+        entityUid = self.entity:GetUid(),
+        rangeData = self.conf.Range,
+        matchPattern = nil,
+    })
+    return targets
+end
+
+function SkillBase:OnUpdate(delatTime) end
 
 return SkillBase

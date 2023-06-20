@@ -11,6 +11,9 @@ function table.Count(tb)
 end
 
 function table.IsValid(tb)
+    if not tb then
+        return false
+    end
     return table.Count(tb) > 0
 end
 

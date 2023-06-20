@@ -11,8 +11,8 @@ function ECSLUtil.GetUid(type)
 end
 
 function ECSLUtil.GetEntityDis(entity1,entity2)
-    local pos1 = entity1.TransformComponent:GetPos()
-    local pos2 = entity2.TransformComponent:GetPos()
+    local pos1 = entity1.TransformComponent:GetPosVec3()
+    local pos2 = entity2.TransformComponent:GetPosVec3()
     return (pos1 - pos2).magnitude
 end
 

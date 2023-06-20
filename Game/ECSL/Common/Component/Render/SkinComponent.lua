@@ -16,7 +16,7 @@ end
 
 function SkinComponent:SetSkin(skinData)
     --Test
-    self.assetLoader:AddAsset("Player",CallObject.New(self:ToFunc("OnSkinLoaded")))
+    self.assetLoader:AddAsset(skinData.Asset,CallObject.New(self:ToFunc("OnSkinLoaded")))
     self.assetLoader:LoadAsset()
 end
 

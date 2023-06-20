@@ -18,8 +18,8 @@ end
 function SearchSystem:FindEntity(searchData)
     local entitys = self.world.EntitySystem:GetEntitys()
     local result = {}
-    entitys:RangeByCallObject(CallObject.New(self:ToFunc("OnFindEntityByIter"
-        ,nil,{result=result,searchData=searchData})))
+    local data = {result=result,searchData=searchData}
+    entitys:RangeByCallObject(CallObject.New(self:ToFunc("OnFindEntityByIter"),nil,data))
     return result
 end
 
@@ -30,15 +30,16 @@ function SearchSystem:OnFindEntityByIter(args,iter)
     local match = searchData.matchPattern
     local finderEntity = self.world.EntitySystem:GetEntity(searchData.entityUid)
     local curEntity = iter.value
-    if not finderEntity or not curEntity then
+    if not finderEntity or not curEntity or finderEntity == curEntity then
         return
     end
     if range then
         if range.type == SearchConfig.Range.Circle then
+            -- 目标与我的距离小于等于半径
             local radius = range.radius
             local dis = ECSLUtil.GetEntityDis(finderEntity,curEntity)
             if dis <= radius then
-                table.insert(result, curEntity)
+                table.insert(result, curEntity:GetUid())
             end
         end
         --TODO...

@@ -1,9 +1,12 @@
 --- ECSL生命周期:
---- OnInit --> OnEnable --> OnInitComplete --> OnAfterInit(某些逻辑需要等所有其他模块都InitComplete) --> OnUpdate
+--- OnInit --> OnInitComplete --> OnAfterInit(某些逻辑需要等所有其他模块都InitComplete)
+--- OnUpdate 每帧调用
+--- OnEnable 每次Enable变化时调用
 ECSLBehaivor = Class("ECSLBehaivor",ECSLBase)
 ECSLBehaivor.TYPE = ECSLConfig.Type.Nil
 
 function ECSLBehaivor:OnInit()
+    self.enable = true
 end
 
 function ECSLBehaivor:OnDelete()
@@ -11,7 +14,6 @@ end
 
 -- 所有系统、实体或者组件执行OnInit后，调用OnInitComplete
 function ECSLBehaivor:InitComplete()
-    self:SetEnable(true)
     self:CallFuncDeeply("OnInitComplete",true)
 end
 

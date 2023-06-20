@@ -1,19 +1,22 @@
 TransformRenderComponent = Class("TransformRenderComponent",ECSLRenderComponent)
 
 function TransformRenderComponent:OnInit()
+    self.lastPos = nil
 end
 
 function TransformRenderComponent:OnDelete()
 end
 
-local vec3 = CS.UnityEngine.Vector3.zero
 function TransformRenderComponent:OnUpdate()
     local logicTransform = self.entity.TransformComponent
     if not logicTransform then
         return
     end
-    vec3.x,vec3.y,vec3.z = logicTransform:GetPos()
-    self.entity.gameObject.transform.localPosition = vec3
+    local vec3 = logicTransform:GetPosVec3()
+    if vec3 ~= self.lastPos then
+        self.entity.gameObject.transform.localPosition = vec3
+        self.lastPos = vec3
+    end
 end
 
 function TransformRenderComponent:OnEnable()

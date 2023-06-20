@@ -61,11 +61,9 @@ function Interface(interfaceName,interfaces)
     interface._interfaces = interfaces or NIL_TABLE
     local nameStr = string.format("接口[%s-%s]", interfaceName, tostring(interface))
     setmetatable(interface, {
-        __tostring = function(this)
-            if rawget(this, "ToString") then
-                return this:ToString()
-            end
-            return nameStr
+        __tostring = function()
+            local fn = rawget(interface, "ToString")
+            return fn and fn(interface) or nameStr
         end,
      })
     InjectInterfaces(interface,interface._interfaces)
@@ -110,15 +108,14 @@ function Class(className, superClass, interfaces)
     clazz._isClass = true
     clazz._className = className
     clazz._interfaces = interfaces or NIL_TABLE
+    clazz._location = tostring(clazz)
 
-    local nameStr = string.format("类[%s-%s]", className, tostring(clazz))
+    local nameStr = string.format("类[%s-%s]", className, clazz._location)
     setmetatable(clazz, {
         __index = superClass,
-        __tostring = function(this)
-            if rawget(this, "ToString") then
-                return this:ToString()
-            end
-            return nameStr
+        __tostring = function()
+            local fn = rawget(clazz, "ToString")
+            return fn and fn(clazz) or nameStr
         end,
      })
     clazz._super = superClass
@@ -132,20 +129,18 @@ function Class(className, superClass, interfaces)
         instance._objectId = tostring(instance)
         instance._alive = false
         instance._funcs = {}
-        local defaultStr = string.format("%s实例[%s]", tostring(clazz), instance._objectId)
+        local defaultStr = string.format("%s实例[%s]", clazz._className, instance._objectId)
         if MEM_CHECK then
             ALL_CLASS[instance] = debug.traceback()
         end
         setmetatable(instance,
-            {
-                __index = clazz,
-                __tostring = function(this)
-                    if rawget(this, "ToString") then
-                        return this:ToString()
-                    end
-                    return defaultStr
-                end,
-            })
+        {
+            __index = clazz,
+            __tostring = function()
+                local fn = rawget(clazz, "ToString")
+                return fn and fn(instance) or defaultStr
+            end,
+        })
 
         function instance:Ctor(...)
             if not self._alive then
@@ -222,8 +217,9 @@ function SingletonClass(className, superClass, interfaces)
     clazz._isClass = true
     clazz._className = className
     clazz._interfaces = interfaces or NIL_TABLE
+    clazz._location = tostring(clazz)
 
-    local nameStr = string.format("单例类[%s-%s]", className, tostring(clazz))
+    local nameStr = string.format("单例类[%s-%s]", className, clazz._location)
     setmetatable(clazz, {
         __index = function (tb,key)
             if key == "Instance" then --访问时动态注入字段
@@ -232,13 +228,11 @@ function SingletonClass(className, superClass, interfaces)
             end
             return superClass and superClass[key]
         end,
-        __tostring = function(this)
-            if rawget(this, "ToString") then
-                return this:ToString()
-            end
-            return nameStr
+        __tostring = function()
+            local fn = rawget(clazz, "ToString")
+            return fn and fn(clazz) or nameStr
         end,
-     })
+    })
     clazz._super = superClass
 
     InjectInterfaces(clazz,clazz._interfaces)
@@ -257,15 +251,13 @@ function SingletonClass(className, superClass, interfaces)
         if MEM_CHECK then
             ALL_CLASS[instance] = debug.traceback()
         end
-        local defaultStr = string.format("%s实例[%s]", tostring(clazz), instance._objectId)
+        local defaultStr = string.format("%s实例[%s]", clazz._className, instance._objectId)
         setmetatable(instance,
             {
                 __index = clazz,
-                __tostring = function(this)
-                    if rawget(this, "ToString") then
-                        return this:ToString()
-                    end
-                    return defaultStr
+                __tostring = function()
+                    local fn = rawget(clazz, "ToString")
+                    return fn and fn(instance) or defaultStr
                 end,
             })
 
@@ -347,11 +339,9 @@ function StaticClass(className)
     staticClasses[clazz._className] = clazz
 
     setmetatable(clazz, {
-        __tostring = function(this)
-            if rawget(this, "ToString") then
-                return this:ToString()
-            end
-            return defaultStr
+        __tostring = function()
+            local fn = rawget(clazz, "ToString")
+            return fn and fn(clazz) or defaultStr
         end,
     })
 
