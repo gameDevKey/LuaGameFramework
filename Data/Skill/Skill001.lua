@@ -6,6 +6,10 @@ Skill001.CD = 1
 
 Skill001.Type = SkillConfig.Type.Act
 
+Skill001.Event = {
+     
+}
+
 Skill001.RelCondition = "HP > 0 && MoveSpeed > 0"
 
 Skill001.TargetNum = 3

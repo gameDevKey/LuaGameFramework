@@ -14,11 +14,15 @@ function SkillBase:OnInit(conf)
     self.skillId = self.conf.Id
     self.cdTime = 0
     self.cdTimer = 0
-    self.canReduceCD = true
     self:SetCD(self.conf.CD)
+    self.events = {}
 end
 
 function SkillBase:OnDelete()
+    for eventKey, eventId in pairs(self.events or NIL_TABLE) do
+        self.world.GameEventSystem:RemoveListener(eventId, eventKey)
+    end
+    self.events = nil
 end
 
 --技能释放
@@ -57,12 +61,9 @@ function SkillBase:SetEntity(entity)
     self.entity = entity
 end
 
----设置冷却时间
----@param cdTime number 数值小于0时, 表示冷却时间无穷大
 function SkillBase:SetCD(cdTime)
     self.cdTime = cdTime
     self.cdTimer = self.cdTime
-    self.canReduceCD = self.cdTime >= 0
 end
 
 function SkillBase:GetCD()
@@ -74,16 +75,10 @@ function SkillBase:GetRemainCD()
 end
 
 function SkillBase:IsCD()
-    if not self.canReduceCD then
-        return true
-    end
     return self.cdTimer > 0
 end
 
 function SkillBase:UpdateCD(delatTime)
-    if not self.canReduceCD then
-        return
-    end
     if self.cdTimer > 0 then
         self.cdTimer = self.cdTimer - delatTime
     else
@@ -92,7 +87,6 @@ function SkillBase:UpdateCD(delatTime)
 end
 
 function SkillBase:Update(delatTime)
-    self:UpdateCD(delatTime)
     self:CallFuncDeeply("OnUpdate",true,delatTime)
 end
 
@@ -111,6 +105,10 @@ function SkillBase:FindTargets()
         matchPattern = nil,
     })
     return targets
+end
+
+function SkillBase:BindCond()
+    --TODO 绑定一个SkillCondBase，当监听条件满足后，触发Exec
 end
 
 function SkillBase:OnUpdate(delatTime) end
