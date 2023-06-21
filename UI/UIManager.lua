@@ -31,7 +31,7 @@ function UIManager:OnDelete()
     self.uiSortOrder = nil
 end
 
-function UIManager:Enter(uiType, data)
+function UIManager:Enter(uiType, data, viewCtrl)
     local config = UIDefine.Config[uiType]
     if not config then
         PrintError("界面配置不存在",uiType)
@@ -57,6 +57,7 @@ function UIManager:Enter(uiType, data)
     local view = clazz.New(uiType)
     self:addView(view)
     view:SetSortOrder(self:GetSortOrder(view.uiType))
+    view:SetViewCtrl(viewCtrl)
 
     return self:CreateUIByPool(view.uiType,view.uiAssetPath,view,data)
 end
@@ -75,7 +76,7 @@ function UIManager:Exit(targetView)
     end
 
     local config = UIDefine.Config[targetView.uiType]
-    local isTopView = targetView == self.uiStack[#self.uiStack]
+    local isTopView = targetView == self:GetTopView()
 
     --移除UIMgr缓存
     self:removeView(targetView)
@@ -114,7 +115,7 @@ end
 
 --栈顶界面出栈
 function UIManager:ExitTop()
-    local topView = self.uiStack[#self.uiStack]
+    local topView = self:GetTopView()
     if topView then
         self:Exit(topView)
     end
@@ -131,6 +132,7 @@ function UIManager:GoBackTo(uiType)
         local curView = self.uiStack[i]
         if curView.uiType ~= uiType then
             self:removeViewByIndex(curView,i)
+            self:RecycleUIByPool(curView)
             curView:HandleExit()
         end
     end
@@ -138,7 +140,7 @@ function UIManager:GoBackTo(uiType)
 end
 
 function UIManager:ActiveTopView(active)
-    local topView = self.uiStack[#self.uiStack]
+    local topView = self:GetTopView()
     if topView then
         if active then
             topView:Refresh()
@@ -146,6 +148,10 @@ function UIManager:ActiveTopView(active)
             topView:Hide()
         end
     end
+end
+
+function UIManager:GetTopView()
+    return self.uiStack[#self.uiStack]
 end
 
 function UIManager:GetViewByType(uiType)

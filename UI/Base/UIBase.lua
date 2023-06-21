@@ -4,7 +4,7 @@
     2.界面加载完成后，可直接访问self.gameObject/self.transform等等变量，具体看ViewAssetLoaded()逻辑
 ]]--
 UIBase = Class("UIBase", ModuleBase)
-local _ = UIExtendBase
+local _ = UIBaseExtend
 
 function UIBase:OnInit(uiType)
     self.uiType = uiType
@@ -16,6 +16,15 @@ function UIBase:OnDelete()
         UnityUtil.DestroyGameObject(self.gameObject)
         self.gameObject = nil
     end
+end
+
+function UIBase:SetViewCtrl(ctrl)
+    self.viewCtrl = ctrl
+    self:SetFacade(ctrl.facade)
+end
+
+function UIBase:GetViewCtrl()
+    return self.viewCtrl
 end
 
 --关联一个UI缓存处理类
@@ -30,6 +39,9 @@ end
 ---设置层级
 function UIBase:SetSortOrder(order)
     self.sortingOrder = order
+    if self.canvas then
+        self.canvas.sortingOrder = order
+    end
 end
 
 --设置界面资源路径
@@ -44,6 +56,7 @@ function UIBase:SetupViewAsset(gameObject)
     self.rectTransform = self.gameObject:GetComponent(typeof(CS.UnityEngine.RectTransform))
     self:CallFuncDeeply("OnFindComponent",true)
     self:CallFuncDeeply("OnInitComponent",true)
+    self:SetSortOrder(self.sortingOrder)
 end
 
 ---进入界面(只能被外界调用，子类不要调用)

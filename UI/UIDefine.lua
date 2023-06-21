@@ -27,6 +27,7 @@ UIDefine.ViewType = {
     LoginView = "LoginView",
     GameMenuView = "GameMenuView",
     GameView = "GameView",
+    GenericView = "GenericView",
 }
 
 UIDefine.ComType = {
@@ -69,6 +70,11 @@ UIDefine.Config = {
         EnterType = UIDefine.EnterType.ExitLast,
         ExitType = UIDefine.ExitType.None,
         ViewLayer = UIDefine.ViewLayer.NormalUI,
+        IsMulti = false,
+    },
+    [UIDefine.ViewType.GenericView] = {
+        Class = "GenericViewUI",
+        ViewLayer = UIDefine.ViewLayer.HoldUI,
         IsMulti = false,
     },
 }

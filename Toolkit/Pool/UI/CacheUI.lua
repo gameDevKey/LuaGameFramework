@@ -24,8 +24,8 @@ function CacheUI:OnUse()
     if self.asset then
         if not self.gameObject then
             self.gameObject = UnityUtil.Instantiate(self.asset)
-            self.gameObject:SetActive(true)
         end
+        self.gameObject:SetActive(true) --
         self.transform = self.gameObject.transform
         self.transform:SetParent(UIManager.Instance.uiRoot.transform)
         RectTransformExt.Reset(self.transform)

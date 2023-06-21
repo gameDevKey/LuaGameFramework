@@ -1,8 +1,9 @@
-UIExtendBase = ExtendClass(UIBase)
+UIBaseExtend = ExtendClass(UIBase)
 
-local CS_UI = CS.UnityEngine.UI
+local Engine = CS.UnityEngine
+local CS_UI = Engine.UI
 
-function UIExtendBase:GetComponent(path,cmp,transform)
+function UIBaseExtend:GetComponent(path,cmp,transform)
     transform = transform or self.transform
     if not transform then return end
     local child = transform:Find(path)
@@ -11,24 +12,28 @@ function UIExtendBase:GetComponent(path,cmp,transform)
     return child.gameObject:GetComponent(typeof(cmp))
 end
 
-function UIExtendBase:GetTransform(path,transform)
+function UIBaseExtend:GetTransform(path,transform)
     return self:GetComponent(path,nil,transform)
 end
 
-function UIExtendBase:GetImage(path,transform)
+function UIBaseExtend:GetCanvas(path,transform)
+    return self:GetComponent(path,Engine.Canvas,transform)
+end
+
+function UIBaseExtend:GetImage(path,transform)
     return self:GetComponent(path,CS_UI.Image,transform)
 end
 
-function UIExtendBase:GetButton(path,transform)
+function UIBaseExtend:GetButton(path,transform)
     return self:GetComponent(path,CS_UI.Button,transform)
 end
 
-function UIExtendBase:GetText(path,transform)
+function UIBaseExtend:GetText(path,transform)
     return self:GetComponent(path,CS_UI.Text,transform)
 end
 
-function UIExtendBase:GetRectTransform(path,transform)
+function UIBaseExtend:GetRectTransform(path,transform)
     return self:GetComponent(path,CS_UI.Text,transform)
 end
 
-return UIExtendBase
+return UIBaseExtend

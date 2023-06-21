@@ -96,7 +96,12 @@ end
 
 ---退出界面(子类调用，方便调用)
 function ViewUI:Exit()
-    UIManager.Instance:Exit(self)
+    if self.viewCtrl then
+        self.viewCtrl:ExitView(self)
+    else
+        PrintWarning("建议使用ViewCtrl管理该界面逻辑:",self)
+        UIManager.Instance:Exit(self)
+    end
 end
 
 ---退出界面(只能被外界调用，子类不要调用)
@@ -112,6 +117,7 @@ end
 
 function ViewUI:OnFindComponent()
     self.canvas = self.gameObject:GetComponent(typeof(CS.UnityEngine.Canvas))
+    self.canvas.overrideSorting = true
 end
 function ViewUI:OnEnter(data)
     self:CallExtendViewsFunc("Enter",data)
