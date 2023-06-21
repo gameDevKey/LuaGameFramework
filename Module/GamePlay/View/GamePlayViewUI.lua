@@ -1,14 +1,14 @@
 GamePlayViewUI = Class("GamePlayViewUI",ViewUI)
 
 function GamePlayViewUI:OnInit()
-    self:SetViewAsset("GameWindow")
+    self:SetAssetPath("GameWindow")
 end
 
-function GamePlayViewUI:FindTargets()
+function GamePlayViewUI:OnFindComponent()
 
 end
 
-function GamePlayViewUI:InitTargets()
+function GamePlayViewUI:OnInitComponent()
 
 end
 

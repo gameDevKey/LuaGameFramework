@@ -6,7 +6,7 @@ UIDefine.UICacheName = "UICache"
 UIDefine.ViewLayer = Enum.New({
     BG = 1000,--背景层
     NormalUI = 4000,--普通界面层（后进先出）
-    HoldUI = 7000,--常驻界面层
+    HoldUI = 7000,--常驻界面层（不会受到堆栈影响）
     Popup = 10000,--弹窗层
     Top = 13000,--通知层（最重要的展示信息）
 })
@@ -22,16 +22,17 @@ UIDefine.ExitType = Enum.New({
     None = Enum.Index,
 })
 
-UIDefine.ViewType = Enum.New({
-    TemplateView = Enum.Index,
-    LoginView = Enum.Index,
-    GameMenuView = Enum.Index,
-    GameView = Enum.Index,
-})
+UIDefine.ViewType = {
+    TemplateView = "TemplateView",
+    LoginView = "LoginView",
+    GameMenuView = "GameMenuView",
+    GameView = "GameView",
+}
 
-UIDefine.ComType = Enum.New({
-    TemplateCom = Enum.Index,
-})
+UIDefine.ComType = {
+    TemplateCom = "TemplateCom",
+    LoginCom = "LoginCom",
+}
 
 --[[
     界面配置
@@ -69,6 +70,15 @@ UIDefine.Config = {
         ExitType = UIDefine.ExitType.None,
         ViewLayer = UIDefine.ViewLayer.NormalUI,
         IsMulti = false,
+    },
+}
+
+UIDefine.ComUI = {
+    [UIDefine.ComType.TemplateCom] = {
+        Class = "TemplateComUI",
+    },
+    [UIDefine.ComType.LoginCom] = {
+        Class = "LoginComUI",
     },
 }
 

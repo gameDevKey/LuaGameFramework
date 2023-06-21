@@ -16,6 +16,44 @@ function ViewUI:OnDelete()
     self.comUIs = nil
 end
 
+function ViewUI:_batchCreateComUI(comUIType,parent,amount,prefab,datas)
+    local comUIs = {}
+    for i = 1, amount do
+        local com = self:CreateComUI(comUIType,prefab)
+        if com then
+            local data = datas and datas[i]
+            com:SetParent(parent)
+            com:SetData(data, i, self)
+            table.insert(comUIs,com)
+        end
+    end
+    return comUIs
+end
+
+function ViewUI:BatchCreateComUI(comUIType,parent,datas,prefab)
+    return self:_batchCreateComUI(comUIType,parent,#datas,prefab,datas)
+end
+
+function ViewUI:BatchCreateComUIByAmount(comUIType,parent,amount,prefab)
+    return self:_batchCreateComUI(comUIType,parent,amount,prefab,nil)
+end
+
+function ViewUI:CreateComUI(comUIType,prefab,enterData)
+    local config = UIDefine.ComUI[comUIType]
+    if not config then
+        PrintError("组件配置不存在",comUIType)
+        return
+    end
+    local cls = _G[config.Class]
+    if not cls then
+        PrintError("组件类不存在",config.Class)
+        return
+    end
+    local comUI = cls.New(comUIType)
+    self:AddComUI(comUI)
+    return UIManager.Instance:CreateUIByPool(comUI.uiType,prefab or comUI.uiAssetPath,comUI,enterData)
+end
+
 function ViewUI:AddComUI(comUI)
     if not table.Contain(self.comUIs, comUI) then
         table.insert(self.comUIs, comUI)
@@ -24,6 +62,7 @@ end
 
 function ViewUI:SetBelongView(view)
     self.belongView = view
+    self:SetupViewAsset(view.gameObject)
 end
 
 --添加界面扩展类
@@ -66,10 +105,14 @@ function ViewUI:HandleExit()
 end
 
 --退出界面完成，界面退出可能是一个耗时的操作（受到离场动画的影响）
-function UIBase:ExitComplete()
+function ViewUI:ExitComplete()
     self:CallFuncDeeply("OnExitComplete",false)
 end
 
+
+function ViewUI:OnFindComponent()
+    self.canvas = self.gameObject:GetComponent(typeof(CS.UnityEngine.Canvas))
+end
 function ViewUI:OnEnter(data)
     self:CallExtendViewsFunc("Enter",data)
 end
@@ -77,7 +120,9 @@ function ViewUI:OnEnterComplete()
     self:CallExtendViewsFunc("EnterComplete")
 end
 function ViewUI:OnExit()
-    self:CallComUIsFunc("Delete")
+    for _, com in ipairs(self.comUIs or NIL_TABLE) do
+        UIManager.Instance:RecycleUIByPool(com)
+    end
     self.comUIs = {}
     self:CallExtendViewsFunc("HandleExit")
 end

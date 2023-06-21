@@ -13,9 +13,14 @@ function CacheUI:OnDelete()
         UnityUtil.DestroyGameObject(self.gameObject)
         self.gameObject = nil
     end
+    self.asset = nil
 end
 
+--[[
+    data = { callback, args, path/prefab }
+]]--
 function CacheUI:OnUse()
+    self.asset = self.asset or self.data.prefab
     if self.asset then
         if not self.gameObject then
             self.gameObject = UnityUtil.Instantiate(self.asset)

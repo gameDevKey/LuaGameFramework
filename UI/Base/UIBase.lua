@@ -13,7 +13,7 @@ end
 
 function UIBase:OnDelete()
     if self.gameObject then
-        CS.UnityEngine.GameObject.Destroy(self.gameObject)
+        UnityUtil.DestroyGameObject(self.gameObject)
         self.gameObject = nil
     end
 end
@@ -33,16 +33,17 @@ function UIBase:SetSortOrder(order)
 end
 
 --设置界面资源路径
-function UIBase:SetViewAsset(path)
-    self.viewAssetPath = path
+function UIBase:SetAssetPath(path)
+    self.uiAssetPath = path
 end
 
 --界面资源初始化
 function UIBase:SetupViewAsset(gameObject)
     self.gameObject = gameObject
     self.transform = self.gameObject.transform
-    self:CallFuncDeeply("FindTargets")
-    self:CallFuncDeeply("InitTargets")
+    self.rectTransform = self.gameObject:GetComponent(typeof(CS.UnityEngine.RectTransform))
+    self:CallFuncDeeply("OnFindComponent",true)
+    self:CallFuncDeeply("OnInitComponent",true)
 end
 
 ---进入界面(只能被外界调用，子类不要调用)
@@ -73,8 +74,8 @@ function UIBase:OnHide()end
 --#endregion
 
 --#region 虚函数(行为)
-function UIBase:FindTargets()end
-function UIBase:InitTargets()end
+function UIBase:OnFindComponent()end
+function UIBase:OnInitComponent()end
 --#endregion
 
 return UIBase

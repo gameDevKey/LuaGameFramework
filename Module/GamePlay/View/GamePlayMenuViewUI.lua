@@ -1,24 +1,28 @@
 GamePlayMenuViewUI = Class("GamePlayMenuViewUI",ViewUI)
 
 function GamePlayMenuViewUI:OnInit()
-    self:SetViewAsset("GameMenuWindow")
+    self:SetAssetPath("GameMenuWindow")
 end
 
-function GamePlayMenuViewUI:FindTargets()
+function GamePlayMenuViewUI:OnFindComponent()
     self.startBtn = self:GetButton("btn_start")
     self.returnBtn = self:GetButton("btn_return")
+    self.container = self:GetTransform("container")
 end
 
-function GamePlayMenuViewUI:InitTargets()
+function GamePlayMenuViewUI:OnInitComponent()
     ButtonExt.SetClick(self.startBtn, self:ToFunc("OnStartBtnClick"))
     ButtonExt.SetClick(self.returnBtn, self:ToFunc("OnReturnBtnClick"))
 end
 
 function GamePlayMenuViewUI:OnEnter(data)
     self.data = data
+    self:EnterComplete()
 end
 
 function GamePlayMenuViewUI:OnEnterComplete()
+    local num = math.random(1,4)
+    self:BatchCreateComUIByAmount(UIDefine.ComType.LoginCom,self.container,num)
 end
 
 function GamePlayMenuViewUI:OnExit()

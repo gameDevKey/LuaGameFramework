@@ -1,15 +1,21 @@
 LoginViewUI = Class("LoginViewUI",ViewUI)
+LoginViewUI.UseTemplate = false
 
 function LoginViewUI:OnInit()
-    self:SetViewAsset("LoginWindow")
+    self:SetAssetPath("LoginWindow")
 end
 
-function LoginViewUI:FindTargets()
+function LoginViewUI:OnFindComponent()
     self.loginBtn = self:GetButton("btn")
     self.txtName = self:GetText("btn/txt")
+    self.container = self:GetTransform("container")
+    if self.UseTemplate then
+        self.template = self:GetTransform("container/LoginCom").gameObject
+        self.template:SetActive(false)
+    end
 end
 
-function LoginViewUI:InitTargets()
+function LoginViewUI:OnInitComponent()
     ButtonExt.SetClick(self.loginBtn, self:ToFunc("onLoginBtnClick"))
 end
 
@@ -19,6 +25,11 @@ function LoginViewUI:OnEnter(data)
 end
 
 function LoginViewUI:OnEnterComplete()
+    if self.UseTemplate then
+        self:BatchCreateComUIByAmount(UIDefine.ComType.LoginCom,self.container,3,self.template)
+    else
+        self:BatchCreateComUIByAmount(UIDefine.ComType.LoginCom,self.container,3)
+    end
 end
 
 function LoginViewUI:OnExit()

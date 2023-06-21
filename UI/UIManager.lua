@@ -33,6 +33,10 @@ end
 
 function UIManager:Enter(uiType, data)
     local config = UIDefine.Config[uiType]
+    if not config then
+        PrintError("界面配置不存在",uiType)
+        return
+    end
     if not config.IsMulti and self:GetViewByType(uiType) ~= nil then
         PrintWarning("界面已存在:", config.Class)
         return
@@ -52,14 +56,9 @@ function UIManager:Enter(uiType, data)
 
     local view = clazz.New(uiType)
     self:addView(view)
-
     view:SetSortOrder(self:GetSortOrder(view.uiType))
 
-    local pool = CacheManager.Instance:GetPool(CacheDefine.PoolType.UI,true)
-    local cacheUI = pool:Get(uiType, {path = view.viewAssetPath, callback = self:ToFunc("onViewEnter"), args = {view=view,data=data}})
-    view:SetCacheHandler(cacheUI)
-
-    return view
+    return self:CreateUIByPool(view.uiType,view.uiAssetPath,view,data)
 end
 
 --退出某个界面
@@ -82,8 +81,7 @@ function UIManager:Exit(targetView)
     self:removeView(targetView)
 
     --回收到UI池，移动到隐藏节点
-    local pool = CacheManager.Instance:GetPool(CacheDefine.PoolType.UI,true)
-    pool:Recycle(targetView.uiType,targetView:GetCacheHandler())
+    self:RecycleUIByPool(targetView)
 
     --数据清理
     targetView:HandleExit()
@@ -94,6 +92,24 @@ function UIManager:Exit(targetView)
             self:ActiveTopView(true)
         end
     end
+end
+
+function UIManager:CreateUIByPool(uiType,pathOrPrefab,ui,enterData)
+    local pool = CacheManager.Instance:GetPool(CacheDefine.PoolType.UI,true)
+    local args = {callback = self:ToFunc("onViewEnter"), args = {ui=ui,data=enterData}}
+    if IsString(pathOrPrefab) then
+        args.path = pathOrPrefab
+    else
+        args.prefab = pathOrPrefab
+    end
+    local cacheUI = pool:Get(uiType, args)
+    ui:SetCacheHandler(cacheUI)
+    return ui
+end
+
+function UIManager:RecycleUIByPool(ui)
+    local pool = CacheManager.Instance:GetPool(CacheDefine.PoolType.UI,true)
+    pool:Recycle(ui.uiType,ui:GetCacheHandler())
 end
 
 --栈顶界面出栈
@@ -108,7 +124,7 @@ end
 function UIManager:GoBackTo(uiType)
     local view = self:GetViewByType(uiType)
     if not view then
-        PrintError("堆栈中无类型为",UIDefine.ViewType[uiType],'的界面')
+        PrintError("堆栈中无类型为",uiType,'的界面')
         return
     end
     for i = #self.uiStack, 1, -1 do
@@ -206,10 +222,10 @@ end
 
 --TODO 复用的界面还需要跑findTargets()?
 function UIManager:onViewEnter(args,gameObject)
-    local view = args.view
+    local ui = args.ui
     local data = args.data
-    view:SetupViewAsset(gameObject)
-    view:Enter(data)
+    ui:SetupViewAsset(gameObject)
+    ui:Enter(data)
 end
 
 --#endregion
