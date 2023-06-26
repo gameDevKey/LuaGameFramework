@@ -1,5 +1,6 @@
 --#region 必要文件提前加载
 require("Core.Config")
+require("Core.ClsRef")
 require("Utils.Common")
 require("Utils.Class")
 require("Utils.String")

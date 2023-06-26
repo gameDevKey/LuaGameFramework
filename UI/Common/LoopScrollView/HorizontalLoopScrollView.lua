@@ -105,4 +105,4 @@ function HorizontalLoopScrollView:UpdateList()
     self:FixItemsStyleByShowingData(self.tbShowingItem, tempDatas)
 end
 
-return ELoopScrollView
+return HorizontalLoopScrollView

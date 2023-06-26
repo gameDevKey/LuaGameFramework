@@ -1,7 +1,7 @@
 TransformComponent = Class("TransformComponent",ECSLComponent)
 
 function TransformComponent:OnInit()
-    self.posVec3 = CS.UnityEngine.Vector3.zero
+    self.posVec3 = Vector3.zero
 end
 
 function TransformComponent:OnDelete()

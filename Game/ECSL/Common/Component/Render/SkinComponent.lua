@@ -23,7 +23,7 @@ end
 function SkinComponent:OnSkinLoaded(res,path)
     local skin = UnityUtil.Instantiate(res)
     skin.transform:SetParent(self.entity.gameObject.transform)
-    skin.transform.localPosition = CS.UnityEngine.Vector3.zero
+    skin.transform.localPosition = Vector3.zero
 end
 
 return SkinComponent

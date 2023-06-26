@@ -38,6 +38,11 @@ function ViewUI:BatchCreateComUIByAmount(comUIType,parent,amount,prefab)
     return self:_batchCreateComUI(comUIType,parent,amount,prefab,nil)
 end
 
+---创建组件UI
+---@param comUIType UIDefine.ComType 组件类型
+---@param prefab GameObject|nil 预设, 不填时使用组件类定义的uiAssetPath
+---@param enterData any|nil 进入时数据，允许为空
+---@return ComUI|nil
 function ViewUI:CreateComUI(comUIType,prefab,enterData)
     local config = UIDefine.ComUI[comUIType]
     if not config then
@@ -57,6 +62,12 @@ end
 function ViewUI:AddComUI(comUI)
     if not table.Contain(self.comUIs, comUI) then
         table.insert(self.comUIs, comUI)
+    end
+end
+
+function ViewUI:RecycleAllComUI()
+    for _, comUI in ipairs(self.comUIs) do
+        comUI:RecycleOrDelete()
     end
 end
 
@@ -126,10 +137,7 @@ function ViewUI:OnEnterComplete()
     self:CallExtendViewsFunc("EnterComplete")
 end
 function ViewUI:OnExit()
-    for _, com in ipairs(self.comUIs or NIL_TABLE) do
-        UIManager.Instance:RecycleUIByPool(com)
-    end
-    self.comUIs = {}
+    self:RecycleAllComUI()
     self:CallExtendViewsFunc("HandleExit")
 end
 function ViewUI:OnExitComplete()

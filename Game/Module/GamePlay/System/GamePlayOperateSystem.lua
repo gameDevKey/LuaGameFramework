@@ -2,7 +2,7 @@ GamePlayOperateSystem = Class("GamePlayOperateSystem",ECSLSystem)
 
 function GamePlayOperateSystem:OnInitComplete()
     self:AddListeners()
-    self.targetPosOffset = CS.UnityEngine.Vector3.zero
+    self.targetPosOffset = Vector3.zero
 end
 
 function GamePlayOperateSystem:AddListeners()

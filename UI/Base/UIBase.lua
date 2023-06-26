@@ -18,6 +18,7 @@ function UIBase:OnDelete()
     end
 end
 
+---关联一个ViewCtrl
 function UIBase:SetViewCtrl(ctrl)
     self.viewCtrl = ctrl
     self:SetFacade(ctrl.facade)
@@ -34,6 +35,16 @@ end
 
 function UIBase:GetCacheHandler()
     return self.cacheHandler
+end
+
+function UIBase:RecycleOrDelete()
+    local handler = self:GetCacheHandler()
+    if handler then
+        local pool = CacheManager.Instance:GetPool(CacheDefine.PoolType.UI,true)
+        pool:Recycle(self.uiType,handler)
+    else
+        self:Delete()
+    end
 end
 
 ---设置层级

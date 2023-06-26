@@ -12,7 +12,7 @@ UIManager = SingletonClass("UIManager")
 
 function UIManager:OnInit()
     self.uiStack = {}       --普通界面堆栈 List<ViewUI>
-    self.uiHoldList = {}    --常驻界面队列
+    self.uiHoldList = {}    --常驻界面队列 List<ViewUI>
     self.uiSortOrder = {}   --层级 map[viewLayer]sortOrder
     self.uiRoot = UnityUtil.FindGameObject(UIDefine.UIRootName)
     self.cacheNode = UnityUtil.FindGameObject(UIDefine.UICacheName)
@@ -66,13 +66,13 @@ end
 function UIManager:Exit(targetView)
     if not targetView then
         PrintError("界面为空，无法退出")
-        return
+        return false
     end
 
     local _,index = self:GetViewByInstance(targetView)
     if not index then
         PrintError("界面不存在堆栈中",targetView)
-        return
+        return false
     end
 
     local config = UIDefine.Config[targetView.uiType]
@@ -82,7 +82,7 @@ function UIManager:Exit(targetView)
     self:removeView(targetView)
 
     --回收到UI池，移动到隐藏节点
-    self:RecycleUIByPool(targetView)
+    targetView:RecycleOrDelete()
 
     --数据清理
     targetView:HandleExit()
@@ -93,6 +93,8 @@ function UIManager:Exit(targetView)
             self:ActiveTopView(true)
         end
     end
+
+    return true
 end
 
 function UIManager:CreateUIByPool(uiType,pathOrPrefab,ui,enterData)
@@ -106,11 +108,6 @@ function UIManager:CreateUIByPool(uiType,pathOrPrefab,ui,enterData)
     local cacheUI = pool:Get(uiType, args)
     ui:SetCacheHandler(cacheUI)
     return ui
-end
-
-function UIManager:RecycleUIByPool(ui)
-    local pool = CacheManager.Instance:GetPool(CacheDefine.PoolType.UI,true)
-    pool:Recycle(ui.uiType,ui:GetCacheHandler())
 end
 
 --栈顶界面出栈
@@ -132,7 +129,7 @@ function UIManager:GoBackTo(uiType)
         local curView = self.uiStack[i]
         if curView.uiType ~= uiType then
             self:removeViewByIndex(curView,i)
-            self:RecycleUIByPool(curView)
+            curView:RecycleOrDelete()
             curView:HandleExit()
         end
     end
@@ -156,7 +153,8 @@ end
 
 function UIManager:GetViewByType(uiType)
     --同一类型的界面不止一个，只能遍历
-    for i, view in ipairs(self.uiStack) do
+    local list = self:getCacheListByType(uiType)
+    for i, view in ipairs(list) do
         if view.uiType == uiType then
             return view, i
         end
@@ -165,7 +163,8 @@ end
 
 function UIManager:GetViewByInstance(targetView)
     --同一类型的界面不止一个，只能遍历
-    for i, view in ipairs(self.uiStack) do
+    local list = self:getCacheList(targetView)
+    for i, view in ipairs(list) do
         if view == targetView then
             return view, i
         end
@@ -219,7 +218,11 @@ function UIManager:removeViewByIndex(view,index)
 end
 
 function UIManager:getCacheList(view)
-    local config = UIDefine.Config[view.uiType]
+    return self:getCacheListByType(view.uiType)
+end
+
+function UIManager:getCacheListByType(uiType)
+    local config = UIDefine.Config[uiType]
     if config.ViewLayer == UIDefine.ViewLayer.HoldUI then
         return self.uiHoldList
     end

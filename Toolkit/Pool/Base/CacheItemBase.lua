@@ -25,6 +25,9 @@ end
 
 --实例直接调用，通知对应的池回收自己，方便调用
 function CacheItemBase:Recycle()
+    if self.isCache then
+        return
+    end
     self.pool:Recycle(self)
 end
 

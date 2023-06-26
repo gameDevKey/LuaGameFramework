@@ -5,11 +5,21 @@ local CS_UI = Engine.UI
 
 function UIBaseExtend:GetComponent(path,cmp,transform)
     transform = transform or self.transform
-    if not transform then return end
-    local child = transform:Find(path)
-    if not child then return end
-    if not cmp then return child end
-    return child.gameObject:GetComponent(typeof(cmp))
+    if transform and path then
+        transform = transform:Find(path)
+    end
+    if not transform then
+        return
+    end
+    if not cmp then --不填cmp代表想获取transform
+        return transform
+    end
+    return transform.gameObject:GetComponent(typeof(cmp))
+end
+
+function UIBaseExtend:GetGameObject(path,transform)
+    local t = self:GetComponent(path,nil,transform)
+    return t and t.gameObject
 end
 
 function UIBaseExtend:GetTransform(path,transform)
@@ -34,6 +44,10 @@ end
 
 function UIBaseExtend:GetRectTransform(path,transform)
     return self:GetComponent(path,CS_UI.Text,transform)
+end
+
+function UIBaseExtend:GetScrollRect(path,transform)
+    return self:GetComponent(path,CS_UI.ScrollRect,transform)
 end
 
 return UIBaseExtend

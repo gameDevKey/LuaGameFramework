@@ -33,6 +33,8 @@ UIDefine.ViewType = {
 UIDefine.ComType = {
     TemplateCom = "TemplateCom",
     LoginCom = "LoginCom",
+    ServerListItem = "ServerListItem",
+    GamePlayMenuItem = "GamePlayMenuItem",
 }
 
 --[[
@@ -85,6 +87,12 @@ UIDefine.ComUI = {
     },
     [UIDefine.ComType.LoginCom] = {
         Class = "LoginComUI",
+    },
+    [UIDefine.ComType.ServerListItem] = {
+        Class = "ServerListItem",
+    },
+    [UIDefine.ComType.GamePlayMenuItem] = {
+        Class = "GamePlayMenuItem",
     },
 }
 

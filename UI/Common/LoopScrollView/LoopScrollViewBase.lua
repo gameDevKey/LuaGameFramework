@@ -13,8 +13,8 @@ LoopScrollViewBase = Class("LoopScrollViewBase")
 function LoopScrollViewBase:OnInit(scrollRect, setting)
     self.tbItemData = {}    --List<{data:any, size:{w,h}}>  存储渲染数据
     self.tbShowingItem = {} --Dict<{data:any, size:{w,h}}, {data,index,obj,width,height}> 映射渲染数据和实体
-    self.showingPool = {}   --List<{item:BaseView, holderRect:RectTransform}> BaseView的使用池
-    self.recyclePool = {}   --List<{item:BaseView, holderRect:RectTransform}> BaseView的回收池
+    self.showingPool = {}   --List<{item:UIBase, holderRect:RectTransform}>  UIBase的使用池
+    self.recyclePool = {}   --List<{item:UIBase, holderRect:RectTransform}>  UIBase的回收池
     self.moveTween = nil
     self.type = ELoopScrollView.Type.Unknown
     self:Init(scrollRect, setting)
@@ -23,10 +23,14 @@ end
 function LoopScrollViewBase:OnDelete()
     for _, pool in pairs({ self.showingPool, self.recyclePool }) do
         for _, data in ipairs(pool) do
-            data.item:PushPool()
+            if self.cbOnDeleteItem then
+                self.cbOnDeleteItem(data.item)
+            else
+                data.item:RecycleOrDelete()
+            end
             local holder = data.holderRect.gameObject
-            if not BaseUtils.IsNull(holder) then
-                GameObject.Destroy(holder)
+            if not UnityUtil.IsEmptyGameObject(holder) then
+                UnityUtil.DestroyGameObject(holder)
             end
         end
     end
@@ -54,8 +58,9 @@ local function GetSetting(setting)
     return setting
 end
 
----初始化
----Setting:
+---组件初始化
+--- # Setting
+---  ## 基本参数
 ---     paddingLeft             左边距
 ---     paddingRight            右边距
 ---     paddingTop              上边距
@@ -69,13 +74,16 @@ end
 ---     alignType               对齐模式(ELoopScrollView.AlignType)
 ---     maxColNum               最大列数(GridLoopScrollView中生效)
 ---     maxRowNum               最大行数(GridLoopScrollView中生效)
----     onCreate                Item的创建回调(Item继承BaseView)
----     onRender                Item的业务处理回调(Item继承BaseView)
----     onRecycle               Item的回收回调(Item继承BaseView)
----     onComplete              渲染完成回调(只有在第一次渲染列表完成时会调用)
----     onRenderNew             有新的Item被重新渲染时触发
 ---     revertSibling           倒序排列在Hierarchy
 ---     ignoreOriginChild       是否无视在Content下原有的子物体
+---  ## Item相关回调(Item继承UIBase)
+---     onCreate                Item的创建回调(必要!)
+---     onRender                Item的业务处理回调
+---     onRecycle               Item的回收回调,默认调用Hide(显示区域外的Item会回收到池)
+---     onDelete                Item的删除回调,默认调用RecycleOrDelete
+---  ## 其他回调
+---     onComplete              渲染完成回调(只有在第一次渲染列表完成时会调用)
+---     onRenderNew             有新的Item被重新渲染时触发
 ---@param scrollRect ScrollRect 滚动组件
 ---@param setting table 配置
 function LoopScrollViewBase:Init(scrollRect, setting)
@@ -84,24 +92,15 @@ function LoopScrollViewBase:Init(scrollRect, setting)
 
     self.viewport = self.scrollRect.viewport
     self.content = self.scrollRect.content
-    self.scrollRect.onValueChanged:RemoveAllListeners()
-    self.scrollRect.onValueChanged:AddListener(self:ToFunc("OnScroll"))
 
-    if self.setting.onCreate then
-        self:AddOnItemCreateCallback(self.setting.onCreate)
-    end
-    if self.setting.onRender then
-        self:AddOnItemRenderCallback(self.setting.onRender)
-    end
-    if self.setting.onRecycle then
-        self:AddOnItemRecycleCallback(self.setting.onRecycle)
-    end
-    if self.setting.onComplete then
-        self:AddOnListUpdateFinishCallback(self.setting.onComplete)
-    end
-    if self.setting.onRenderNew then
-        self:AddOnNewItemRender(self.setting.onRenderNew)
-    end
+    ScrollRectExt.SetScroll(self.scrollRect,self:ToFunc("OnScroll"))
+
+    self:AddOnItemCreateCallback(self.setting.onCreate)
+    self:AddOnItemDeleteCallback(self.setting.onDelete)
+    self:AddOnItemRenderCallback(self.setting.onRender)
+    self:AddOnItemRecycleCallback(self.setting.onRecycle)
+    self:AddOnListUpdateFinishCallback(self.setting.onComplete)
+    self:AddOnNewItemRender(self.setting.onRenderNew)
 
     self.lastScrollVec = self.content.localPosition
     self.originChildCount = self.content.childCount
@@ -121,7 +120,7 @@ function LoopScrollViewBase:Destroy()
 end
 
 ---创建回调
----@param callback function func(index, [data]) -- 返回一个继承自 BaseView 的对象
+---@param callback function func(index, [data]) -- 返回一个继承自 UIBase 的对象
 function LoopScrollViewBase:AddOnItemCreateCallback(callback)
     self.cbOnCreateItem = callback
 end
@@ -138,6 +137,12 @@ function LoopScrollViewBase:AddOnItemRecycleCallback(callback)
     self.cbOnRecycleItem = callback
 end
 
+---删除回调
+---@param callback function func(item)
+function LoopScrollViewBase:AddOnItemDeleteCallback(callback)
+    self.cbOnDeleteItem = callback
+end
+
 ---数据更新完成回调(只有在第一次渲染列表完成时会调用)
 ---@param callback function func()
 function LoopScrollViewBase:AddOnListUpdateFinishCallback(callback)
@@ -151,12 +156,12 @@ function LoopScrollViewBase:AddOnNewItemRender(callback)
 end
 
 function LoopScrollViewBase:CreateItemRoot()
-    local item = GameObject("ItemHolder")
-    local rect = item:AddComponent(RectTransform)
+    local item = UnityUtil.NewGameObject("ItemHolder")
+    local rect = item:AddComponent(typeof(RectTransform))
     item.transform:SetParent(self.content)
     item.transform.localScale = Vector3.one
-    UnityUtils.SetAnchorMinAndMax(item.transform, 0, 1, 0, 1)
-    UnityUtils.SetPivot(item.transform, 0, 1)
+    UnityUtil.SetAnchorMinAndMax(item.transform, 0, 1, 0, 1)
+    UnityUtil.SetPivot(item.transform, 0, 1)
     return rect
 end
 
@@ -176,10 +181,10 @@ function LoopScrollViewBase:CreateItem(index, data)
         local scale = trans.localScale
         trans:SetParent(holderRect)
         trans.localScale = scale
-        UnityUtils.SetAnchoredPosition(trans, 0, 0)
+        UnityUtil.SetAnchoredPosition(trans, 0, 0)
     end
     if not item then
-        LogError("获取Item失败! Index:", index,
+        PrintError("获取Item失败! Index:", index,
             "是否存在创建回调", (self.cbOnCreateItem ~= nil),
             "使用池缓存", #self.showingPool,
             "回收池缓存", #self.recyclePool)
@@ -200,6 +205,8 @@ end
 function LoopScrollViewBase:OnRecycleItem(item)
     if self.cbOnRecycleItem then
         self.cbOnRecycleItem(item)
+    else
+        item:Hide()
     end
 end
 
@@ -246,7 +253,7 @@ function LoopScrollViewBase:TryRecycleItem(insData)
     local rect = insData.rectTransform
     for _, data in ipairs(self.recyclePool or NIL_TABLE) do
         if data.item == _item then
-            LogError("对象被重复回收! Index:", index)
+            PrintError("对象被重复回收! Index:", index)
             return false
         end
     end
@@ -261,6 +268,10 @@ function LoopScrollViewBase:TryRecycleItem(insData)
     self:OnRecycleItem(_item)
     -- print("LoopScrollViewBase 回收对象",index,self,"激活池",#self.showingPool,"回收池",#self.recyclePool)
     return true
+end
+
+function LoopScrollViewBase:ScrollToTop(cbFinish, duration, ease, jumpType)
+    self:ScrollToItem(1, cbFinish, duration, ease, jumpType)
 end
 
 function LoopScrollViewBase:ScrollToBottom(cbFinish, duration, ease, jumpType)
@@ -296,10 +307,10 @@ function LoopScrollViewBase:AdjuestContentAnchorAndPivot()
     local config = self:IsHorizontalDir() and ELoopScrollView.HorizontalAlignConfig or
         ELoopScrollView.VerticalAlignConfig
     local detail = config[self.setting.alignType]
-    UnityUtils.SetAnchorMinAndMax(self.content,
+    UnityUtil.SetAnchorMinAndMax(self.content,
         detail.anchors.minX, detail.anchors.minY,
         detail.anchors.maxX, detail.anchors.maxY)
-    UnityUtils.SetPivot(self.content, detail.pivot.x, detail.pivot.y)
+    UnityUtil.SetPivot(self.content, detail.pivot.x, detail.pivot.y)
 end
 
 function LoopScrollViewBase:FixItemsStyleByShowingData(currentShowItems, nextShowItems)
@@ -318,7 +329,7 @@ function LoopScrollViewBase:FixItemsStyleByShowingData(currentShowItems, nextSho
             obj = item.obj
             isRenderNew = true
         end
-        UnityUtils.SetAnchoredPosition(rect, data.pos.x, data.pos.y)
+        UnityUtil.SetAnchoredPosition(rect, data.pos.x, data.pos.y)
         rect:SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, renderData.size.w)
         rect:SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, renderData.size.h)
         obj.transform:SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, renderData.size.w)
@@ -369,7 +380,7 @@ function LoopScrollViewBase:GetRenderItemByDataIndex(index)
 end
 
 function LoopScrollViewBase:GetShowingItemAmount()
-    return TableUtils.GetTableLength(self.tbShowingItem)
+    return table.Count(self.tbShowingItem)
 end
 
 function LoopScrollViewBase:EnableScroll(enable)

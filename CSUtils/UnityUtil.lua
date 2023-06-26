@@ -1,25 +1,40 @@
 UnityUtil = StaticClass("UnityUtil")
 
-local engine = CS.UnityEngine
-
 function UnityUtil.FindGameObject(name)
-    return engine.GameObject.Find(name)
+    return GameObject.Find(name)
 end
 
 function UnityUtil.NewGameObject(name)
-    return engine.GameObject(name)
+    return UnityEngine.GameObject(name)
 end
 
 function UnityUtil.LoadResources(path)
-    return engine.Resources.Load(path)
+    return UnityEngine.Resources.Load(path)
 end
 
 function UnityUtil.Instantiate(prefab)
-    return engine.GameObject.Instantiate(prefab)
+    return GameObject.Instantiate(prefab)
 end
 
 function UnityUtil.DestroyGameObject(gameObject)
-    return engine.GameObject.Destroy(gameObject)
+    return GameObject.Destroy(gameObject)
+end
+
+function UnityUtil.IsEmptyGameObject(gameObject)
+    return gameObject:IsNull()
+end
+
+function UnityUtil.SetAnchorMinAndMax(rectTransform, minX, minY, maxX, maxY)
+    rectTransform.anchorMin = Vector2(minX, minY)
+    rectTransform.anchorMax = Vector2(maxX, maxY)
+end
+
+function UnityUtil.SetPivot(rectTransform, x, y)
+    rectTransform.pivot = Vector2(x, y)
+end
+
+function UnityUtil.SetAnchoredPosition(rectTransform, x, y)
+    rectTransform.anchoredPosition = Vector2(x, y)
 end
 
 return UnityUtil

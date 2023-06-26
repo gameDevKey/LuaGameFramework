@@ -5,7 +5,6 @@ function GenericViewCtrl:OnInitComplete()
     self:BindEvents()
     self:AddGolbalListenerWithSelfFunc(EGlobalEvent.ViewEnter,"OnViewEnter",false)
     self:AddGolbalListenerWithSelfFunc(EGlobalEvent.ViewExit,"OnViewExit",false)
-    self.view = nil
 end
 
 function GenericViewCtrl:BindEvents()
@@ -13,23 +12,23 @@ function GenericViewCtrl:BindEvents()
 end
 
 function GenericViewCtrl:ActiveGenericView()
-    self.view = self:EnterView(UIDefine.ViewType.GenericView)
+    self:EnterView(UIDefine.ViewType.GenericView)
 end
 
 function GenericViewCtrl:OnViewEnter(type,view)
-    if not self.view then
-        return
-    end
-    self.view:ChangeText("当前是"..view._className.."界面")
+    self:showCurrentViewName()
 end
 
 function GenericViewCtrl:OnViewExit(type,view)
-    if not self.view then
-        return
-    end
-    local topview = UIManager.Instance:GetTopView()
-    if topview then
-        self.view:ChangeText("当前是"..topview._className.."界面")
+    self:showCurrentViewName()
+end
+
+function GenericViewCtrl:showCurrentViewName()
+    local view = self:GetViewByType(UIDefine.ViewType.GenericView)
+    if view then
+        local topview = UIManager.Instance:GetTopView()
+        local name = topview and "当前是"..topview._className.."界面" or "无界面?"
+        view:ChangeText(name)
     end
 end
 

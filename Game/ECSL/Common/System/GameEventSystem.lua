@@ -9,6 +9,10 @@ end
 
 function GameEventSystem:OnDelete()
     self.eventDispatcher:Delete()
+    for eventId, callobject in pairs(self.eventHandlers) do
+        callobject:Delete()
+    end
+    self.eventDispatcher = nil
 end
 
 ---绑定处理器
