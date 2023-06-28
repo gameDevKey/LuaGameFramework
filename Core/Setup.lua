@@ -1,6 +1,8 @@
 --#region 必要文件提前加载
 require("Core.Config")
-require("Core.ClsRef")
+if not PURE_LUA_TEST_ENV then
+    require("Core.ClsRef")
+end
 require("Utils.Common")
 require("Utils.Class")
 require("Utils.String")
