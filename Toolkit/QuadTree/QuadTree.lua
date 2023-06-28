@@ -20,9 +20,13 @@ function QuadTree:Find(rect)
     return self.tree:Find(rect)
 end
 
+function QuadTree:Log()
+    return self.tree:Log()
+end
+
 --创建矩形，左上角为原点
-function QuadTree.GetRect(x,y,width,height)
-    return {width=width,height=height,x=x,y=y}
+function QuadTree.GetRect(x, y, width, height)
+    return { width = width, height = height, x = x, y = y }
 end
 
 return QuadTree
