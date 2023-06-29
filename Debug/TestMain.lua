@@ -12,6 +12,7 @@
 -- _ = TestCalculator
 -- _ = TestListMap
 -- _ = TestECSL
-_ = TestTimeline
+-- _ = TestTimeline
+_ = TestQuadTree
 
 -- _ = TestClass

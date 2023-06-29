@@ -1,5 +1,7 @@
 QuadTree = Class("QuadTree")
 
+---初始化
+---@param data table {maxDepth,capcity,depth,rect}
 function QuadTree:OnInit(data)
     self.data = data
     self.tree = QuadTreeNode.New(data)
@@ -10,19 +12,21 @@ function QuadTree:OnDelete()
     self.tree:Delete()
 end
 
---插入
+---插入
+---@param rect table {width,height,x,y,data}
 function QuadTree:Insert(rect)
     self.tree:Insert(rect)
 end
 
 --查找范围内物体
+---@param rect table {width,height,x,y}
+---@return List<rect> result
 function QuadTree:Find(rect)
     return self.tree:Find(rect)
 end
 
---创建矩形，左上角为原点
-function QuadTree.GetRect(x,y,width,height)
-    return {width=width,height=height,x=x,y=y}
+function QuadTree:Log()
+    return self.tree:Log()
 end
 
 return QuadTree
