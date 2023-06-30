@@ -4,7 +4,7 @@ GamePlayCtrl = SingletonClass("GamePlayCtrl",CtrlBase)
 function GamePlayCtrl:OnInitComplete()
     RunWorld = nil
     self:AddListenerWithSelfFunc(EGamePlayModule.LogicEvent.StartGame,"StartGame",false)
-    self:AddListenerWithSelfFunc(EGamePlayModule.LogicEvent.GameOver,"GameOver",false)
+    -- self:AddListenerWithSelfFunc(EGamePlayModule.LogicEvent.GameOver,"GameOver",false)
 end
 
 function GamePlayCtrl:StartGame()
@@ -16,6 +16,7 @@ function GamePlayCtrl:StartGame()
     RunWorld:SetRender(true)
     WorldManager.Instance:AddWorld(RunWorld)
     RunWorld:InitComplete()
+    EventDispatcher.Global:Broadcast(EGlobalEvent.GameStart)
 end
 
 function GamePlayCtrl:GameOver()
@@ -25,6 +26,7 @@ function GamePlayCtrl:GameOver()
     end
     WorldManager.Instance:RemoveWorld(RunWorld)
     RunWorld = nil
+    EventDispatcher.Global:Broadcast(EGlobalEvent.GameOver)
 end
 
 return GamePlayCtrl

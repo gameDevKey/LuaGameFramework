@@ -17,4 +17,8 @@ function GuideLogicCtrl:NeedGuide()
     return true
 end
 
+function GuideLogicCtrl:CreateGuideUnit()
+    
+end
+
 return GuideLogicCtrl

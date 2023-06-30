@@ -26,14 +26,14 @@ function GameEventSystem:BindHandlerBySelfFunc(eventId, fnName)
     self:BindHandler(eventId, CallObject.New(self:ToFunc(fnName)))
 end
 
-function GameEventSystem:AddListener(eventId, callObject, judgeData)
+function GameEventSystem:AddListener(eventId, callObject, judgeData, once)
     local eventKey = self.eventDispatcher:AddListener(eventId,
         CallObject.New(self:ToFunc("OnEvent"),nil,{
             eventId = eventId,
             callObject = callObject,
             judgeData = judgeData,
         })
-        ,false)
+        ,once)
     return eventKey
 end
 

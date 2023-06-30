@@ -22,7 +22,7 @@ function TimelineBase:OnInit(data, setting)
 end
 
 function TimelineBase:OnDelete()
-    _ = self.finishFunc and self.finishFunc(self.data)
+
 end
 
 function TimelineBase:Update(deltaTime)
@@ -31,7 +31,7 @@ function TimelineBase:Update(deltaTime)
     end
     self.timer = self.timer + deltaTime
     if self.duration > 0 and self.timer > self.duration then
-        self:Delete()
+        self:Finish()
         return
     end
     if self.timer >= self.nextTime then
@@ -43,7 +43,7 @@ end
 function TimelineBase:NextStep()
     self.actionIndex = self.actionIndex + 1
     if self.actionIndex > self.actionAmount then
-        self:Delete()
+        self:Finish()
         return
     end
     self.actionData = self.data.Actions[self.actionIndex]
@@ -73,6 +73,10 @@ function TimelineBase:RunAction()
             PrintError("需要指定actionFunc或actionHandler",self.data)
         end
     end
+end
+
+function TimelineBase:Finish()
+    _ = self.finishFunc and self.finishFunc(self.data)
 end
 
 return TimelineBase
