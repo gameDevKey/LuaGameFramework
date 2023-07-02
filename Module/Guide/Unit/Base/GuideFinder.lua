@@ -1,7 +1,7 @@
-GuideFinder = Class("GuideFinder",GuideModuleBase)
+GuideFinder = Class("GuideFinder", GuideModuleBase)
 
-function GuideFinder:OnInit(guideUnit,args,callback)
-    self.guideUnit = guideUnit
+function GuideFinder:OnInit(clip, args, callback)
+    self.clip = clip
     self.args = args
     self.callback = callback
 end
@@ -14,7 +14,7 @@ end
 
 function GuideFinder:Finish(result)
     if self.callback then
-        self.callback(result)
+        self.callback(result, self)
     end
 end
 

@@ -11,6 +11,11 @@ EGuideModule.FinderMap = {
 
 EGuideModule.ActionMap = {
     ["延迟"] = "DelayGuideAction",
+    ["显示对话框"] = "DialogueGuideAction",
+}
+
+EGuideModule.Event = {
+    ActiveDialogue = 1,
 }
 
 return EGuideModule

@@ -1,4 +1,4 @@
-GuideProxy = SingletonClass("GuideProxy",ProxyBase)
+GuideProxy = SingletonClass("GuideProxy", ProxyBase)
 
 function GuideProxy:OnInitComplete()
 end
@@ -8,6 +8,10 @@ end
 
 function GuideProxy:GetBeginGuideId()
     return "Guide001"
+end
+
+function GuideProxy:NeedGuide()
+    return true
 end
 
 return GuideProxy

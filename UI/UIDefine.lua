@@ -4,17 +4,17 @@ UIDefine.UIRootName = "UIRoot"
 UIDefine.UICacheName = "UICache"
 
 UIDefine.ViewLayer = Enum.New({
-    BG = 1000,--背景层
-    NormalUI = 4000,--普通界面层（后进先出）
-    HoldUI = 7000,--常驻界面层（不会受到堆栈影响）
-    Popup = 10000,--弹窗层
-    Top = 13000,--通知层（最重要的展示信息）
+    BG = 1000,       --背景层
+    NormalUI = 4000, --普通界面层（后进先出）
+    HoldUI = 7000,   --常驻界面层（不会受到堆栈影响）
+    Popup = 10000,   --弹窗层
+    Top = 13000,     --通知层（最重要的展示信息）
 })
 
 --当界面进入时
 UIDefine.EnterType = Enum.New({
     None = Enum.Index,
-    ExitLast = Enum.Index,--关闭上一个界面
+    ExitLast = Enum.Index, --关闭上一个界面
 })
 
 --当界面关闭时
@@ -28,6 +28,7 @@ UIDefine.ViewType = {
     GameMenuView = "GameMenuView",
     GameView = "GameView",
     GenericView = "GenericView",
+    GuideView = "GuideView",
 }
 
 UIDefine.ComType = {
@@ -76,6 +77,11 @@ UIDefine.Config = {
     },
     [UIDefine.ViewType.GenericView] = {
         Class = "GenericViewUI",
+        ViewLayer = UIDefine.ViewLayer.HoldUI,
+        IsMulti = false,
+    },
+    [UIDefine.ViewType.GuideView] = {
+        Class = "GuideViewUI",
         ViewLayer = UIDefine.ViewLayer.HoldUI,
         IsMulti = false,
     },

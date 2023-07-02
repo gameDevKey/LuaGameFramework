@@ -1,49 +1,54 @@
---阻塞式Timeline
-GuideTimeline = Class("GuideTimeline",GuideModuleBase)
+--新手引导Timeline，阻塞式运行，管理多个Clip
+GuideTimeline = Class("GuideTimeline", GuideModuleBase)
 
-function GuideTimeline:OnInit(datas,callback)
-    self.datas = datas
+function GuideTimeline:OnInit(unit, clips, triggerResult, callback)
+    self.unit = unit
+    self.clips = clips
+    self.triggerResult = triggerResult
     self.callback = callback
-    self.actionIndex = 0
-    self.amount = #self.datas
-    self:NextAction()
-end
-
-function GuideTimeline:OnDelete()
-    if self.curAction then
-        self.curAction:Delete()
-        self.curAction = nil
-    end
-end
-
-function GuideTimeline:NextAction()
-    if self.curAction then
-        self.curAction:Delete()
-        self.curAction = nil
-    end
-    self.actionIndex = self.actionIndex + 1
-    if self.actionIndex > self.amount then
-        self:Finish()
-        return
-    end
-    local data = self.datas[self.actionIndex]
-    self.curAction = self:CreateAction(data)
-end
-
-function GuideTimeline:CreateAction(data)
-    local action = GuideAction.New(self,data,self:ToFunc("NextAction"))
-    action:SetFacade(self.facade)
-    action:InitComplete()
-    return action
+    self.clipIndex = 0
+    self.clipAmount = #self.clips
+    PrintGuide("Timeline开始")
+    self:NextClip()
 end
 
 function GuideTimeline:OnUpdate(deltaTime)
-    if self.curAction then
-        self.curAction:Update(deltaTime)
+    if self.curClip then
+        self.curClip:Update(deltaTime)
     end
 end
 
+function GuideTimeline:OnDelete()
+    if self.curClip then
+        self.curClip:Delete()
+        self.curClip = nil
+    end
+end
+
+function GuideTimeline:NextClip()
+    if self.curClip then
+        self.curClip:Delete()
+        self.curClip = nil
+    end
+    self.clipIndex = self.clipIndex + 1
+    if self.clipIndex > self.clipAmount then
+        self:Finish()
+        return
+    end
+    PrintGuide("进入下一个片段", self.clipIndex)
+    local data = self.clips[self.clipIndex]
+    self.curClip = self:CreateClip(data)
+end
+
+function GuideTimeline:CreateClip(data)
+    local clip = GuideClip.New(self, data, self:ToFunc("NextClip"))
+    clip:SetFacade(self.facade)
+    clip:InitComplete()
+    return clip
+end
+
 function GuideTimeline:Finish()
+    PrintGuide("Timeline结束")
     _ = self.callback and self.callback()
 end
 

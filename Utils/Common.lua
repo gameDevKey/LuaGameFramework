@@ -74,9 +74,16 @@ function PrintError(...)
     if not PRINT_SWITCH then
         return
     end
-    local tb = {...}
+    local tb = { ... }
     table.insert(tb, "\n" .. debug.traceback())
     PrintAny("[ERROR]", unpack(tb))
+end
+
+function PrintGuide(...)
+    if not PRINT_GUIDE then
+        return
+    end
+    PrintAny("[GUIDE]", ...)
 end
 
 local function _copy(lookup_table, object, copyMeta)

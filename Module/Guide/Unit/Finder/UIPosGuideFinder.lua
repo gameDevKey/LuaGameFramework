@@ -1,16 +1,25 @@
-UIPosGuideFinder = Class("UIPosGuideFinder",GuideFinder)
+UIPosGuideFinder = Class("UIPosGuideFinder", GuideFinder)
 
 function UIPosGuideFinder:OnInit()
+    --TODO debug
+    self.testTimer = 0
+    self.testTime = 1
     self:Find(self.args.Type)
 end
 
 function UIPosGuideFinder:OnDelete()
-    
+
 end
 
 function UIPosGuideFinder:Find(type)
-    print("寻找UI位置",type)
-    self:Finish({x=10,y=10})
+    --TODO
+end
+
+function UIPosGuideFinder:OnUpdate(deltaTime)
+    self.testTimer = self.testTimer + deltaTime
+    if self.testTimer >= self.testTime then
+        self:Finish({ x = 0, y = 0 })
+    end
 end
 
 return UIPosGuideFinder

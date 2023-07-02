@@ -1,7 +1,7 @@
-GuideTrigger = Class("GuideTrigger",GuideModuleBase)
+GuideTrigger = Class("GuideTrigger", GuideModuleBase)
 
-function GuideTrigger:OnInit(guideUnit,args,callback)
-    self.guideUnit = guideUnit
+function GuideTrigger:OnInit(unit, args, callback)
+    self.unit = unit
     self.args = args
     self.callback = callback
 end

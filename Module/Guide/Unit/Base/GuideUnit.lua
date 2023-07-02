@@ -1,98 +1,72 @@
 --新手引导管理类，串通(监听器 --> 查找器 --> Timeline)
-GuideUnit = Class("GuideUnit",GuideModuleBase)
+GuideUnit = Class("GuideUnit", GuideModuleBase)
 
-function GuideUnit:OnInit(data,callback)
+function GuideUnit:OnInit(data, callback)
     self.data = data
     self.callback = callback
-    self.passData = {}  --存储引导过程中每一个环节产生的数据
-    self:CreateTrigger(
-        EGuideModule.ListenMap[self.data.Listen.Type],
-        self.data.Listen.Args
-    )
+    if self.data.Listen and self.data.Listen.Type then
+        self:CreateTrigger(
+            EGuideModule.ListenMap[self.data.Listen.Type],
+            self.data.Listen.Args
+        )
+    else
+        self:FinishTrigger()
+    end
+end
+
+function GuideUnit:OnUpdate(deltaTime)
+    if self.trigger then
+        self.trigger:Update(deltaTime)
+    end
+    if self.timeline then
+        self.timeline:Update(deltaTime)
+    end
 end
 
 function GuideUnit:OnDelete()
     self.passData = nil
     if self.trigger then
         self.trigger:Delete()
-    end
-    if self.finder then
-        self.finder:Delete()
+        self.trigger = nil
     end
     if self.timeline then
         self.timeline:Delete()
+        self.timeline = nil
     end
 end
 
-function GuideUnit:SetTriggerData(v)
-    self.passData["TriggerData"] = v or {}
-end
-
-function GuideUnit:GetTriggerData()
-    return self.passData["TriggerData"]
-end
-
-function GuideUnit:SetFinderData(v)
-    self.passData["FinderData"] = v or {}
-end
-
-function GuideUnit:GetFinderData()
-    return self.passData["FinderData"]
-end
-
-function GuideUnit:CreateTrigger(type,args)
-    self.trigger = _G[type].New(self,args,self:ToFunc("FinishTrigger"))
+function GuideUnit:CreateTrigger(type, args)
+    PrintGuide("创建触发器 类型", type, "参数", args)
+    self.trigger = _G[type].New(self, args, self:ToFunc("FinishTrigger"))
     self.trigger:SetFacade(self.facade)
     self.trigger:InitComplete()
 end
 
 function GuideUnit:FinishTrigger(result)
-    if not self.trigger then
-        return
+    PrintGuide("完成触发器", self.trigger._className)
+    if self.trigger then
+        self.trigger:Delete()
+        self.trigger = nil
     end
-    self:SetTriggerData(result)
-    self.trigger:Delete()
-    self.trigger = nil
-    -- self:CreateFinder(
-    --     EGuideModule.FinderMap[self.data.Find.Type],
-    --     self.data.Find.Args
-    -- )
+    self:CreateTimeline(self.data.Clips, result)
 end
 
--- function GuideUnit:CreateFinder(type,args)
---     self.finder = _G[type].New(self,args,self:ToFunc("FinishFinder"))
---     self.finder:SetFacade(self.facade)
---     self.finder:InitComplete()
--- end
-
--- function GuideUnit:FinishFinder(result)
---     if not self.finder then
---         return
---     end
---     self:SetFinderData(result)
---     self.finder:Delete()
---     self.finder = nil
---     self:CreateTimeline(self.data.Timeline)
--- end
-
-function GuideUnit:CreateTimeline(data)
-    self.timeline = TimelineBase.New(data,{
-        actionHandler = GuideTimeline,
-        finishFunc = self:ToFunc("FinishTimeline")
-    })
+function GuideUnit:CreateTimeline(clips, triggerResult)
+    self.timeline = GuideTimeline.New(self, clips, triggerResult, self:ToFunc("FinishTimeline"))
+    self.timeline:SetFacade(self.facade)
+    self.timeline:InitComplete()
 end
 
 function GuideUnit:FinishTimeline()
-    if not self.timeline then
-        return
+    if self.timeline then
+        self.timeline:Delete()
+        self.timeline = nil
     end
-    self.timeline:Delete()
-    self.timeline = nil
     self:Finish()
 end
 
 function GuideUnit:Finish()
-    _ = self.callback and self.callback(self.data)
+    _ = self.callback and self.callback(self)
 end
 
 return GuideUnit

@@ -1,4 +1,4 @@
-GameInputSystem = Class("GameInputSystem",ECSLSystem)
+GameInputSystem = Class("GameInputSystem", ECSLSystem)
 
 function GameInputSystem:OnInit()
     self.inputs = {} --TODO 改成链表比较好
@@ -11,21 +11,21 @@ function GameInputSystem:OnUpdate()
     --Test
     local h = CS.UnityEngine.Input.GetAxisRaw("Horizontal")
     local v = CS.UnityEngine.Input.GetAxisRaw("Vertical")
-    if h~=0 or v~=0 then
-        self.world.GameEventSystem:Broadcast(EventConfig.Type.MoveInput,h,v)
+    if h ~= 0 or v ~= 0 then
+        self.world.GameEventSystem:Broadcast(EventConfig.Type.MoveInput, h, v)
     end
 end
 
 function GameInputSystem:OnEnable()
 end
 
-function GameInputSystem:AddInput(type,data)
+function GameInputSystem:AddInput(type, data)
     --收集当前帧输入
     local frame = self.world.GameFrameSyncSystem.frame
     if not self.inputs[frame] then
         self.inputs[frame] = {}
     end
-    table.insert(self.inputs[frame],{
+    table.insert(self.inputs[frame], {
         frame = frame,
         type = type,
         data = data,

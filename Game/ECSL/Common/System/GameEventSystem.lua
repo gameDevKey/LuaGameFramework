@@ -1,4 +1,4 @@
-GameEventSystem = Class("GameEventSystem",ECSLSystem)
+GameEventSystem = Class("GameEventSystem", ECSLSystem)
 local _ = GameEventSystemExtend
 
 function GameEventSystem:OnInit()
@@ -28,12 +28,12 @@ end
 
 function GameEventSystem:AddListener(eventId, callObject, judgeData, once)
     local eventKey = self.eventDispatcher:AddListener(eventId,
-        CallObject.New(self:ToFunc("OnEvent"),nil,{
+        CallObject.New(self:ToFunc("OnEvent"), nil, {
             eventId = eventId,
             callObject = callObject,
             judgeData = judgeData,
         })
-        ,once)
+        , once)
     return eventKey
 end
 
@@ -45,9 +45,9 @@ function GameEventSystem:Broadcast(eventId, ...)
     self.eventDispatcher:Broadcast(eventId, ...)
 end
 
-function GameEventSystem:OnEvent(args,...)
+function GameEventSystem:OnEvent(args, ...)
     local handler = self.eventHandlers[args.eventId]
-    local valid = handler == nil or handler:Invoke(args.judgeData,...)
+    local valid = handler == nil or handler:Invoke(args.judgeData, ...)
     if valid then
         args.callObject:Invoke(...)
     end
