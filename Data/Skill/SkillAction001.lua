@@ -1,6 +1,6 @@
 local SkillAction001 = {}
 
-SkillAction001.Duration = 1000
+SkillAction001.Duration = 1
 
 SkillAction001.Actions = {
     {

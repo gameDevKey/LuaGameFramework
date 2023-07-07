@@ -34,10 +34,11 @@ function SearchSystem:OnFindEntityByIter(args,iter)
         return
     end
     if range then
-        if range.type == SearchConfig.Range.Circle then
+        if range.type == RangeConfig.Type.Circle then
             -- 目标与我的距离小于等于半径
             local radius = range.radius
             local dis = ECSLUtil.GetEntityDis(finderEntity,curEntity)
+            print("距离",finderEntity.uid,curEntity.uid,'==',dis)
             if dis <= radius then
                 table.insert(result, curEntity:GetUid())
             end

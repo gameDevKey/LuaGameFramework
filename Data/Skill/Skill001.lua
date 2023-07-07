@@ -15,12 +15,12 @@ Skill001.RelCondition = "HP > 0 && MoveSpeed > 0"
 Skill001.TargetNum = 3
 
 Skill001.Range = {
-    type = SearchConfig.Range.Circle,
-    radius = 10,
+    type = RangeConfig.Type.Circle,
+    radius = 5,
 }
 
 Skill001.TargetCondition = "HP > 0"
 
-Skill001.Action = "SkillAction001"
+Skill001.Timeline = "SkillAction001"
 
 return Skill001

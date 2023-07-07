@@ -16,6 +16,7 @@ function SkillBase:OnInit(conf)
     self.cdTimer = 0
     self:SetCD(self.conf.CD)
     self.events = {}
+    self.isReleasing = false
 end
 
 function SkillBase:OnDelete()
@@ -23,6 +24,7 @@ function SkillBase:OnDelete()
         self.world.GameEventSystem:RemoveListener(eventId, eventKey)
     end
     self.events = nil
+    self:ActiveAtkRange(false)
 end
 
 --技能释放
@@ -30,6 +32,7 @@ function SkillBase:Rel()
     if not self.enable then
         return false
     end
+    self:ActiveAtkRange(true)
     local targetUids = self:FindTargets()
     self:Exec(targetUids)
 end
@@ -39,17 +42,40 @@ function SkillBase:Exec(targetUids)
     if not self.enable then
         return
     end
-    --TODO
-    PrintLog("技能释放对象",targetUids)
+    self:ExecTimeline({
+        targetUids=targetUids
+    })
+end
 
+function SkillBase:CreateTimeline()
+    local data = require("Data.Skill."..self.conf.Timeline)
+    local timeline = SkillTimeline.New(data,{ 
+        finishFunc = self:ToFunc("FinishTimeline")
+    })
+    timeline:SetWorld(self.world)
+    timeline:BindSkill(self)
+    timeline:SetActionHandler(timeline)
+    return timeline
+end
 
-    --Test
-    self:Finish()
+function SkillBase:ExecTimeline(args)
+    self.isReleasing = true
+    if not self.timeline then
+        self.timeline = self:CreateTimeline()
+    end
+    self.timeline:SetArgs(args)
+    self.timeline:Start()
 end
 
 --技能结束
-function SkillBase:Finish()
+function SkillBase:FinishTimeline()
+    self.isReleasing = false
+    if self.timeline then
+        self.timeline:Delete()
+        self.timeline = nil
+    end
     self.cdTimer = self.cdTime
+    self:ActiveAtkRange(false)
 end
 
 ---技能被打断
@@ -66,6 +92,10 @@ function SkillBase:SetCD(cdTime)
     self.cdTimer = self.cdTime
 end
 
+function SkillBase:ResetCD()
+    self.cdTimer = self.cdTime
+end
+
 function SkillBase:GetCD()
     return self.cdTime
 end
@@ -76,6 +106,10 @@ end
 
 function SkillBase:IsCD()
     return self.cdTimer > 0
+end
+
+function SkillBase:IsReleasing()
+    return self.isReleasing
 end
 
 function SkillBase:UpdateCD(delatTime)
@@ -111,6 +145,19 @@ function SkillBase:BindCond()
     --TODO 绑定一个SkillCondBase，当监听条件满足后，触发Exec
 end
 
-function SkillBase:OnUpdate(delatTime) end
+function SkillBase:OnUpdate(delatTime)
+    if self.timeline then
+        self.timeline:Update(delatTime)
+    end
+end
+
+function SkillBase:ActiveAtkRange(active)
+    if self.entity.RangeComponent then
+        self.entity.RangeComponent:SetEnable(active)
+        if active then
+            self.entity.RangeComponent:SetRange(self.conf.Range)
+        end
+    end
+end
 
 return SkillBase

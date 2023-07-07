@@ -6,12 +6,19 @@ end
 
 function SkinComponent:OnDelete()
     self.assetLoader:Delete()
+    if self.skin then
+        UnityUtil.DestroyGameObject(self.skin)
+        self.skin = nil
+    end
 end
 
 function SkinComponent:OnUpdate()
 end
 
 function SkinComponent:OnEnable()
+    if self.skin then
+        self.skin:SetActive(self.enable)
+    end
 end
 
 function SkinComponent:SetSkin(skinData)
@@ -21,9 +28,11 @@ function SkinComponent:SetSkin(skinData)
 end
 
 function SkinComponent:OnSkinLoaded(res,path)
-    local skin = UnityUtil.Instantiate(res)
-    skin.transform:SetParent(self.entity.gameObject.transform)
-    skin.transform.localPosition = Vector3.zero
+    self.skin = UnityUtil.Instantiate(res)
+    self.skin.transform:SetParent(self.entity.gameObject.transform)
+    self.skin.transform.localPosition = Vector3.zero
+
+    self.meshRenderer = self.skin.gameObject:GetComponent(typeof(UnityEngine.MeshRenderer))
 end
 
 return SkinComponent

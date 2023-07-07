@@ -12,4 +12,8 @@ end
 function HitComponent:OnEnable()
 end
 
+function HitComponent:DoHit()
+    
+end
+
 return HitComponent

@@ -1,18 +1,11 @@
-ECSLBase = Class("ECSLBase")
+ECSLBase = Class("ECSLBase",nil,{IWorld})
 ECSLBase.TYPE = ECSLConfig.Type.Nil
 
 function ECSLBase:OnInit()
-    self.world = nil
     self:SetUid()
 end
 
 function ECSLBase:OnDelete()
-    self.uid = nil
-    self.world = nil
-end
-
-function ECSLBase:SetWorld(world)
-    self.world = world
 end
 
 function ECSLBase:SetUid(uid)

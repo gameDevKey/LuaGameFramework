@@ -30,7 +30,8 @@ EntityConfig.LogicComponents = {
 EntityConfig.RenderComponents = {
     [EntityConfig.Type.GamePlay] = {
         "TransformRenderComponent",
-        "SkinComponent"
+        "SkinComponent",
+        "RangeComponent"
     },
     [EntityConfig.Type.Proj] = {
         "TransformRenderComponent",

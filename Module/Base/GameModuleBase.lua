@@ -1,5 +1,5 @@
 --游戏业务模块基类，除了ModuleBase的基础功能外，还支持游戏中的逻辑处理
-GameModuleBase = Class("GameModuleBase", ModuleBase)
+GameModuleBase = Class("GameModuleBase", ModuleBase, {IWorld})
 
 function GameModuleBase:OnInit()
     self.tbEventGameKey = {}
@@ -23,14 +23,6 @@ function GameModuleBase:AddWaitCall(fnName, ...)
         fnName = fnName,
         args = { ... }
     })
-end
-
-function GameModuleBase:SetWorld(world)
-    self.world = world
-end
-
-function GameModuleBase:GetWorld()
-    return self.world or RunWorld
 end
 
 function GameModuleBase:AddGameListener(eventId, callObject, judgeData, once)

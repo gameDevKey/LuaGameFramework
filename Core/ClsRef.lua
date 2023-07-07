@@ -5,3 +5,4 @@ Vector2 = UnityEngine.Vector2
 Vector3 = UnityEngine.Vector3
 RectTransform = UnityEngine.RectTransform
 GameObject = UnityEngine.GameObject
+Color = UnityEngine.Color

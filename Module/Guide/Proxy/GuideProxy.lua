@@ -11,7 +11,7 @@ function GuideProxy:GetBeginGuideId()
 end
 
 function GuideProxy:NeedGuide()
-    return true
+    return false
 end
 
 return GuideProxy

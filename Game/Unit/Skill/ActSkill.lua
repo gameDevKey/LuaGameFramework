@@ -7,15 +7,15 @@ end
 function ActSkill:OnDelete()
 end
 
-function ActSkill:TryRel()
-    if self:IsCD() then
+function ActSkill:OnUpdate(deltaTime)
+    if self:IsReleasing() then
         return
     end
-    self:Rel()
-end
-
-function ActSkill:OnUpdate()
-    self:TryRel()
+    if not self:IsCD() then
+        self:Rel()
+    else
+        self:UpdateCD(deltaTime)
+    end
 end
 
 return ActSkill
