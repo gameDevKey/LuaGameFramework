@@ -29,13 +29,13 @@ end
 function ViewUI:_batchCreateComUI(comUIType, parent, amount, prefab, datas)
     local comUIs = {}
     for i = 1, amount do
-        local com = self:CreateComUI(comUIType, prefab)
-        if com then
-            local data = datas and datas[i]
+        local data = datas and datas[i]
+        local com = nil
+        com = self:CreateComUI(comUIType, prefab, function (_args,_gameobject)
             com:SetParent(parent)
             com:SetData(data, i, self)
-            table.insert(comUIs, com)
-        end
+        end)
+        table.insert(comUIs, com)
     end
     return comUIs
 end
@@ -48,12 +48,13 @@ function ViewUI:BatchCreateComUIByAmount(comUIType, parent, amount, prefab)
     return self:_batchCreateComUI(comUIType, parent, amount, prefab, nil)
 end
 
+--TODO !!! 此处有坑，异步加载没办法立即拿到带有GameObject的ComUI。。。
 ---创建组件UI
 ---@param comUIType UIDefine.ComType 组件类型
 ---@param prefab GameObject|nil 预设, 不填时使用组件类定义的uiAssetPath
 ---@param enterData any|nil 进入时数据，允许为空
 ---@return ComUI|nil
-function ViewUI:CreateComUI(comUIType, prefab, enterData)
+function ViewUI:CreateComUI(comUIType, prefab, enterData, callback)
     local config = UIDefine.ComUI[comUIType]
     if not config then
         PrintError("组件配置不存在", comUIType)
@@ -66,7 +67,8 @@ function ViewUI:CreateComUI(comUIType, prefab, enterData)
     end
     local comUI = cls.New(comUIType)
     self:AddComUI(comUI)
-    return UIManager.Instance:CreateUIByPool(comUI.uiType, prefab or comUI.uiAssetPath, comUI, enterData)
+    UIUtil.CreateUIByPool(comUI.uiType, prefab or comUI.uiAssetPath, comUI, enterData, callback)
+    return comUI
 end
 
 function ViewUI:AddComUI(comUI)
@@ -150,6 +152,9 @@ function ViewUI:OnEnter(data)
 end
 
 function ViewUI:OnEnterComplete()
+    if self.viewCtrl then
+        self.viewCtrl:EnterViewComplete(self)
+    end
     self:CallExtendViewsFunc("EnterComplete")
 end
 

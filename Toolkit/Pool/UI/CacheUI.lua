@@ -4,7 +4,12 @@ function CacheUI:OnInit()
 end
 
 function CacheUI:onAssetLoaded(asset)
-    self.asset = asset[self.data.path]
+    if not asset then
+        PrintError("UI加载失败",self.data)
+        return
+    end
+    print("加载UI",asset)
+    self.asset = asset
     self:OnUse()
 end
 
@@ -22,18 +27,24 @@ end
 function CacheUI:OnUse()
     self.asset = self.asset or self.data.prefab
     if self.asset then
+        --加载UI完毕，实例化UI，初始化并赋值到界面
         if not self.gameObject then
             self.gameObject = UnityUtil.Instantiate(self.asset)
         end
-        self.gameObject:SetActive(true) --
+        self.gameObject:SetActive(true)
         self.transform = self.gameObject.transform
         self.transform:SetParent(UIManager.Instance.uiRoot.transform)
         RectTransformExt.Reset(self.transform)
+        local uiScript = self.data.args.ui
+        if uiScript then
+            uiScript:SetupViewAsset(self.gameObject)
+            uiScript:Enter(self.data.args)
+        end
         if self.data.callback then
             self.data.callback(self.data.args,self.gameObject)
         end
     else
-        self:GetPool():LoadAsset(self.data.path, self:ToFunc("onAssetLoaded"))
+        AssetLoaderUtil.LoadGameObject(self.data.path, self:ToFunc("onAssetLoaded"))
     end
 end
 

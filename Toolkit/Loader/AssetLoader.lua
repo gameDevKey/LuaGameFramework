@@ -1,60 +1,90 @@
 AssetLoader = Class("AssetLoader")
 
 function AssetLoader:OnInit()
-    self.toLoads = {}
+    self.waitLoads = {} --等待加载队列
+    self.toLoads = {}   --加载队列
+    self.waitCalls = {}
+    self.waitFinalCalls = {}
     self.results = {}
-    self.isDone = false
+    self.csLoader = CS.GameAssetLoader.Instance
 end
 
 function AssetLoader:OnDelete()
-    if self.finishCallback then
-        self.finishCallback:Delete()
-        self.finishCallback = nil
-    end
 end
 
-function AssetLoader:LoadAsset(fn,caller)
-    self.finishCallback = CallObject.New(fn,caller)
-
-    if self:IsDone() then
-        self:LoadDone()
-        return
-    end
-
-    --测试----
-    if TEST_ENV then
-        self:TestLoadFunc()
-    end
+function AssetLoader:getAssetKey(assetType, path)
+    return assetType .. path
 end
 
-function AssetLoader:TestLoadFunc()
-    for _, data in ipairs(self.toLoads) do
-        self.results[data.path] = UnityUtil.LoadResources(data.path)
-        if data.callObject then
-            data.callObject:Invoke(self.results[data.path],data.path)
+--Asset要避免重复请求加载，在结果返回之前，若Asset已经标记为加载中
+--则后续的加载回调都先缓存起来，加载结束后统一回调
+function AssetLoader:AddAsset(assetType, path, callObject)
+    local key = self:getAssetKey(assetType, path)
+    if not self.waitLoads[key] and not self.toLoads[key] then
+        self.waitLoads[key] = {
+            assetType = assetType,
+            path = path,
+        }
+        print("AssetLoader:AddAsset",assetType,path)
+    end
+    table.insert(self.waitCalls, callObject)
+end
+
+---执行批量加载
+---@param fn function func(map[path]object) 结束回调
+---@param caller any
+function AssetLoader:LoadAsset(fn, caller)
+    self:LoadAssetByCallObject(CallObject.New(fn, caller))
+end
+
+function AssetLoader:LoadAssetByCallObject(callObject)
+    if table.IsValid(self.waitLoads) then
+        for key, data in pairs(self.waitLoads) do
+            self.toLoads[key] = data
+        end
+        self.waitLoads = {}
+        for _, data in pairs(self.toLoads) do --非保序加载
+            print("AssetLoader:StartLoad",data.assetType,data.path)
+            if data.assetType == AssetDefine.Type.Prefab then
+                self.csLoader:LoadGameObjectAsync(data.path, function(obj)
+                    self:OnLoadAsset(data, obj)
+                end)
+            elseif data.assetType == AssetDefine.Type.Sprite then
+                error("接口未实现")
+            elseif data.assetType == AssetDefine.Type.Text then
+                self.csLoader:LoadTextAsync(data.path, function(obj)
+                    self:OnLoadAsset(data, obj)
+                end)
+            end
         end
     end
-    self:LoadDone()
+    table.insert(self.waitFinalCalls, callObject)
+end
+
+function AssetLoader:OnLoadAsset(data, obj)
+    local key = self:getAssetKey(data.assetType, data.path)
+    if not self.toLoads[key] then
+        PrintError("资源加载异常(未经过加载接口自行返回)", data, obj)
+        return
+    end
+    print("AssetLoader:EndLoad",data.assetType,data.path)
+    self.toLoads[key] = nil
+    for _, call in ipairs(self.waitCalls) do
+        call:Invoke(obj, data.path)
+    end
+    self.waitCalls = {}
+    self.results[data.path] = obj
+    if not table.IsValid(self.toLoads) and not table.IsValid(self.waitLoads) then
+        self:LoadDone()
+    end
 end
 
 function AssetLoader:LoadDone()
-    self.isDone = true
     self.toLoads = {}
-    if self.finishCallback then
-        self.finishCallback:Invoke(self.results)
+    for _, call in ipairs(self.waitFinalCalls) do
+        call:Invoke(self.results)
     end
-end
-
-function AssetLoader:AddAsset(path, callObject)
-    self.isDone = false
-    table.insert(self.toLoads, {
-        path = path,
-        callObject = callObject
-    })
-end
-
-function AssetLoader:IsDone()
-    return self.isDone
+    self.waitFinalCalls = {}
 end
 
 return AssetLoader
