@@ -3,16 +3,6 @@ CacheUI = Class("CacheUI",CacheItemBase)
 function CacheUI:OnInit()
 end
 
-function CacheUI:onAssetLoaded(asset)
-    if not asset then
-        PrintError("UI加载失败",self.data)
-        return
-    end
-    print("加载UI",asset)
-    self.asset = asset
-    self:OnUse()
-end
-
 function CacheUI:OnDelete()
     if self.gameObject then
         UnityUtil.DestroyGameObject(self.gameObject)
@@ -44,8 +34,21 @@ function CacheUI:OnUse()
             self.data.callback(self.data.args,self.gameObject)
         end
     else
-        AssetLoaderUtil.LoadGameObject(self.data.path, self:ToFunc("onAssetLoaded"))
+        if not self.data.path then
+            PrintError("UI加载前必须传入Prefab或者Path",self.data)
+            return
+        end
+        AssetLoaderUtil.LoadGameObjectAsync(self.data.path, self:ToFunc("onAssetLoaded"))
     end
+end
+
+function CacheUI:onAssetLoaded(asset)
+    if not asset then
+        PrintError("UI加载失败",self.data)
+        return
+    end
+    self.asset = asset
+    self:OnUse()
 end
 
 function CacheUI:OnRecycle()

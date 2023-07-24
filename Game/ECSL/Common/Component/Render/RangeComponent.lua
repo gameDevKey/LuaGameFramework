@@ -30,7 +30,7 @@ end
 
 function RangeComponent:LoadRes()
     local res = RangeConfig.Type2Res[self.range.type]
-    AssetLoaderUtil.LoadGameObject(res,self:ToFunc("OnResLoaded"))
+    AssetLoaderUtil.LoadGameObjectAsync(res,self:ToFunc("OnResLoaded"))
 end
 
 function RangeComponent:OnResLoaded(res,path)

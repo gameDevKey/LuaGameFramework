@@ -1,10 +1,10 @@
 AssetLoaderUtil = StaticClass("AssetLoaderUtil")
 
-function AssetLoaderUtil.LoadGameObject(path,func)
+function AssetLoaderUtil.LoadGameObjectAsync(path,func)
     CS.GameAssetLoader.Instance:LoadGameObjectAsync(path,func)
 end
 
-function AssetLoaderUtil.LoadText(path,func)
+function AssetLoaderUtil.LoadTextAsync(path,func)
     CS.GameAssetLoader.Instance:LoadTextAsync(path,func)
 end
 

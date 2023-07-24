@@ -21,7 +21,7 @@ end
 
 function SkinComponent:SetSkin(skinData)
     --Test
-    AssetLoaderUtil.LoadGameObject(skinData.Asset,self:ToFunc("OnSkinLoaded"))
+    AssetLoaderUtil.LoadGameObjectAsync(skinData.Asset,self:ToFunc("OnSkinLoaded"))
 end
 
 function SkinComponent:OnSkinLoaded(res,path)
