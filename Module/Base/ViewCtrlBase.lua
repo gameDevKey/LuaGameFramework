@@ -20,6 +20,13 @@ function ViewCtrlBase:ExitView(view)
     end
 end
 
+function ViewCtrlBase:ExitViewByType(uiType)
+    local view = self:GetViewByType(uiType)
+    if view then
+        self:ExitView(view)
+    end
+end
+
 function ViewCtrlBase:GetViewByType(uiType)
     return UIManager.Instance:GetViewByType(uiType)
 end

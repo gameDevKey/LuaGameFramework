@@ -383,14 +383,19 @@ end
 
 if MEM_CHECK then
     function CheckClsInstanceInMemery(showTraceback)
+        print("开始内存检测")
         collectgarbage("collect")
-        print("当前内存",collectgarbage("count"))
+        local count = 0
         for instance, traceback in pairs(ALL_CLASS) do
-            if showTraceback then
-                PrintLog("内存中存在",instance,'\n',traceback)
-            else
-                PrintLog("内存中存在",instance)
+            if singletonClasses[instance._className] == nil then
+                if showTraceback then
+                    PrintLog("内存中存在",instance,'\n',traceback)
+                else
+                    PrintLog("内存中存在",instance)
+                end
+                count = count + 1
             end
         end
+        print("内存中共有实例",count,'占用内存',collectgarbage("count"))
     end
 end

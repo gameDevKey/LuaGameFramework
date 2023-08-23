@@ -3,7 +3,7 @@ ECSLEntity = Class("ECSLEntity",ECSLBehaivor)
 ECSLEntity.TYPE = ECSLConfig.Type.Entity
 
 function ECSLEntity:OnInit()
-    self.components = ListMap.New()
+    self.components = ClassListMap.New()
 end
 
 function ECSLEntity:OnDelete()

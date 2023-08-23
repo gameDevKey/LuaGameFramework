@@ -64,6 +64,14 @@ function CachePoolBase:Recycle(obj)
     self:CheckMaxLimit()
 end
 
+function CachePoolBase:DeleteItem(obj)
+    local _,idx = table.Contain(self.activePool, obj)
+    if idx then
+        table.remove(self.activePool,idx)
+    end
+    obj:Delete()
+end
+
 function CachePoolBase:CheckMaxLimit()
     if self.maxAmount > 0 then
         for i = #self.recyclePool - self.maxAmount, 1, -1 do

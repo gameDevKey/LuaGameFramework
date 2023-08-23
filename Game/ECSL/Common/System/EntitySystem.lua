@@ -3,7 +3,7 @@ EntitySystem = Class("EntitySystem",ECSLSystem)
 
 function EntitySystem:OnInit()
     self.initFinish = false
-    self.entitys = ListMap.New()
+    self.entitys = ClassListMap.New()
 end
 
 function EntitySystem:OnDelete()

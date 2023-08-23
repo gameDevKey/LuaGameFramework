@@ -4,8 +4,8 @@ function CacheItemBase:OnInit()
 end
 
 function CacheItemBase:OnDelete()
+    self.data = nil
     self:SetPool(nil)
-    self:Recycle()
 end
 
 function CacheItemBase:SetPool(pool)
@@ -29,6 +29,7 @@ function CacheItemBase:Recycle()
         return
     end
     self.pool:Recycle(self)
+    self:SetPool(nil)
 end
 
 --外界调用

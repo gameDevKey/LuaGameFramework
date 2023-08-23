@@ -1,7 +1,7 @@
 SkillComponent = Class("SkillComponent",ECSLComponent)
 
 function SkillComponent:OnInit()
-    self.skills = ListMap.New()
+    self.skills = ClassListMap.New()
 end
 
 function SkillComponent:OnDelete()

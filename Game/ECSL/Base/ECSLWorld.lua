@@ -3,7 +3,7 @@ ECSLWorld = Class("ECSLWorld",ECSLBehaivor)
 ECSLWorld.TYPE = ECSLConfig.Type.World
 
 function ECSLWorld:OnInit()
-    self.systems = ListMap.New()
+    self.systems = ClassListMap.New()
 end
 
 function ECSLWorld:OnDelete()

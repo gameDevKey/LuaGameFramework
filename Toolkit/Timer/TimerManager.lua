@@ -2,7 +2,7 @@ TimerManager = SingletonClass("TimerManager")
 
 function TimerManager:OnInit()
     self.time = 0
-    self.tbAllTimer = ListMap.New()
+    self.tbAllTimer = ClassListMap.New()
     self.timerKeyGenerator = GetAutoIncreaseFunc()
 end
 

@@ -65,6 +65,7 @@ function ListMap:RangeByCallObject(callObject)
     for key, value in pairs(self.list) do
         callObject:Invoke(value)
     end
+    callObject:Delete()
 end
 
 function ListMap:Size()

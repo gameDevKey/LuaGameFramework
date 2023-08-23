@@ -1,7 +1,7 @@
 WorldManager = SingletonClass("WorldManager")
 
 function WorldManager:OnInit()
-    self.worlds = ListMap.New()
+    self.worlds = ClassListMap.New()
 end
 
 function WorldManager:OnDelete()
@@ -20,6 +20,7 @@ end
 
 function WorldManager:RemoveWorld(world)
     self.worlds:Remove(world._className)
+    world:Delete()
 end
 
 function WorldManager:Tick(deltaTime)

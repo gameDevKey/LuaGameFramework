@@ -1,4 +1,5 @@
 ServerListItem = Class("ServerListItem",ComUI)
+ServerListItem.DONT_CACHE = true
 
 function ServerListItem:OnInit()
 end

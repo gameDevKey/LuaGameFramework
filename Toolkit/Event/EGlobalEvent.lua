@@ -8,6 +8,7 @@ EGlobalEvent = {
     ViewExit = Enum.Index,
     GameStart = Enum.Index,
     GameOver = Enum.Index,
+    ClearAll = Enum.Index,
 }
 
 return EGlobalEvent

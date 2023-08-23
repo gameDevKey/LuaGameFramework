@@ -2,7 +2,11 @@
 GuideLogicCtrl = SingletonClass("GuideLogicCtrl", CtrlBase)
 
 function GuideLogicCtrl:OnInit()
-    self.guideUnits = ListMap.New()
+    self.guideUnits = ClassListMap.New()
+end
+
+function GuideLogicCtrl:OnDelete()
+    self.guideUnits:Delete()
 end
 
 function GuideLogicCtrl:OnInitComplete()

@@ -2,6 +2,7 @@
 TemplateLogicCtrl = SingletonClass("TemplateLogicCtrl",CtrlBase)
 
 function TemplateLogicCtrl:OnInitComplete()
+    self:ActiveUpdate(true)
     self:AddListenerWithSelfFunc(ETemplateModule.LogicEvent.DoSomething, "TemplateFunc", false)
 end
 
@@ -15,6 +16,13 @@ function TemplateLogicCtrl:TemplateFunc(result)
         UIManager.Instance:ExitTop()
         UIManager.Instance:Log()
     end
+end
+
+function TemplateLogicCtrl:OnUpdate(deltaTime)
+    -- --TODO test
+    -- if UnityEngine.Input.GetKeyDown(UnityEngine.KeyCode.K) then
+    --     CheckClsInstanceInMemery(true)
+    -- end
 end
 
 return TemplateLogicCtrl

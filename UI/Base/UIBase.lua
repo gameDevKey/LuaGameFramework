@@ -16,6 +16,8 @@ function UIBase:OnDelete()
         UnityUtil.DestroyGameObject(self.gameObject)
         self.gameObject = nil
     end
+    self.transform = nil
+    self.rectTransform = nil
 end
 
 ---关联一个ViewCtrl
@@ -41,7 +43,13 @@ function UIBase:RecycleOrDelete()
     local handler = self:GetCacheHandler()
     if handler then
         local pool = CacheManager.Instance:GetPool(CacheDefine.PoolType.UI, true)
-        pool:Recycle(self.uiType, handler)
+        if self.DONT_CACHE then
+            pool:DeleteItem(handler)
+            self.gameObject = nil --handler内部已经把GameObject删除了
+            self:Delete()
+        else
+            pool:Recycle(self.uiType, handler)
+        end
     else
         self:Delete()
     end

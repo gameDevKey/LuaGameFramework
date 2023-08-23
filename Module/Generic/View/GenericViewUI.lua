@@ -6,11 +6,13 @@ end
 
 function GenericViewUI:OnFindComponent()
     self.topBtn = self:GetButton("topCanvas/btn")
+    self.bottomBtn = self:GetButton("bottomCanvas/container/btn_temp")
     self.txt = self:GetText("topCanvas/txt")
 end
 
 function GenericViewUI:OnInitComponent()
     ButtonExt.SetClick(self.topBtn,self:ToFunc("onTopButtonClick"))
+    ButtonExt.SetClick(self.bottomBtn,self:ToFunc("onBottomButtonClick"))
 end
 
 function GenericViewUI:OnEnter(data)
@@ -44,7 +46,12 @@ function GenericViewUI:ChangeText(str)
 end
 
 function GenericViewUI:onTopButtonClick()
+    GamePlayCtrl.Instance:GameOver()
     self.viewCtrl:GoBackTo(UIDefine.ViewType.LoginView)
+end
+
+function GenericViewUI:onBottomButtonClick()
+    EventDispatcher.Global:Broadcast(EGlobalEvent.ClearAll)
 end
 
 return GenericViewUI
