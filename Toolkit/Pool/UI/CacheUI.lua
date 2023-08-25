@@ -38,7 +38,7 @@ function CacheUI:OnUse()
             PrintError("UI加载前必须传入Prefab或者Path",self.data)
             return
         end
-        AssetLoaderUtil.LoadGameObjectAsync(self.data.path, self:ToFunc("onAssetLoaded"))
+        AssetLoaderUtil.GetGameObjectAsync(self.data.path, self:ToFunc("onAssetLoaded"))
     end
 end
 
