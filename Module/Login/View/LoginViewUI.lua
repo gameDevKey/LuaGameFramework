@@ -60,11 +60,8 @@ function LoginViewUI:OnHide()
     self.gameObject:SetActive(false)
 end
 
-local index = 1
 function LoginViewUI:onLoginBtnClick()
-    -- EventDispatcher.Global:Broadcast(EGlobalEvent.Login, ELoginModule.LoginState.OK)
-    CS.HUDManager.Instance:ShowNumber(math.ceil(1.234567*index))
-    index = index * 10
+    EventDispatcher.Global:Broadcast(EGlobalEvent.Login, ELoginModule.LoginState.OK)
 end
 
 function LoginViewUI:buildServerList(testData)
