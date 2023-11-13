@@ -3,7 +3,7 @@ local function InjectInterfaces(obj,interfaces)
         if interface._isInterface then
             for fieldName, field in pairs(interface) do
                 if IsFunction(field) then
-                    obj[fieldName] = field
+                    rawset(obj,fieldName,field)
                 end
             end
         end
