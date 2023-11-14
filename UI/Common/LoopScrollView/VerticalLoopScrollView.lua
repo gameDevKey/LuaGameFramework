@@ -23,7 +23,7 @@ function VerticalLoopScrollView:ScrollToItem(index, cbFinish, duration, ease, ju
             y = y - self.viewport.rect.height + self.tbItemData[index].size.h + self.setting.gapY
         end
     end
-    self:ScrollToPosition(Vector2(self.content.localPosition.x, y), cbFinish, duration, ease)
+    self:ScrollToPosition(Vector2(self.content.anchoredPosition3D.x, y), cbFinish, duration, ease)
 end
 
 function VerticalLoopScrollView:ScrollToPosition(pos, cbFinish, duration, ease)
@@ -36,7 +36,7 @@ end
 
 function VerticalLoopScrollView:ScrollToPositionY(y, cbFinish, duration, ease)
     local pos = {}
-    pos.x = self.content.localPosition.x
+    pos.x = self.content.anchoredPosition3D.x
     pos.y = y
     self:ScrollToPosition(pos, cbFinish, duration, ease)
 end
@@ -76,7 +76,7 @@ function VerticalLoopScrollView:UpdateList()
         targetY = y + self.setting.gapY
     end
 
-    local itemX = self.setting.paddingLeft --self.content.localPosition.x
+    local itemX = self.setting.paddingLeft --self.content.anchoredPosition3D.x
     local itemY = -targetY
     local limitHeight = self.viewport.rect.height + self.setting.overflowDown
 

@@ -102,7 +102,7 @@ function LoopScrollViewBase:Init(scrollRect, setting)
     self:AddOnListUpdateFinishCallback(self.setting.onComplete)
     self:AddOnNewItemRender(self.setting.onRenderNew)
 
-    self.lastScrollVec = self.content.localPosition
+    self.lastScrollVec = self.content.anchoredPosition3D
     self.originChildCount = self.content.childCount
     self.enableHorizontal = self.scrollRect.horizontal
     self.enableVertical = self.scrollRect.vertical
@@ -211,7 +211,7 @@ function LoopScrollViewBase:OnRecycleItem(item)
 end
 
 function LoopScrollViewBase:OnScroll(vec)
-    local cur = self.content.localPosition
+    local cur = self.content.anchoredPosition3D
     local dis = Vector3.Distance(cur, self.lastScrollVec)
     if dis > 5 then --降低灵敏度
         self.lastScrollVec = cur
@@ -285,11 +285,11 @@ end
 function LoopScrollViewBase:MoveTo(vec3, cbFinish, duration, ease)
     self:__OnMoveComplete()
     duration = duration or 1
-    self.moveTween = self.content:DOLocalMove(vec3, duration)
-    if ease then self.moveTween:SetEase(ease) end
+    self.moveTween = UnityUtil.DOLocalMove(self.content, vec3, duration, false) --TODO 这里应该改成移动anchorPosition3D
+    if ease then UnityUtil.SetTweenEase(self.moveTween, ease) end
     local originInertia = self.scrollRect.inertia
     self.scrollRect.inertia = false
-    self.moveTween:OnComplete(function()
+    UnityUtil.SetTweenComplete(self.moveTween, function ()
         self.scrollRect.inertia = originInertia
         self:__OnMoveComplete()
         self:__UpdateList() --防止移动后没有触发OnScroll导致数据没有应用到表现层
@@ -513,7 +513,7 @@ end
 
 function LoopScrollViewBase:__OnMoveComplete()
     if self.moveTween then
-        self.moveTween:Kill()
+        UnityUtil.KillTween(self.moveTween)
         self.moveTween = nil
     end
 end

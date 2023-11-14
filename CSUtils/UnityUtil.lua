@@ -41,4 +41,20 @@ function UnityUtil.SetAnchoredPosition(rectTransform, x, y)
     rectTransform.anchoredPosition = Vector2(x, y)
 end
 
+function UnityUtil.DOLocalMove(rect, vec3, duration, snapping)
+    return rect:DOLocalMove(vec3, duration, snapping)
+end
+
+function UnityUtil.SetTweenEase(tween, ease)
+    tween:SetEase(ease)
+end
+
+function UnityUtil.SetTweenComplete(tween, func)
+    tween:OnComplete(func)
+end
+
+function UnityUtil.KillTween(tween)
+    tween:Kill()
+end
+
 return UnityUtil

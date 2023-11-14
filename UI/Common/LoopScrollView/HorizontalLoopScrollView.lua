@@ -23,7 +23,7 @@ function HorizontalLoopScrollView:ScrollToItem(index, cbFinish, duration, ease, 
             x = x - self.viewport.rect.width + self.tbItemData[index].size.w + self.setting.gapX
         end
     end
-    self:ScrollToPosition(Vector2(-x, self.content.localPosition.y), cbFinish, duration, ease)
+    self:ScrollToPosition(Vector2(-x, self.content.anchoredPosition3D.y), cbFinish, duration, ease)
 end
 
 function HorizontalLoopScrollView:ScrollToPosition(pos, cbFinish, duration, ease)
@@ -70,7 +70,7 @@ function HorizontalLoopScrollView:UpdateList()
     end
 
     local itemX = targetX
-    local itemY = self.setting.paddingTop --self.content.localPosition.y
+    local itemY = self.setting.paddingTop --self.content.anchoredPosition3D.y
     local limitWidth = self.viewport.rect.width + self.setting.overflowDown
 
     --先把不显示的回收，再生成

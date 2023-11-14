@@ -29,8 +29,8 @@ function GridLoopScrollView:ScrollToItem(index, cbFinish, duration, ease, jumpTy
     jumpType = jumpType or ELoopScrollView.JumpType.Top
     local pos = {}
     local isHorizontal = self:IsHorizontalDir()
-    pos.x = self.content.localPosition.x
-    pos.y = self.content.localPosition.y
+    pos.x = self.content.anchoredPosition3D.x
+    pos.y = self.content.anchoredPosition3D.y
     local x = 0
     local y = 0
     if isHorizontal then
