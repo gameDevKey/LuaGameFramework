@@ -58,7 +58,7 @@ end
 function VerticalLoopScrollView:UpdateList()
     --content上滑y值增大
     --Item越往下y越小
-    local startPos = self.content.localPosition.y - self.setting.overflowUp --content的上界
+    local startPos = self.content.anchoredPosition.y - self.setting.overflowUp --content的上界
 
     if startPos < 0 then startPos = 0 end
 

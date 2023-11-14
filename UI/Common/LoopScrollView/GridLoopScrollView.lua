@@ -163,8 +163,8 @@ function GridLoopScrollView:GetGridPosByRow(startGridX, startGridY, endGridX, en
 end
 
 function GridLoopScrollView:UpdateList()
-    local contentX = -self.content.localPosition.x - self.setting.overflowUp
-    local contentY = self.content.localPosition.y - self.setting.overflowUp
+    local contentX = -self.content.anchoredPosition.x - self.setting.overflowUp
+    local contentY = self.content.anchoredPosition.y - self.setting.overflowUp
     if contentX < 0 then contentX = 0 end
     if contentY < 0 then contentY = 0 end
 

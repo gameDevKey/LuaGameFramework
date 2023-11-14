@@ -51,7 +51,7 @@ end
 function HorizontalLoopScrollView:UpdateList()
     --content左滑x值减少
     --Item越往右x越大
-    local startPos = -self.content.localPosition.x - self.setting.overflowUp --content的左界
+    local startPos = -self.content.anchoredPosition.x - self.setting.overflowUp --content的左界
 
     if startPos < 0 then startPos = 0 end
 

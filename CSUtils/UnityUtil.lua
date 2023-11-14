@@ -8,6 +8,10 @@ function UnityUtil.NewGameObject(name)
     return UnityEngine.GameObject(name)
 end
 
+function UnityUtil.AddComponent(obj,cmpName)
+    obj:AddComponent(cmpName)
+end
+
 function UnityUtil.LoadResources(path)
     return UnityEngine.Resources.Load(path)
 end

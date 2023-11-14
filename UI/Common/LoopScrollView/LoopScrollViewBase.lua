@@ -157,7 +157,7 @@ end
 
 function LoopScrollViewBase:CreateItemRoot()
     local item = UnityUtil.NewGameObject("ItemHolder")
-    local rect = item:AddComponent(typeof(RectTransform))
+    local rect = UnityUtil.AddComponent(item,"UnityEngine.RectTransform")
     item.transform:SetParent(self.content)
     item.transform.localScale = Vector3.one
     UnityUtil.SetAnchorMinAndMax(item.transform, 0, 1, 0, 1)
