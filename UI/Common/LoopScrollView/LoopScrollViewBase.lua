@@ -6,8 +6,8 @@
     2.使用SetDatas/SetDataCount等数据接口设置数据
     3.调用Start接口启动
     4.使用Destroy接口释放
-]]
---
+--]]
+---@class LoopScrollViewBase
 LoopScrollViewBase = Class("LoopScrollViewBase")
 
 function LoopScrollViewBase:OnInit(scrollRect, setting)
@@ -78,6 +78,7 @@ end
 ---     ignoreOriginChild       是否无视在Content下原有的子物体
 ---  ## Item相关回调(Item继承UIBase)
 ---     onCreate                Item的创建回调(必要!)
+---     onReUse                 Item的复用回调
 ---     onRender                Item的业务处理回调
 ---     onRecycle               Item的回收回调,默认调用Hide(显示区域外的Item会回收到池)
 ---     onDelete                Item的删除回调,默认调用RecycleOrDelete
@@ -96,6 +97,7 @@ function LoopScrollViewBase:Init(scrollRect, setting)
     ScrollRectExt.SetScroll(self.scrollRect,self:ToFunc("OnScroll"))
 
     self:AddOnItemCreateCallback(self.setting.onCreate)
+    self:AddOnItemReUseCallback(self.setting.onReUse)
     self:AddOnItemDeleteCallback(self.setting.onDelete)
     self:AddOnItemRenderCallback(self.setting.onRender)
     self:AddOnItemRecycleCallback(self.setting.onRecycle)
@@ -123,6 +125,12 @@ end
 ---@param callback function func(index, [data]) -- 返回一个继承自 UIBase 的对象
 function LoopScrollViewBase:AddOnItemCreateCallback(callback)
     self.cbOnCreateItem = callback
+end
+
+---复用回调
+---@param callback function func(index, data, item)  -- 返回bool, 表示当前item是否复用
+function LoopScrollViewBase:AddOnItemReUseCallback(callback)
+    self.cbOnReUseItem = callback
 end
 
 ---渲染回调
@@ -168,11 +176,28 @@ end
 function LoopScrollViewBase:CreateItem(index, data)
     local item
     local holderRect
+
     if #self.recyclePool > 0 then
-        local cache = table.remove(self.recyclePool)
-        item = cache.item
-        holderRect = cache.holderRect
-    elseif self.cbOnCreateItem then
+        local cacheIndex
+        if self.cbOnReUseItem then
+            -- 如果cbOnReUseItem找不到目标item，则调用cbOnCreateItem
+            for i, sc in ipairs(self.recyclePool) do
+                if self.cbOnReUseItem(index, data, sc.item) == true then
+                    cacheIndex = i
+                    break
+                end
+            end
+        else
+            cacheIndex = #self.recyclePool
+        end
+        if cacheIndex then
+            local cache = table.remove(self.recyclePool, cacheIndex)
+            item = cache.item
+            holderRect = cache.holderRect
+        end
+    end
+
+    if not item and self.cbOnCreateItem then
         holderRect = self:CreateItemRoot()
         item = self.cbOnCreateItem(index, data)
         assert(item ~= nil, "通过回调创建实例失败")
@@ -183,13 +208,15 @@ function LoopScrollViewBase:CreateItem(index, data)
         trans.localScale = scale
         UnityUtil.SetAnchoredPosition(trans, 0, 0)
     end
-    if not item then
+
+    if not item or not holderRect then
         PrintError("获取Item失败! Index:", index,
             "是否存在创建回调", (self.cbOnCreateItem ~= nil),
             "使用池缓存", #self.showingPool,
             "回收池缓存", #self.recyclePool)
         return
     end
+
     holderRect.gameObject:SetActive(true)
     table.insert(self.showingPool, { item = item, holderRect = holderRect })
     -- print("LoopScrollViewBase 创建对象",index,self,"激活池",#self.showingPool,"回收池",#self.recyclePool)
