@@ -152,10 +152,8 @@ function Class(className, superClass, interfaces)
         function instance:Delete(...)
             if self._alive then
                 self._alive = false
-                if MEM_CHECK then
-                    ALL_CLASS[instance] = nil
-                end
                 self:CallFuncDeeply("OnDelete", false, ...)
+                instance = nil
             end
         end
 
@@ -273,10 +271,8 @@ function SingletonClass(className, superClass, interfaces)
             if self._alive then
                 self._alive = false
                 singletonClasses[clazz._className] = nil
-                if MEM_CHECK then
-                    ALL_CLASS[instance] = nil
-                end
                 self:CallFuncDeeply("OnDelete", false, ...)
+                instance = nil
             end
         end
 
